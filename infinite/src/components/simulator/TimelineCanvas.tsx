@@ -7,6 +7,7 @@ interface Props {
   edges: CausalEdge[];
   selectedEventId: string | null;
   highlightChain: string[];
+  visibleUntilYear: number;
   onSelectEvent: (eventId: string) => void;
 }
 
@@ -25,6 +26,7 @@ export default function TimelineCanvas({
   edges,
   selectedEventId,
   highlightChain,
+  visibleUntilYear,
   onSelectEvent,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -90,6 +92,18 @@ export default function TimelineCanvas({
       ctx!.strokeStyle = 'rgba(0, 212, 255, 0.15)';
       ctx!.stroke();
 
+      const presentX = paddingX + ((visibleUntilYear - minYear) / (maxYear - minYear)) * timelineW;
+      ctx!.beginPath();
+      ctx!.moveTo(presentX, 40);
+      ctx!.lineTo(presentX, h - 20);
+      ctx!.strokeStyle = 'rgba(255, 255, 255, 0.45)';
+      ctx!.setLineDash([3, 5]);
+      ctx!.stroke();
+      ctx!.setLineDash([]);
+      ctx!.font = '600 9px Orbitron, sans-serif';
+      ctx!.fillStyle = 'rgba(255, 255, 255, 0.7)';
+      ctx!.fillText('AGORA', presentX, h - 8);
+
       for (const edge of edges) {
         const source = eventsMap.get(edge.source);
         const target = eventsMap.get(edge.target);
@@ -101,6 +115,7 @@ export default function TimelineCanvas({
         const ty = target.position.y;
 
         const isHighlighted = highlightChain.includes(edge.source) && highlightChain.includes(edge.target);
+        const isFuture = source.year > visibleUntilYear || target.year > visibleUntilYear;
         const isParadox = edge.type === 'contradicts' || source.status === EventStatus.PARADOXICAL;
         const col = isHighlighted
           ? '#ef4444'
@@ -114,6 +129,7 @@ export default function TimelineCanvas({
         const my = (sy + ty) / 2 - 25;
         ctx!.quadraticCurveTo(mx, my, tx, ty);
         ctx!.strokeStyle = col;
+        ctx!.globalAlpha = isFuture ? 0.25 : 1;
         ctx!.lineWidth = isHighlighted ? 2.5 : isParadox ? 2 : 1.5;
 
         if (isParadox) {
@@ -123,6 +139,7 @@ export default function TimelineCanvas({
         }
         ctx!.stroke();
         ctx!.setLineDash([]);
+        ctx!.globalAlpha = 1;
 
         const t = (frame * 0.01) % 1;
         const px = sx + (tx - sx) * t;
@@ -141,6 +158,8 @@ export default function TimelineCanvas({
         const isSelected = event.id === selectedEventId;
         const isHighlighted = highlightChain.includes(event.id);
         const col = STATUS_COLORS[event.status] || '#00d4ff';
+        const isFuture = event.year > visibleUntilYear;
+        ctx!.globalAlpha = isFuture ? 0.25 : 1;
 
         const pulse = Math.sin(frame * 0.05 + event.year) * 0.15 + 1;
         const r = isSelected ? 16 * pulse : 12;
@@ -172,6 +191,7 @@ export default function TimelineCanvas({
         ctx!.font = '9px Orbitron, sans-serif';
         ctx!.fillStyle = col;
         ctx!.fillText(String(event.year), ex, ey + r + 28);
+        ctx!.globalAlpha = 1;
       }
 
       animRef.current = requestAnimationFrame(draw);
@@ -183,7 +203,7 @@ export default function TimelineCanvas({
       cancelAnimationFrame(animRef.current);
       window.removeEventListener('resize', resize);
     };
-  }, [events, edges, selectedEventId, highlightChain]);
+  }, [events, edges, selectedEventId, highlightChain, visibleUntilYear]);
 
   function handleClick(e: React.MouseEvent<HTMLCanvasElement>) {
     const canvas = canvasRef.current;
@@ -199,6 +219,7 @@ export default function TimelineCanvas({
     const timelineW = canvas.clientWidth - paddingX * 2;
 
     for (const event of events) {
+      if (event.year > visibleUntilYear) continue;
       const ex = paddingX + ((event.year - minYear) / (maxYear - minYear)) * timelineW;
       const ey = event.position.y;
       const dx = clickX - ex;

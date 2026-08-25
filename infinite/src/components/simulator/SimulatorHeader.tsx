@@ -8,6 +8,11 @@ interface Props {
   onOpenTimeTravel: () => void;
   onToggleAIDrawer: () => void;
   onReset: () => void;
+  canUndo: boolean;
+  canRedo: boolean;
+  onUndo: () => void;
+  onRedo: () => void;
+  onExport: (format: 'json' | 'csv') => void;
 }
 
 export default function SimulatorHeader({
@@ -18,6 +23,11 @@ export default function SimulatorHeader({
   onOpenTimeTravel,
   onToggleAIDrawer,
   onReset,
+  canUndo,
+  canRedo,
+  onUndo,
+  onRedo,
+  onExport,
 }: Props) {
   const integrity = universe.temporalIntegrity;
   const paradoxCount = universe.paradoxes.length;
@@ -60,27 +70,41 @@ export default function SimulatorHeader({
           </div>
         ) : (
           <div className="sim-paradox-badge sim-paradox-badge-clean">
-            <span>✓ LINHA CONGRUENTE</span>
+            <span>LINHA CONGRUENTE</span>
           </div>
         )}
       </div>
 
       <div className="sim-header-right">
         <button type="button" className="sim-btn-ai" onClick={onToggleAIDrawer}>
-          <span className="ai-sparkle">🤖</span> IA Oráculo
+          IA Oráculo
         </button>
         <button type="button" className="sim-btn-action" onClick={onOpenAddEvent}>
           + Evento
         </button>
         <button type="button" className="sim-btn-action" onClick={onOpenAddTraveler}>
-          + Viajante
+          + Agente
         </button>
         <button type="button" className="sim-btn-action sim-btn-travel" onClick={onOpenTimeTravel}>
-          ⚡ Viagem Temporal
+          Intervenção Causal
         </button>
         <button type="button" className="sim-btn-secondary" onClick={onReset} title="Resetar Simulador">
-          ⟳ Reset
+          Resetar
         </button>
+        <button type="button" className="sim-btn-secondary" onClick={onUndo} disabled={!canUndo} title="Desfazer última alteração">
+          Desfazer
+        </button>
+        <button type="button" className="sim-btn-secondary" onClick={onRedo} disabled={!canRedo} title="Refazer alteração">
+          Refazer
+        </button>
+        <select className="sim-export-select" defaultValue="" onChange={event => {
+          if (event.target.value) onExport(event.target.value as 'json' | 'csv');
+          event.target.value = '';
+        }} aria-label="Exportar experimento">
+          <option value="">Exportar</option>
+          <option value="json">JSON</option>
+          <option value="csv">CSV</option>
+        </select>
       </div>
     </header>
   );

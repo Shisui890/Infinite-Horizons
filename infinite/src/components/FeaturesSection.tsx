@@ -1,38 +1,38 @@
 const features = [
   {
-    icon: '🌀',
+    icon: 'GRAFO',
     title: 'Grafo Temporal',
-    description: 'Visualize universos como grafos direcionados com eventos conectados por relações causais complexas.',
+    description: 'Mapeie eventos, relações e dependências em uma linha temporal que você pode explorar.',
     color: 'var(--color-stable)',
   },
   {
-    icon: '⚡',
+    icon: 'FLUXO',
     title: 'Propagação Causal',
-    description: 'Altere um evento e observe a propagação automática de consequências através de toda a cadeia temporal.',
+    description: 'Mude uma causa e acompanhe o impacto se propagar pela cadeia, sem perder o contexto.',
     color: 'var(--color-stable)',
   },
   {
-    icon: '🔴',
+    icon: 'RISCO',
     title: 'Detecção de Paradoxos',
-    description: 'Identifica automaticamente Paradoxo do Avô, Bootstrap, Predestinação, loops causais e contradições.',
+    description: 'Encontre loops, contradições e pontos frágeis antes que a linha temporal entre em colapso.',
     color: 'var(--color-paradox)',
   },
   {
-    icon: '🌌',
-    title: 'Múltiplas Dimensões',
-    description: 'Crie dimensões paralelas com suas próprias linhas temporais. Viajantes podem cruzar entre realidades.',
+    icon: 'EIXOS',
+    title: 'Modelos Alternativos',
+    description: 'Crie versões do modelo com premissas diferentes e compare como cada decisão altera os resultados.',
     color: 'var(--color-dimensional)',
   },
   {
-    icon: '🕐',
-    title: 'Viagens Temporais',
-    description: 'Envie viajantes ao passado ou futuro. Cada viagem pode alterar a cadeia causal e gerar consequências.',
+    icon: 'TEMPO',
+    title: 'Intervenções Causais',
+    description: 'Altere uma premissa em um ponto da história e registre como o efeito borboleta percorre o modelo.',
     color: 'var(--color-warning)',
   },
   {
-    icon: '📊',
+    icon: 'DADOS',
     title: 'Integridade Temporal',
-    description: 'Monitore a estabilidade do universo em tempo real. Alterações reduzem a integridade podendo causar colapso.',
+    description: 'Leia a integridade temporal em tempo real e saiba quando uma intervenção exige cautela.',
     color: 'var(--color-stable)',
   },
 ];
@@ -43,9 +43,9 @@ export default function FeaturesSection() {
       <div className="section-container">
         <div className="section-header">
           <span className="section-tag">RECURSOS</span>
-          <h2 className="section-title">Ferramentas do Simulador</h2>
+          <h2 className="section-title">Tudo o que você precisa para testar uma realidade</h2>
           <p className="section-subtitle">
-            Um conjunto poderoso de mecanismos para criar, simular e analisar realidades temporais.
+            Do primeiro evento à última consequência, cada ferramenta foi pensada para investigação.
           </p>
         </div>
 

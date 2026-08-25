@@ -1,0 +1,22 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "Push-Location": true,
+        "npm run build": true,
+        "Pop-Location": true,
+        "npm install": true,
+        "npm run lint": true,
+        "&": true,
+        "Get-Command": true,
+        "winget": true,
+        "npm --prefix infinite": true,
+        "Test-Path": true,
+        "Get-Item": true,
+        "/^Push-Location infinite; npm run lint; npm run build; Pop-Location; node --check api/temporal\\.ts$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "git remote": true,
+        "git add": true,
+        "git commit": true
+    }
+}

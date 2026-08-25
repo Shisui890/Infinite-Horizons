@@ -42,6 +42,8 @@ export enum ParadoxSeverity {
   CATASTROPHIC = 'CATASTROPHIC',
 }
 
+export type EvidenceKind = 'documented_fact' | 'scientific_theory' | 'inference' | 'user_hypothesis' | 'model_result';
+
 export interface Position {
   x: number;
   y: number;
@@ -52,6 +54,10 @@ export interface TemporalEvent {
   dimensionId: string;
   title: string;
   description?: string;
+  sourceUrl?: string;
+  evidenceKind?: EvidenceKind;
+  evidenceConfidence?: number;
+  uncertainty?: string;
   year: number;
   category: string;
   importance: number; // 1 - 100
@@ -72,6 +78,8 @@ export interface CausalEdge {
   target: string;
   type: CausalRelation;
   active: boolean;
+  confidence?: number;
+  evidence?: string;
 }
 
 export interface Dimension {
@@ -163,6 +171,36 @@ export interface AIButterflyResult {
   generatedAnomalies: AIButterflyAnomaly[];
 }
 
+export interface AIUniverseInsight {
+  health: 'stable' | 'watch' | 'critical';
+  healthLabel: string;
+  confidence: number;
+  eventCount: number;
+  exposedEvents: number;
+  connectedEvents: number;
+  affectedTravelers: number;
+  recommendation: string;
+}
+
+export interface HistoricalResearch {
+  title: string;
+  description: string;
+  year: number;
+  category: string;
+  importance: number;
+  source: string;
+  evidenceKind?: EvidenceKind;
+  confidence?: number;
+  uncertainty?: string;
+}
+
+export interface ScientificExplanation {
+  title: string;
+  status: 'established' | 'supported' | 'speculative';
+  statusLabel: string;
+  explanation: string;
+}
+
 export interface AIFutureScenario {
   id: string;
   title: string;
@@ -194,5 +232,7 @@ export const SimulationLog = {};
 export const AIConfig = {};
 export const AIButterflyAnomaly = {};
 export const AIButterflyResult = {};
+export const AIUniverseInsight = {};
+export const EvidenceKind = {};
 export const AIFutureScenario = {};
 export const AIParadoxResolution = {};

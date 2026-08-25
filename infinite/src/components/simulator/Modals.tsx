@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Dimension, Traveler, TemporalEvent } from '../../types/temporal';
+import type { HistoricalResearch } from '../../types/temporal';
 
 interface AddEventModalProps {
   dimensions: Dimension[];
@@ -8,15 +9,17 @@ interface AddEventModalProps {
   onAddEvent: (eventData: {
     title: string;
     description: string;
+    sourceUrl?: string;
     year: number;
     dimensionId: string;
     category: string;
     importance: number;
     causeIds: string[];
   }) => void;
+  onResearchHistoricalEvent: (query: string) => Promise<HistoricalResearch>;
 }
 
-export function AddEventModal({ dimensions, events, onClose, onAddEvent }: AddEventModalProps) {
+export function AddEventModal({ dimensions, events, onClose, onAddEvent, onResearchHistoricalEvent }: AddEventModalProps) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [year, setYear] = useState(2025);
@@ -24,6 +27,32 @@ export function AddEventModal({ dimensions, events, onClose, onAddEvent }: AddEv
   const [category, setCategory] = useState('HISTÓRICO');
   const [importance, setImportance] = useState(80);
   const [causeId, setCauseId] = useState('');
+  const [isResearching, setIsResearching] = useState(false);
+  const [researchMessage, setResearchMessage] = useState('');
+  const [sourceUrl, setSourceUrl] = useState('');
+
+  async function handleHistoricalResearch() {
+    if (!title.trim()) {
+      setResearchMessage('Digite o nome de um evento para pesquisar.');
+      return;
+    }
+    setIsResearching(true);
+    setResearchMessage('Pesquisando fontes históricas...');
+    try {
+      const result = await onResearchHistoricalEvent(title);
+      setTitle(result.title);
+      setDescription(result.description);
+      setYear(result.year);
+      setCategory(result.category);
+      setImportance(result.importance);
+      setSourceUrl(result.source.startsWith('http') ? result.source : '');
+      setResearchMessage(`Fonte: ${result.source}`);
+    } catch (error) {
+      setResearchMessage(error instanceof Error ? error.message : 'Não foi possível pesquisar este evento.');
+    } finally {
+      setIsResearching(false);
+    }
+  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -32,6 +61,7 @@ export function AddEventModal({ dimensions, events, onClose, onAddEvent }: AddEv
     onAddEvent({
       title,
       description,
+      sourceUrl: sourceUrl || undefined,
       year: Number(year),
       dimensionId,
       category,
@@ -61,6 +91,10 @@ export function AddEventModal({ dimensions, events, onClose, onAddEvent }: AddEv
               placeholder="Ex: Fundação da Primeira Colônia"
               required
             />
+            <button type="button" className="research-event-button" onClick={handleHistoricalResearch} disabled={isResearching}>
+              {isResearching ? 'PESQUISANDO...' : 'PESQUISAR CONTEXTO HISTÓRICO'}
+            </button>
+            {researchMessage && <span className="research-event-message">{researchMessage}</span>}
           </label>
 
           <label>
@@ -94,6 +128,17 @@ export function AddEventModal({ dimensions, events, onClose, onAddEvent }: AddEv
               <option value="NASCIMENTO">NASCIMENTO</option>
               <option value="VIAGEM">VIAGEM</option>
             </select>
+          </label>
+
+          <label>
+            <span>Importância: {importance}/100</span>
+            <input
+              type="range"
+              min="1"
+              max="100"
+              value={importance}
+              onChange={e => setImportance(Number(e.target.value))}
+            />
           </label>
 
           <label>
@@ -162,7 +207,7 @@ export function AddTravelerModal({ dimensions, events, onClose, onAddTraveler }:
     <div className="modal-backdrop">
       <div className="modal-card">
         <div className="modal-header">
-          <h2>+ NOVO VIAJANTE TEMPORAL</h2>
+          <h2>+ NOVO AGENTE DO MODELO</h2>
           <button type="button" className="btn-modal-close" onClick={onClose}>
             ✕
           </button>
@@ -170,18 +215,18 @@ export function AddTravelerModal({ dimensions, events, onClose, onAddTraveler }:
 
         <form onSubmit={handleSubmit} className="modal-form">
           <label>
-            <span>Nome do Viajante *</span>
+            <span>Nome do agente *</span>
             <input
               type="text"
               value={name}
               onChange={e => setName(e.target.value)}
-              placeholder="Ex: Dr. Chronos"
+              placeholder="Ex: Pesquisador responsável"
               required
             />
           </label>
 
           <label>
-            <span>Dimensão de Origem</span>
+            <span>Modelo de origem</span>
             <select value={originDimensionId} onChange={e => setOriginDimensionId(e.target.value)}>
               {dimensions.map(d => (
                 <option key={d.id} value={d.id}>
@@ -192,7 +237,7 @@ export function AddTravelerModal({ dimensions, events, onClose, onAddTraveler }:
           </label>
 
           <label>
-            <span>Ano de Origem</span>
+            <span>Ano de referência</span>
             <input
               type="number"
               value={originYear}
@@ -201,7 +246,7 @@ export function AddTravelerModal({ dimensions, events, onClose, onAddTraveler }:
           </label>
 
           <label>
-            <span>Evento de Nascimento/Origem (Para cálculo de Paradoxo do Avô)</span>
+            <span>Evento de referência (para análise causal)</span>
             <select value={originEventId} onChange={e => setOriginEventId(e.target.value)}>
               <option value="">Nenhum</option>
               {events.map(ev => (
@@ -217,7 +262,7 @@ export function AddTravelerModal({ dimensions, events, onClose, onAddTraveler }:
               Cancelar
             </button>
             <button type="submit" className="btn-cta">
-              CRIAR VIAJANTE
+              CRIAR AGENTE
             </button>
           </div>
         </form>
@@ -254,7 +299,7 @@ export function TimeTravelModal({ travelers, events, onClose, onExecuteTravel }:
     <div className="modal-backdrop">
       <div className="modal-card">
         <div className="modal-header">
-          <h2>⚡ EXECUTAR VIAGEM TEMPORAL</h2>
+          <h2>CRIAR INTERVENÇÃO CAUSAL</h2>
           <button type="button" className="btn-modal-close" onClick={onClose}>
             ✕
           </button>
@@ -262,7 +307,7 @@ export function TimeTravelModal({ travelers, events, onClose, onExecuteTravel }:
 
         <form onSubmit={handleSubmit} className="modal-form">
           <label>
-            <span>Selecione o Viajante</span>
+            <span>Selecione o agente</span>
             <select value={travelerId} onChange={e => setTravelerId(e.target.value)}>
               {travelers.map(t => (
                 <option key={t.id} value={t.id}>
@@ -273,7 +318,7 @@ export function TimeTravelModal({ travelers, events, onClose, onExecuteTravel }:
           </label>
 
           <label>
-            <span>Ano de Destino</span>
+            <span>Ano da intervenção</span>
             <input
               type="number"
               value={destinationYear}
@@ -282,9 +327,9 @@ export function TimeTravelModal({ travelers, events, onClose, onExecuteTravel }:
           </label>
 
           <label>
-            <span>Interferência Temporal / Evento Alterado no Passado (Opcional)</span>
+            <span>Evento a alterar (opcional)</span>
             <select value={alterTargetEventId} onChange={e => setAlterTargetEventId(e.target.value)}>
-              <option value="">Nenhuma interferência (Apenas observação)</option>
+              <option value="">Nenhuma alteração (Apenas observação)</option>
               {events.map(ev => (
                 <option key={ev.id} value={ev.id}>
                   Apagar/Modificar: {ev.title} ({ev.year})
@@ -298,7 +343,7 @@ export function TimeTravelModal({ travelers, events, onClose, onExecuteTravel }:
               Cancelar
             </button>
             <button type="submit" className="btn-cta btn-travel-submit">
-              ⚡ SALTAR NO TEMPO
+              APLICAR INTERVENÇÃO
             </button>
           </div>
         </form>

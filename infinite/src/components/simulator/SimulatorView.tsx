@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import type {
   Universe,
   TemporalEvent,
@@ -6,8 +6,9 @@ import type {
   SimulationLog,
   AIButterflyResult,
   AIParadoxResolution,
+  HistoricalResearch,
 } from '../../types/temporal';
-import { EventStatus, CausalRelation } from '../../types/temporal';
+import { EventStatus, TravelerStatus, CausalRelation } from '../../types/temporal';
 import { SimulationService } from '../../engine/SimulationService';
 import { AITemporalService } from '../../engine/AITemporalService';
 
@@ -17,6 +18,7 @@ import LeftSidebar from './LeftSidebar';
 import EventInspector from './EventInspector';
 import ParadoxConsole from './ParadoxConsole';
 import AIDrawer from './ai/AIDrawer';
+import TemporalControls from './TemporalControls';
 import {
   AddEventModal,
   AddTravelerModal,
@@ -26,13 +28,33 @@ import {
 
 interface Props {
   onExit: () => void;
+  initialState?: { universe: Universe; logs: SimulationLog[] } | null;
 }
 
-export default function SimulatorView({ onExit }: Props) {
-  const [universeState, setUniverseState] = useState(() => SimulationService.createDefaultUniverse());
-  const [activeDimensionId, setActiveDimensionId] = useState('dim-omega-01');
+const SIMULATION_STORAGE_KEY = 'infinite-horizons:simulation';
+
+export default function SimulatorView({ onExit, initialState }: Props) {
+  const [universeState, setUniverseState] = useState(() => {
+    if (initialState) return initialState;
+    const savedSimulation = localStorage.getItem(SIMULATION_STORAGE_KEY);
+    if (!savedSimulation) return SimulationService.createDefaultUniverse();
+
+    try {
+      return JSON.parse(savedSimulation) as ReturnType<typeof SimulationService.createDefaultUniverse>;
+    } catch {
+      localStorage.removeItem(SIMULATION_STORAGE_KEY);
+      return SimulationService.createDefaultUniverse();
+    }
+  });
+  const [activeDimensionId, setActiveDimensionId] = useState(() => initialState?.universe.dimensions[0]?.id || 'dim-omega-01');
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [highlightChain, setHighlightChain] = useState<string[]>([]);
+  const [timelineYear, setTimelineYear] = useState(2025);
+  const [isTimelinePlaying, setIsTimelinePlaying] = useState(false);
+  const [history, setHistory] = useState<Array<{ universe: Universe; logs: SimulationLog[] }>>([]);
+  const [future, setFuture] = useState<Array<{ universe: Universe; logs: SimulationLog[] }>>([]);
+  const lastSnapshotRef = useRef(JSON.stringify(universeState));
+  const historyNavigationRef = useRef(false);
 
   // AI Drawer & Last Result State
   const [showAIDrawer, setShowAIDrawer] = useState(false);
@@ -46,6 +68,55 @@ export default function SimulatorView({ onExit }: Props) {
 
   const universe = universeState.universe;
   const logs = universeState.logs;
+
+  useEffect(() => {
+    localStorage.setItem(SIMULATION_STORAGE_KEY, JSON.stringify(universeState));
+    const snapshot = JSON.stringify(universeState);
+    if (snapshot === lastSnapshotRef.current) return;
+    if (!historyNavigationRef.current) {
+      const previous = JSON.parse(lastSnapshotRef.current) as { universe: Universe; logs: SimulationLog[] };
+      setHistory(current => [...current.slice(-29), previous]);
+      setFuture([]);
+    }
+    historyNavigationRef.current = false;
+    lastSnapshotRef.current = snapshot;
+  }, [universeState]);
+
+  const handleUndo = useCallback(() => {
+    const previous = history[history.length - 1];
+    if (!previous) return;
+    historyNavigationRef.current = true;
+    setHistory(current => current.slice(0, -1));
+    setFuture(current => [...current, universeState]);
+    setUniverseState(previous);
+  }, [history, universeState]);
+
+  const handleRedo = useCallback(() => {
+    const next = future[future.length - 1];
+    if (!next) return;
+    historyNavigationRef.current = true;
+    setFuture(current => current.slice(0, -1));
+    setHistory(current => [...current, universeState]);
+    setUniverseState(next);
+  }, [future, universeState]);
+
+  const handleExport = useCallback((format: 'json' | 'csv') => {
+    const events = universe.dimensions.flatMap(dimension => dimension.events);
+    const content = format === 'json'
+      ? JSON.stringify(universeState, null, 2)
+      : [
+          'id,titulo,ano,categoria,status,importancia,confianca,fonte',
+          ...events.map(event => [event.id, event.title, event.year, event.category, event.status, event.importance, event.evidenceConfidence || '', event.sourceUrl || '']
+            .map(value => `"${String(value).replace(/"/g, '""')}"`).join(',')),
+        ].join('\n');
+    const blob = new Blob([content], { type: format === 'json' ? 'application/json' : 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = `${universe.name.toLowerCase().replace(/[^a-z0-9]+/gi, '-')}.${format}`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  }, [universe, universeState]);
 
   const addLog = useCallback((message: string, type: 'info' | 'warning' | 'error' | 'success') => {
     const newLog: SimulationLog = {
@@ -61,6 +132,7 @@ export default function SimulatorView({ onExit }: Props) {
   }, []);
 
   const activeDimensionEvents = universe.dimensions.flatMap(d => d.events);
+  const visibleEventCount = activeDimensionEvents.filter(event => event.year <= timelineYear).length;
   const selectedEvent = activeDimensionEvents.find(e => e.id === selectedEventId) || null;
 
   // Handlers
@@ -85,14 +157,14 @@ export default function SimulatorView({ onExit }: Props) {
 
   const handleSimulateAI = useCallback(
     async (targetEv: TemporalEvent) => {
-      addLog(`🤖 Processando Efeito Borboleta com IA para "${targetEv.title}"...`, 'info');
+      addLog(`Processando Efeito Borboleta com IA para "${targetEv.title}"...`, 'info');
       const { result, updatedUniverse } = await AITemporalService.simulateUnexpectedButterflyEffect(universe, targetEv);
       setUniverseState(prev => ({ ...prev, universe: updatedUniverse }));
       setLastAIResult(result);
       setShowAIDrawer(true);
 
       addLog(
-        `🤖 IA GEROU RESULTADO INESPERADO (Impacto ${result.impactScore}%): ${result.unexpectedEffects[0]}`,
+        `IA GEROU RESULTADO INESPERADO (Impacto ${result.impactScore}%): ${result.unexpectedEffects[0]}`,
         'warning'
       );
     },
@@ -104,7 +176,7 @@ export default function SimulatorView({ onExit }: Props) {
       if (resolution.actionType === 'restore_origin' && resolution.targetEventId) {
         const { updatedUniverse } = SimulationService.alterEvent(universe, resolution.targetEventId, EventStatus.STABLE);
         setUniverseState(prev => ({ ...prev, universe: updatedUniverse }));
-        addLog(`⚡ INTERVENÇÃO IA: Evento de origem restaurado para ESTÁVEL. Paradoxo solucionado!`, 'success');
+        addLog(`INTERVENÇÃO IA: Evento de origem restaurado para ESTÁVEL. Paradoxo solucionado!`, 'success');
       } else if (resolution.actionType === 'create_branch') {
         const newDim = {
           id: `dim-ai-branch-${Date.now()}`,
@@ -118,7 +190,7 @@ export default function SimulatorView({ onExit }: Props) {
         universe.dimensions.push(newDim);
         SimulationService.updateSimulation(universe);
         setUniverseState(prev => ({ ...prev, universe: { ...universe } }));
-        addLog(`⚡ INTERVENÇÃO IA: Linha isolada em nova dimensão "Ω-03 — Ramificação de Emergência IA".`, 'success');
+        addLog(`INTERVENÇÃO IA: Linha isolada em nova dimensão "Ω-03 — Ramificação de Emergência IA".`, 'success');
       } else if (resolution.actionType === 'anchor_event' && resolution.targetEventId) {
         const targetEv = activeDimensionEvents.find(e => e.id === resolution.targetEventId);
         if (targetEv) {
@@ -126,7 +198,7 @@ export default function SimulatorView({ onExit }: Props) {
           targetEv.isAnchor = true;
           SimulationService.updateSimulation(universe);
           setUniverseState(prev => ({ ...prev, universe: { ...universe } }));
-          addLog(`⚡ INTERVENÇÃO IA: Causalidade alternativa ancorada. Paradoxo resolvido!`, 'success');
+          addLog(`INTERVENÇÃO IA: Causalidade alternativa ancorada. Paradoxo resolvido!`, 'success');
         }
       }
     },
@@ -142,20 +214,24 @@ export default function SimulatorView({ onExit }: Props) {
 
   const handleReset = useCallback(() => {
     const defaultData = SimulationService.createDefaultUniverse();
+    localStorage.removeItem(SIMULATION_STORAGE_KEY);
     setUniverseState(defaultData);
     setSelectedEventId(null);
     setHighlightChain([]);
     setLastAIResult(null);
+    setTimelineYear(2025);
+    setIsTimelinePlaying(false);
   }, []);
 
   const handleAddEvent = useCallback(
-    (data: { title: string; description: string; year: number; dimensionId: string; category: string; importance: number; causeIds: string[] }) => {
+    (data: { title: string; description: string; sourceUrl?: string; year: number; dimensionId: string; category: string; importance: number; causeIds: string[] }) => {
       const newEventId = `evt-${Date.now()}`;
       const newEvent: TemporalEvent = {
         id: newEventId,
         dimensionId: data.dimensionId,
         title: data.title,
         description: data.description,
+        sourceUrl: data.sourceUrl,
         year: data.year,
         category: data.category,
         importance: data.importance,
@@ -206,6 +282,12 @@ export default function SimulatorView({ onExit }: Props) {
     [universe, addLog]
   );
 
+  const handleResearchHistoricalEvent = useCallback(async (query: string): Promise<HistoricalResearch> => {
+    const result = await AITemporalService.researchHistoricalEvent(query);
+    addLog(`Pesquisa histórica concluída: "${result.title}" (${result.year}).`, 'success');
+    return result;
+  }, [addLog]);
+
   const handleAddTraveler = useCallback(
     (data: { name: string; originDimensionId: string; originYear: number; originEventId?: string }) => {
       const newTraveler = {
@@ -216,7 +298,7 @@ export default function SimulatorView({ onExit }: Props) {
         currentDimensionId: data.originDimensionId,
         currentYear: data.originYear,
         originEventId: data.originEventId,
-        status: 'normal' as const,
+        status: TravelerStatus.NORMAL,
         travelHistory: [],
       };
 
@@ -240,7 +322,7 @@ export default function SimulatorView({ onExit }: Props) {
       traveler.currentYear = data.destinationYear;
 
       addLog(
-        `⚡ Viajante ${traveler.name} realizou salto temporal para o ano ${data.destinationYear}.`,
+        `Agente ${traveler.name} recebeu uma intervenção no ano ${data.destinationYear}.`,
         'warning'
       );
 
@@ -295,6 +377,11 @@ export default function SimulatorView({ onExit }: Props) {
         onOpenTimeTravel={() => setShowTimeTravel(true)}
         onToggleAIDrawer={() => setShowAIDrawer(prev => !prev)}
         onReset={handleReset}
+        canUndo={history.length > 0}
+        canRedo={future.length > 0}
+        onUndo={handleUndo}
+        onRedo={handleRedo}
+        onExport={handleExport}
       />
 
       {/* Main Workspace Body */}
@@ -314,6 +401,7 @@ export default function SimulatorView({ onExit }: Props) {
           edges={universe.edges}
           selectedEventId={selectedEventId}
           highlightChain={highlightChain}
+          visibleUntilYear={timelineYear}
           onSelectEvent={setSelectedEventId}
         />
 
@@ -337,6 +425,21 @@ export default function SimulatorView({ onExit }: Props) {
         )}
       </div>
 
+      <TemporalControls
+        year={timelineYear}
+        minYear={1950}
+        maxYear={2080}
+        eventCount={activeDimensionEvents.length}
+        visibleEventCount={visibleEventCount}
+        isPlaying={isTimelinePlaying}
+        onYearChange={setTimelineYear}
+        onTogglePlay={() => setIsTimelinePlaying(prev => !prev)}
+        onReset={() => {
+          setTimelineYear(2025);
+          setIsTimelinePlaying(false);
+        }}
+      />
+
       {/* Bottom Console Panel */}
       <ParadoxConsole
         paradoxes={universe.paradoxes}
@@ -351,6 +454,7 @@ export default function SimulatorView({ onExit }: Props) {
           events={activeDimensionEvents}
           onClose={() => setShowAddEvent(false)}
           onAddEvent={handleAddEvent}
+          onResearchHistoricalEvent={handleResearchHistoricalEvent}
         />
       )}
 

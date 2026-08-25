@@ -1,5 +1,6 @@
 import type { TemporalEvent } from '../../types/temporal';
 import { EventStatus } from '../../types/temporal';
+import { AITemporalService } from '../../engine/AITemporalService';
 
 interface Props {
   event: TemporalEvent | null;
@@ -16,7 +17,7 @@ const STATUS_LABELS: Record<EventStatus, { label: string; color: string }> = {
   [EventStatus.COLLAPSED]: { label: 'COLAPSADO', color: 'var(--text-muted)' },
   [EventStatus.PARADOXICAL]: { label: 'PARADOXAL', color: 'var(--color-paradox)' },
   [EventStatus.ERASED]: { label: 'APAGADO DA LINHA', color: 'var(--text-muted)' },
-  [EventStatus.DIVERGED]: { label: 'ANOMALIA DE IA', color: 'var(--color-dimensional)' },
+  [EventStatus.DIVERGED]: { label: 'DIVERGÊNCIA DO MODELO', color: 'var(--color-dimensional)' },
 };
 
 export default function EventInspector({ event, events, onAlterEvent, onSimulateAI, onClose }: Props) {
@@ -24,7 +25,7 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
     return (
       <aside className="sim-inspector sim-inspector-empty">
         <div className="inspector-placeholder">
-          <span className="placeholder-icon">🔍</span>
+          <span className="placeholder-icon">SCAN</span>
           <p>Selecione um evento no mapa temporal para inspecionar seus dados e simular alterações.</p>
         </div>
       </aside>
@@ -36,6 +37,7 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
 
   const causesList = event.causes.map(id => eventsMap.get(id)).filter(Boolean);
   const consequencesList = event.consequences.map(id => eventsMap.get(id)).filter(Boolean);
+  const physics = AITemporalService.explainEventWithPhysics(event);
 
   return (
     <aside className="sim-inspector">
@@ -57,7 +59,7 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
           <div className="meta-item">
             <span className="meta-label">ESTADO</span>
             <span className="meta-value" style={{ color: statusInfo.color }}>
-              ● {statusInfo.label}
+              {statusInfo.label}
             </span>
           </div>
           <div className="meta-item">
@@ -72,19 +74,41 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
 
         {event.description && <p className="inspector-desc">{event.description}</p>}
 
+        {event.sourceUrl && (
+          <a className="event-source-link" href={event.sourceUrl} target="_blank" rel="noreferrer">
+            VER FONTE HISTÓRICA
+          </a>
+        )}
+
         {event.isAnchor && (
           <div className="anchor-badge">
-            <span>⚓ ÂNCORA TEMPORAL</span>
+            <span>ÂNCORA TEMPORAL</span>
             <p>Evento fundamental para a sustentabilidade da realidade.</p>
           </div>
         )}
 
         {event.isAIAnomaly && (
           <div className="ai-anomaly-badge">
-            <span>🤖 ANOMALIA GERADA POR IA</span>
-            <p>Consequência não-linear produzida pelo Efeito Borboleta.</p>
+            <span>EVENTO DERIVADO PELO MODELO</span>
+            <p>Relação gerada a partir da intervenção e das conexões do grafo.</p>
           </div>
         )}
+
+        <section className="physics-explanation">
+          <div className="physics-heading">
+            <span className="section-label">INTERPRETAÇÃO FÍSICA</span>
+            <span className="physics-note">MODELO, NÃO PREVISÃO</span>
+          </div>
+          {physics.map(item => (
+            <details key={item.title} className={`physics-item physics-${item.status}`}>
+              <summary>
+                <span>{item.title}</span>
+                <span>{item.statusLabel}</span>
+              </summary>
+              <p>{item.explanation}</p>
+            </details>
+          ))}
+        </section>
 
         <div className="inspector-section">
           <span className="section-label">CAUSAS ({causesList.length})</span>
@@ -94,7 +118,7 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
             <ul className="causal-list">
               {causesList.map(c => (
                 <li key={c!.id}>
-                  <span>● {c!.title}</span>
+                  <span>{c!.title}</span>
                   <span className="causal-year">({c!.year})</span>
                 </li>
               ))}
@@ -110,7 +134,7 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
             <ul className="causal-list">
               {consequencesList.map(c => (
                 <li key={c!.id}>
-                  <span>● {c!.title}</span>
+                  <span>{c!.title}</span>
                   <span className="causal-year">({c!.year})</span>
                 </li>
               ))}
@@ -127,28 +151,28 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
               className="btn-action-alt btn-ai-action"
               onClick={() => onSimulateAI(event)}
             >
-              🤖 Simular com IA (Efeito Borboleta)
+              Simular com IA (Efeito Borboleta)
             </button>
             <button
               type="button"
               className="btn-action-alt btn-alter"
               onClick={() => onAlterEvent(event.id, EventStatus.ALTERED)}
             >
-              ⚠️ Modificar Resultado
+              Modificar Resultado
             </button>
             <button
               type="button"
               className="btn-action-alt btn-erase"
               onClick={() => onAlterEvent(event.id, EventStatus.ERASED)}
             >
-              ❌ Apagar Evento
+              Apagar Evento
             </button>
             <button
               type="button"
               className="btn-action-alt btn-restore"
               onClick={() => onAlterEvent(event.id, EventStatus.STABLE)}
             >
-              ✓ Restaurar Estado
+              Restaurar Estado
             </button>
           </div>
         </div>

@@ -24,7 +24,7 @@ export default function ParadoxConsole({ paradoxes, logs, onInvestigateParadox }
             paradoxes.map(pdx => (
               <div key={pdx.id} className="paradox-card">
                 <div className="pdx-card-header">
-                  <span className="pdx-badge">🔴 {pdx.title}</span>
+                  <span className="pdx-badge">{pdx.title}</span>
                   <span className="pdx-severity">{pdx.severity}</span>
                 </div>
                 <p className="pdx-desc">{pdx.description}</p>
@@ -33,7 +33,7 @@ export default function ParadoxConsole({ paradoxes, logs, onInvestigateParadox }
                   className="btn-investigate"
                   onClick={() => onInvestigateParadox(pdx)}
                 >
-                  🔍 INVESTIGAR CADEIA CAUSAL
+                  INVESTIGAR CADEIA CAUSAL
                 </button>
               </div>
             ))

@@ -1,8 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import type {
   Universe,
-  TemporalEvent,
-  Paradox,
   AIButterflyResult,
   AIFutureScenario,
   AIParadoxResolution,
@@ -18,8 +16,6 @@ interface Props {
 
 export default function AIDrawer({ universe, lastAIResult, onClose, onApplyResolution }: Props) {
   const [activeTab, setActiveTab] = useState<'butterfly' | 'futures' | 'resolutions' | 'settings'>('butterfly');
-  const [futures, setFutures] = useState<AIFutureScenario[]>([]);
-  const [resolutions, setResolutions] = useState<AIParadoxResolution[]>([]);
   const [selectedParadoxId, setSelectedParadoxId] = useState<string>(universe.paradoxes[0]?.id || '');
 
   // Settings form state
@@ -29,21 +25,13 @@ export default function AIDrawer({ universe, lastAIResult, onClose, onApplyResol
   const [savedSuccess, setSavedSuccess] = useState(false);
 
   const allEvents = universe.dimensions.flatMap(d => d.events);
+  const insight = AITemporalService.analyzeUniverse(universe);
 
-  useEffect(() => {
-    // Generate future predictions
-    const predicted = AITemporalService.predictFutures(universe);
-    setFutures(predicted);
-
-    // If paradoxes exist, generate resolutions
-    const targetParadox = universe.paradoxes.find(p => p.id === selectedParadoxId) || universe.paradoxes[0];
-    if (targetParadox) {
-      const res = AITemporalService.suggestParadoxResolutions(targetParadox, allEvents);
-      setResolutions(res);
-    } else {
-      setResolutions([]);
-    }
-  }, [universe, selectedParadoxId, allEvents]);
+  const futures: AIFutureScenario[] = AITemporalService.predictFutures(universe);
+  const targetParadox = universe.paradoxes.find(p => p.id === selectedParadoxId) || universe.paradoxes[0];
+  const resolutions: AIParadoxResolution[] = targetParadox
+    ? AITemporalService.suggestParadoxResolutions(targetParadox, allEvents)
+    : [];
 
   function handleSaveConfig(e: React.FormEvent) {
     e.preventDefault();
@@ -60,7 +48,7 @@ export default function AIDrawer({ universe, lastAIResult, onClose, onApplyResol
     <aside className="ai-drawer">
       <div className="ai-drawer-header">
         <div className="ai-header-title">
-          <span className="ai-logo-icon">🤖</span>
+          <span className="ai-logo-icon">AI</span>
           <div>
             <h2>CRONO-ORÁCULO DE IA</h2>
             <span className="ai-badge-sub">MOTOR DE RESULTADOS INESPERADOS</span>
@@ -78,36 +66,53 @@ export default function AIDrawer({ universe, lastAIResult, onClose, onApplyResol
           className={`ai-tab-btn ${activeTab === 'butterfly' ? 'active' : ''}`}
           onClick={() => setActiveTab('butterfly')}
         >
-          🦋 Efeito Borboleta
+          Efeito Borboleta
         </button>
         <button
           type="button"
           className={`ai-tab-btn ${activeTab === 'futures' ? 'active' : ''}`}
           onClick={() => setActiveTab('futures')}
         >
-          🔮 Futuros Possíveis
+          Futuros Possíveis
         </button>
         <button
           type="button"
           className={`ai-tab-btn ${activeTab === 'resolutions' ? 'active' : ''}`}
           onClick={() => setActiveTab('resolutions')}
         >
-          💡 Resoluções ({universe.paradoxes.length})
+          Resoluções ({universe.paradoxes.length})
         </button>
         <button
           type="button"
           className={`ai-tab-btn ${activeTab === 'settings' ? 'active' : ''}`}
           onClick={() => setActiveTab('settings')}
         >
-          ⚙️ Config IA
+          Config IA
         </button>
       </div>
 
       <div className="ai-drawer-body">
+        <section className={`ai-universe-insight ai-insight-${insight.health}`}>
+          <div className="ai-insight-heading">
+            <div>
+              <span className="ai-insight-kicker">LEITURA DA REALIDADE</span>
+              <strong>{insight.healthLabel}</strong>
+            </div>
+            <span className="ai-confidence">{insight.confidence}% confiança</span>
+          </div>
+          <div className="ai-insight-metrics">
+            <span><strong>{insight.eventCount}</strong> eventos</span>
+            <span><strong>{insight.exposedEvents}</strong> expostos</span>
+            <span><strong>{insight.connectedEvents}</strong> conectados</span>
+            <span><strong>{insight.affectedTravelers}</strong> viajantes em risco</span>
+          </div>
+          <p>{insight.recommendation}</p>
+        </section>
+
         {/* Tab 1: Butterfly Effect & Anomalies */}
         {activeTab === 'butterfly' && (
           <div className="ai-tab-content">
-            <h3 className="ai-content-title">Impacto Não-Linear & Anomalias Inesperadas</h3>
+            <h3 className="ai-content-title">Impacto causal e evidências do modelo</h3>
 
             {lastAIResult ? (
               <div className="ai-butterfly-card">
@@ -137,17 +142,17 @@ export default function AIDrawer({ universe, lastAIResult, onClose, onApplyResol
                   <span className="list-title">CONSEQUÊNCIAS INESPERADAS GERADAS:</span>
                   <ul>
                     {lastAIResult.unexpectedEffects.map((eff, i) => (
-                      <li key={i}>⚡ {eff}</li>
+                      <li key={i}>{eff}</li>
                     ))}
                   </ul>
                 </div>
 
                 {lastAIResult.generatedAnomalies.length > 0 && (
                   <div className="anomalies-list">
-                    <span className="list-title">ANOMALIAS CRIADAS NO MAPA:</span>
+                    <span className="list-title">NOVOS EVENTOS DERIVADOS:</span>
                     {lastAIResult.generatedAnomalies.map((anom, i) => (
                       <div key={i} className="anomaly-item">
-                        <span className="anom-title">🤖 [IA] {anom.title}</span>
+                        <span className="anom-title">[IA] {anom.title}</span>
                         <span className="anom-year">Ano {anom.year}</span>
                         <p className="anom-desc">{anom.description}</p>
                       </div>
@@ -157,11 +162,11 @@ export default function AIDrawer({ universe, lastAIResult, onClose, onApplyResol
               </div>
             ) : (
               <div className="ai-empty-box">
-                <span className="ai-empty-icon">🦋</span>
+                <span className="ai-empty-icon">IA</span>
                 <p>
                   Modifique ou apague qualquer evento no Inspetor e clique em{' '}
-                  <strong>"🤖 Simular com IA (Efeito Borboleta Inesperado)"</strong> para gerar anomalias e
-                  consequências não-lineares.
+                  <strong>"Simular com IA (Efeito Borboleta)"</strong> para medir consequências
+                  derivadas das relações que você definiu.
                 </p>
               </div>
             )}
@@ -234,7 +239,7 @@ export default function AIDrawer({ universe, lastAIResult, onClose, onApplyResol
                   {resolutions.map(res => (
                     <div key={res.id} className="resolution-card">
                       <div className="res-header">
-                        <span className="res-title">💡 {res.title}</span>
+                        <span className="res-title">{res.title}</span>
                         <span className="res-rate">{res.successRate}% Sucesso</span>
                       </div>
                       <p className="res-desc">{res.description}</p>
@@ -243,7 +248,7 @@ export default function AIDrawer({ universe, lastAIResult, onClose, onApplyResol
                         className="btn-apply-res"
                         onClick={() => onApplyResolution(res)}
                       >
-                        ⚡ APLICAR INTERVENÇÃO DA IA
+                        APLICAR INTERVENÇÃO DA IA
                       </button>
                     </div>
                   ))}

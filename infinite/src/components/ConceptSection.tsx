@@ -4,56 +4,55 @@ export default function ConceptSection() {
       <div className="section-container">
         <div className="section-header">
           <span className="section-tag">CONCEITO</span>
-          <h2 className="section-title">O que é o Painel do Paradoxo Temporal?</h2>
+          <h2 className="section-title">Uma bancada para realidades impossíveis.</h2>
           <p className="section-subtitle">
-            Uma aplicação web interativa que transforma diagramas temporais 
-            em sistemas computacionais simuláveis.
+            Um espaço para investigar relações de causa e efeito, com visualização
+            imediata do que muda quando uma hipótese é alterada.
           </p>
         </div>
 
         <div className="concept-grid">
           <div className="concept-card concept-card-main">
-            <div className="concept-card-icon">🌌</div>
+            <div className="concept-card-icon">CAMPO</div>
             <h3>Mais que um diagrama</h3>
             <p>
-              Ferramentas comuns permitem desenhar acontecimentos, mas não possuem 
-              um mecanismo de causalidade que reaja automaticamente às alterações. 
-              O Painel transforma o diagrama em um <strong>sistema computacional simulável</strong>.
+              Não é apenas um diagrama. Cada evento tem relações, peso e consequências.
+              O sistema transforma sua hipótese em um <strong>experimento temporal simulável</strong>.
             </p>
             <div className="concept-card-glow" />
           </div>
 
           <div className="concept-card">
-            <div className="concept-card-icon">🔗</div>
+            <div className="concept-card-icon">FLUXO</div>
             <h3>Causalidade viva</h3>
             <p>
-              Eventos conectados por relações causais. Alterar um evento propaga 
-              consequências por toda a cadeia temporal.
+              Conecte causas e consequências. Ao mudar um ponto, veja a propagação
+              percorrer toda a cadeia em tempo real.
             </p>
           </div>
 
           <div className="concept-card">
-            <div className="concept-card-icon">🕳️</div>
+            <div className="concept-card-icon">EIXOS</div>
             <h3>Múltiplas dimensões</h3>
             <p>
-              Cada dimensão possui sua própria estrutura temporal. 
-              Viajantes podem cruzar dimensões, compartilhando ou divergindo eventos.
+              Compare linhas alternativas, crie ramificações e acompanhe o que permanece
+              igual ou diverge entre realidades.
             </p>
           </div>
 
           <div className="concept-card">
-            <div className="concept-card-icon">⚠️</div>
+            <div className="concept-card-icon">RISCO</div>
             <h3>Paradoxos emergentes</h3>
             <p>
-              O sistema detecta automaticamente paradoxos: do Avô, Bootstrap, 
-              Predestinação, loops causais e contradições temporais.
+              O sistema sinaliza loops, contradições e eventos em risco antes que a
+              instabilidade se espalhe pela linha.
             </p>
           </div>
         </div>
 
         {/* Visual causal chain demo */}
         <div className="concept-chain">
-          <div className="concept-chain-title">Cadeia Causal — Exemplo</div>
+          <div className="concept-chain-title">Uma alteração, quatro consequências</div>
           <div className="concept-chain-flow">
             <div className="chain-node chain-node-stable">
               <span className="chain-node-label">Evento A</span>

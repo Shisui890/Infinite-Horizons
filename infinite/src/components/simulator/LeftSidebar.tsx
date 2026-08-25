@@ -66,7 +66,7 @@ export default function LeftSidebar({
       {/* Travelers Section */}
       <div className="sim-sidebar-section">
         <div className="sim-sidebar-header">
-          <span className="sim-sidebar-title">VIAJANTES DO TEMPO ({travelers.length})</span>
+          <span className="sim-sidebar-title">AGENTES DO MODELO ({travelers.length})</span>
         </div>
 
         <div className="sim-traveler-list">
@@ -74,7 +74,7 @@ export default function LeftSidebar({
             const st = TRAVELER_STATUS_LABELS[trv.status] || { label: trv.status, color: '#fff' };
             return (
               <div key={trv.id} className="sim-traveler-card">
-                <div className="sim-trv-icon">🧑‍🚀</div>
+                <div className="sim-trv-icon">TR</div>
                 <div className="sim-trv-info">
                   <span className="sim-trv-name">{trv.name}</span>
                   <span className="sim-trv-loc">

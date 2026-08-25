@@ -168,7 +168,7 @@ export default function DemoSection({ onStartSimulator }: Props) {
       ctx!.font = '10px Orbitron, sans-serif';
       ctx!.fillStyle = `rgba(239, 68, 68, ${badgePulse})`;
       ctx!.textAlign = 'right';
-      ctx!.fillText('⚠ PARADOXO DO AVÔ', W - 20, 30);
+      ctx!.fillText('RISCO: PARADOXO DO AVÔ', W - 20, 30);
 
       animRef.current = requestAnimationFrame(draw);
     }
@@ -183,26 +183,26 @@ export default function DemoSection({ onStartSimulator }: Props) {
       <div className="section-container">
         <div className="section-header">
           <span className="section-tag">DEMONSTRAÇÃO</span>
-          <h2 className="section-title">Observe. Altere. Enfrente.</h2>
+          <h2 className="section-title">Veja uma mudança atravessar o tempo.</h2>
           <p className="section-subtitle">
-            Um viajante volta ao passado e impede seu próprio nascimento. 
-            O sistema detecta o Paradoxo do Avô e a integridade temporal desaba.
+            Uma intervenção simples cria uma reação em cadeia. O mapa mostra o caminho,
+            mede a integridade e revela o momento em que a realidade começa a divergir.
           </p>
         </div>
 
         <div className="demo-canvas-wrapper">
           <canvas ref={canvasRef} className="demo-canvas" />
           <div className="demo-overlay-badges">
-            <span className="demo-badge demo-badge-stable">● ESTÁVEL</span>
-            <span className="demo-badge demo-badge-altered">● ALTERADO</span>
-            <span className="demo-badge demo-badge-paradox">● PARADOXO</span>
-            <span className="demo-badge demo-badge-collapsed">● COLAPSADO</span>
+            <span className="demo-badge demo-badge-stable">ESTÁVEL</span>
+            <span className="demo-badge demo-badge-altered">ALTERADO</span>
+            <span className="demo-badge demo-badge-paradox">PARADOXO</span>
+            <span className="demo-badge demo-badge-collapsed">COLAPSADO</span>
           </div>
         </div>
 
         <div className="demo-cta">
           <button type="button" className="btn-cta" onClick={onStartSimulator}>
-            <span className="btn-cta-text">INICIAR SUA SIMULAÇÃO</span>
+            <span className="btn-cta-text">TESTAR UMA HIPÓTESE</span>
             <span className="btn-cta-glow" />
           </button>
         </div>
