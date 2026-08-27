@@ -42,7 +42,12 @@ export enum ParadoxSeverity {
   CATASTROPHIC = 'CATASTROPHIC',
 }
 
-export type EvidenceKind = 'documented_fact' | 'scientific_theory' | 'inference' | 'user_hypothesis' | 'model_result';
+export type EvidenceKind =
+  | 'documented_fact'
+  | 'scientific_theory'
+  | 'inference'
+  | 'user_hypothesis'
+  | 'model_result';
 
 export interface Position {
   x: number;
@@ -149,9 +154,10 @@ export interface SimulationLog {
 
 // AI Integration Types
 export interface AIConfig {
-  provider: 'builtin' | 'custom_api';
+  provider: 'builtin' | 'openrouter' | 'custom_api';
   endpoint?: string;
   apiKey?: string;
+  openRouterModel?: string;
   modelName?: string;
   autoButterflyEnabled: boolean;
 }
@@ -198,6 +204,8 @@ export interface ScientificExplanation {
   title: string;
   status: 'established' | 'supported' | 'speculative';
   statusLabel: string;
+  theoryBadge: string;
+  formula?: string;
   explanation: string;
 }
 
@@ -234,5 +242,6 @@ export const AIButterflyAnomaly = {};
 export const AIButterflyResult = {};
 export const AIUniverseInsight = {};
 export const EvidenceKind = {};
+export const ScientificExplanation = {};
 export const AIFutureScenario = {};
 export const AIParadoxResolution = {};

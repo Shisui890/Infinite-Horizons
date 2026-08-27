@@ -1,6 +1,10 @@
+import { useState } from 'react';
 import type { TemporalEvent } from '../../types/temporal';
 import { EventStatus } from '../../types/temporal';
 import { AITemporalService } from '../../engine/AITemporalService';
+import { LigoAudio } from '../../engine/LigoAudioService';
+import MathFormula from '../MathFormula';
+import PhysicsCalculatorWidget from './PhysicsCalculatorWidget';
 
 interface Props {
   event: TemporalEvent | null;
@@ -11,22 +15,25 @@ interface Props {
 }
 
 const STATUS_LABELS: Record<EventStatus, { label: string; color: string }> = {
-  [EventStatus.STABLE]: { label: 'ESTÁVEL', color: 'var(--color-stable)' },
-  [EventStatus.ALTERED]: { label: 'ALTERADO', color: 'var(--color-warning)' },
-  [EventStatus.UNSTABLE]: { label: 'INSTÁVEL', color: 'var(--color-warning)' },
-  [EventStatus.COLLAPSED]: { label: 'COLAPSADO', color: 'var(--text-muted)' },
-  [EventStatus.PARADOXICAL]: { label: 'PARADOXAL', color: 'var(--color-paradox)' },
-  [EventStatus.ERASED]: { label: 'APAGADO DA LINHA', color: 'var(--text-muted)' },
-  [EventStatus.DIVERGED]: { label: 'DIVERGÊNCIA DO MODELO', color: 'var(--color-dimensional)' },
+  [EventStatus.STABLE]: { label: 'ESTÁVEL (MINKOWSKI)', color: 'var(--color-stable)' },
+  [EventStatus.ALTERED]: { label: 'PERTURBAÇÃO MÉTRICA', color: 'var(--color-warning)' },
+  [EventStatus.UNSTABLE]: { label: 'FLUTUAÇÃO QUÂNTICA', color: 'var(--color-warning)' },
+  [EventStatus.COLLAPSED]: { label: 'COLAPSO DE SINGULARIDADE', color: 'var(--text-muted)' },
+  [EventStatus.PARADOXICAL]: { label: 'PARADOXO (CTC / NOVIKOV)', color: 'var(--color-paradox)' },
+  [EventStatus.ERASED]: { label: 'ANIQUILAÇÃO CAUSAL', color: 'var(--text-muted)' },
+  [EventStatus.DIVERGED]: { label: 'RAMIFICAÇÃO EVERETTIANA (11D)', color: 'var(--color-dimensional)' },
 };
 
 export default function EventInspector({ event, events, onAlterEvent, onSimulateAI, onClose }: Props) {
+  const [showCalculator, setShowCalculator] = useState(false);
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+
   if (!event) {
     return (
       <aside className="sim-inspector sim-inspector-empty">
         <div className="inspector-placeholder">
           <span className="placeholder-icon">SCAN</span>
-          <p>Selecione um evento no mapa temporal para inspecionar seus dados e simular alterações.</p>
+          <p>Selecione um nó no mapa de geodésicas para inspecionar seus dados de física, métricas e causalidade.</p>
         </div>
       </aside>
     );
@@ -39,10 +46,16 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
   const consequencesList = event.consequences.map(id => eventsMap.get(id)).filter(Boolean);
   const physics = AITemporalService.explainEventWithPhysics(event);
 
+  function handlePlayLigoSound() {
+    setIsPlayingAudio(true);
+    LigoAudio.playLigoChirp();
+    setTimeout(() => setIsPlayingAudio(false), 700);
+  }
+
   return (
     <aside className="sim-inspector">
       <div className="sim-inspector-header">
-        <span className="inspector-tag">DETALHES DO EVENTO</span>
+        <span className="inspector-tag">DOSSIÊ DO NÓ CAUSAL</span>
         <button type="button" className="sim-btn-close" onClick={onClose}>
           ✕
         </button>
@@ -53,73 +66,113 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
 
         <div className="inspector-meta-grid">
           <div className="meta-item">
-            <span className="meta-label">ANO / TIMESTAMP</span>
-            <span className="meta-value meta-year">{event.year}</span>
+            <span className="meta-label">COORDENADA TEMPORAL</span>
+            <span className="meta-value meta-year">Ano {event.year}</span>
           </div>
           <div className="meta-item">
-            <span className="meta-label">ESTADO</span>
+            <span className="meta-label">ESTADO MÉTRICO</span>
             <span className="meta-value" style={{ color: statusInfo.color }}>
               {statusInfo.label}
             </span>
           </div>
           <div className="meta-item">
-            <span className="meta-label">CATEGORIA</span>
+            <span className="meta-label">DOMÍNIO TEÓRICO</span>
             <span className="meta-value">{event.category}</span>
           </div>
           <div className="meta-item">
-            <span className="meta-label">IMPORTÂNCIA</span>
+            <span className="meta-label">PESO CAUSAL</span>
             <span className="meta-value">{event.importance}/100</span>
           </div>
         </div>
 
         {event.description && <p className="inspector-desc">{event.description}</p>}
 
+        {/* Audio Sonification for Gravitational Waves & Black Holes */}
+        {(event.year === 2015 || event.title.toLowerCase().includes('ondas gravitacionais') || event.title.toLowerCase().includes('m87')) && (
+          <div className="ligo-audio-card">
+            <div className="ligo-audio-info">
+              <strong>Sinal Acústico Real do Espaço-Tempo</strong>
+              <span>Chirp de fusão GW150914 captado pelos interferômetros do LIGO</span>
+            </div>
+            <button
+              type="button"
+              className={`btn-play-ligo ${isPlayingAudio ? 'playing' : ''}`}
+              onClick={handlePlayLigoSound}
+            >
+              {isPlayingAudio ? 'Reproduzindo Chirp...' : 'Ouvir Onda Gravitacional 🔊'}
+            </button>
+          </div>
+        )}
+
         {event.sourceUrl && (
           <a className="event-source-link" href={event.sourceUrl} target="_blank" rel="noreferrer">
-            VER FONTE HISTÓRICA
+            VER BASE DOCUMENTAL / TEORIA ↗
           </a>
         )}
 
+        {/* Toggle Physics Sandbox Calculator */}
+        <div className="calc-toggle-container">
+          <button
+            type="button"
+            className="btn-toggle-calculator"
+            onClick={() => setShowCalculator(!showCalculator)}
+          >
+            {showCalculator ? '▲ Ocultar Calculadora de Tensores' : '🔬 Abrir Calculadora de Física Computacional ▼'}
+          </button>
+        </div>
+
+        {showCalculator && <PhysicsCalculatorWidget />}
+
         {event.isAnchor && (
           <div className="anchor-badge">
-            <span>ÂNCORA TEMPORAL</span>
-            <p>Evento fundamental para a sustentabilidade da realidade.</p>
+            <span>ÂNCORA GEODÉSICA DO CONTINUUM</span>
+            <p>Evento primordial que estabiliza o tensor métrico e preserva a autoconsistência de Novikov.</p>
           </div>
         )}
 
         {event.isAIAnomaly && (
           <div className="ai-anomaly-badge">
-            <span>EVENTO DERIVADO PELO MODELO</span>
-            <p>Relação gerada a partir da intervenção e das conexões do grafo.</p>
+            <span>ANOMALIA QUÂNTICA GERADA POR IA</span>
+            <p>Bifurcação emergente gerada por perturbações no cone de luz.</p>
           </div>
         )}
 
         <section className="physics-explanation">
           <div className="physics-heading">
-            <span className="section-label">INTERPRETAÇÃO FÍSICA</span>
-            <span className="physics-note">MODELO, NÃO PREVISÃO</span>
+            <span className="section-label">INTERPRETAÇÃO EM FÍSICA TEÓRICA</span>
+            <span className="physics-note">5 PILARES DO ESPAÇO-TEMPO</span>
           </div>
           {physics.map(item => (
-            <details key={item.title} className={`physics-item physics-${item.status}`}>
+            <details key={item.title} className={`physics-item physics-${item.status}`} open={item.status === 'established'}>
               <summary>
-                <span>{item.title}</span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                  <span style={{ fontWeight: 600 }}>{item.title}</span>
+                  <span style={{ fontSize: '0.72rem', color: 'var(--color-dimensional)' }}>[{item.theoryBadge}]</span>
+                </div>
                 <span>{item.statusLabel}</span>
               </summary>
-              <p>{item.explanation}</p>
+              <div className="physics-content">
+                {item.formula && (
+                  <div className="physics-formula">
+                    <MathFormula math={item.formula} block />
+                  </div>
+                )}
+                <p>{item.explanation}</p>
+              </div>
             </details>
           ))}
         </section>
 
         <div className="inspector-section">
-          <span className="section-label">CAUSAS ({causesList.length})</span>
+          <span className="section-label">CONES DE LUZ PASSADO (CAUSAS: {causesList.length})</span>
           {causesList.length === 0 ? (
-            <span className="empty-text">Nenhuma causa prévia</span>
+            <span className="empty-text">Origem assintótica / Evento primordial independente</span>
           ) : (
             <ul className="causal-list">
               {causesList.map(c => (
                 <li key={c!.id}>
                   <span>{c!.title}</span>
-                  <span className="causal-year">({c!.year})</span>
+                  <span className="causal-year">(Ano {c!.year})</span>
                 </li>
               ))}
             </ul>
@@ -127,15 +180,15 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
         </div>
 
         <div className="inspector-section">
-          <span className="section-label">CONSEQUÊNCIAS ({consequencesList.length})</span>
+          <span className="section-label">CONES DE LUZ FUTURO (CONSEQUÊNCIAS: {consequencesList.length})</span>
           {consequencesList.length === 0 ? (
-            <span className="empty-text">Nenhuma consequência dependente</span>
+            <span className="empty-text">Fronteira aberta da linha temporal</span>
           ) : (
             <ul className="causal-list">
               {consequencesList.map(c => (
                 <li key={c!.id}>
                   <span>{c!.title}</span>
-                  <span className="causal-year">({c!.year})</span>
+                  <span className="causal-year">(Ano {c!.year})</span>
                 </li>
               ))}
             </ul>
@@ -144,35 +197,35 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
 
         {/* Action Controls */}
         <div className="inspector-actions">
-          <span className="actions-label">SIMULAR ALTERAÇÃO CAUSAL & IA</span>
+          <span className="actions-label">INTERVENÇÃO MÉTRICA & ORÁCULO DE IA</span>
           <div className="action-buttons-grid">
             <button
               type="button"
               className="btn-action-alt btn-ai-action"
               onClick={() => onSimulateAI(event)}
             >
-              Simular com IA (Efeito Borboleta)
+              Simular Efeito Borboleta com IA
             </button>
             <button
               type="button"
               className="btn-action-alt btn-alter"
               onClick={() => onAlterEvent(event.id, EventStatus.ALTERED)}
             >
-              Modificar Resultado
+              Modificar Geodésica
             </button>
             <button
               type="button"
               className="btn-action-alt btn-erase"
               onClick={() => onAlterEvent(event.id, EventStatus.ERASED)}
             >
-              Apagar Evento
+              Aniquilar Nó Temporal
             </button>
             <button
               type="button"
               className="btn-action-alt btn-restore"
               onClick={() => onAlterEvent(event.id, EventStatus.STABLE)}
             >
-              Restaurar Estado
+              Restaurar Estado Fundamental
             </button>
           </div>
         </div>

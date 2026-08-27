@@ -24,8 +24,8 @@ export function AddEventModal({ dimensions, events, onClose, onAddEvent, onResea
   const [description, setDescription] = useState('');
   const [year, setYear] = useState(2025);
   const [dimensionId, setDimensionId] = useState(dimensions[0]?.id || '');
-  const [category, setCategory] = useState('HISTÓRICO');
-  const [importance, setImportance] = useState(80);
+  const [category, setCategory] = useState('FÍSICA TEÓRICA');
+  const [importance, setImportance] = useState(85);
   const [causeId, setCauseId] = useState('');
   const [isResearching, setIsResearching] = useState(false);
   const [researchMessage, setResearchMessage] = useState('');
@@ -33,11 +33,11 @@ export function AddEventModal({ dimensions, events, onClose, onAddEvent, onResea
 
   async function handleHistoricalResearch() {
     if (!title.trim()) {
-      setResearchMessage('Digite o nome de um evento para pesquisar.');
+      setResearchMessage('Digite o nome de uma teoria, experimento ou marco para pesquisar.');
       return;
     }
     setIsResearching(true);
-    setResearchMessage('Pesquisando fontes históricas...');
+    setResearchMessage('Pesquisando fundamentos com IA e bases científicas...');
     try {
       const result = await onResearchHistoricalEvent(title);
       setTitle(result.title);
@@ -46,9 +46,9 @@ export function AddEventModal({ dimensions, events, onClose, onAddEvent, onResea
       setCategory(result.category);
       setImportance(result.importance);
       setSourceUrl(result.source.startsWith('http') ? result.source : '');
-      setResearchMessage(`Fonte: ${result.source}`);
+      setResearchMessage(`Fonte / Referência: ${result.source}`);
     } catch (error) {
-      setResearchMessage(error instanceof Error ? error.message : 'Não foi possível pesquisar este evento.');
+      setResearchMessage(error instanceof Error ? error.message : 'Não foi possível pesquisar este tema.');
     } finally {
       setIsResearching(false);
     }
@@ -75,7 +75,7 @@ export function AddEventModal({ dimensions, events, onClose, onAddEvent, onResea
     <div className="modal-backdrop">
       <div className="modal-card">
         <div className="modal-header">
-          <h2>+ NOVO EVENTO TEMPORAL</h2>
+          <h2>+ NOVO NÓ CAUSAL NO ESPAÇO-TEMPO</h2>
           <button type="button" className="btn-modal-close" onClick={onClose}>
             ✕
           </button>
@@ -83,22 +83,22 @@ export function AddEventModal({ dimensions, events, onClose, onAddEvent, onResea
 
         <form onSubmit={handleSubmit} className="modal-form">
           <label>
-            <span>Título do Evento *</span>
+            <span>Título do Evento / Descoberta Teórica *</span>
             <input
               type="text"
               value={title}
               onChange={e => setTitle(e.target.value)}
-              placeholder="Ex: Fundação da Primeira Colônia"
+              placeholder="Ex: Equações de Yang-Mills ou Detecção de Matéria Escura"
               required
             />
             <button type="button" className="research-event-button" onClick={handleHistoricalResearch} disabled={isResearching}>
-              {isResearching ? 'PESQUISANDO...' : 'PESQUISAR CONTEXTO HISTÓRICO'}
+              {isResearching ? 'PESQUISANDO...' : 'PESQUISAR COM IA & BASES CIENTÍFICAS'}
             </button>
             {researchMessage && <span className="research-event-message">{researchMessage}</span>}
           </label>
 
           <label>
-            <span>Ano / Data</span>
+            <span>Coordenada Temporal (Ano)</span>
             <input
               type="number"
               value={year}
@@ -108,7 +108,7 @@ export function AddEventModal({ dimensions, events, onClose, onAddEvent, onResea
           </label>
 
           <label>
-            <span>Dimensão</span>
+            <span>Variedade Dimensional</span>
             <select value={dimensionId} onChange={e => setDimensionId(e.target.value)}>
               {dimensions.map(d => (
                 <option key={d.id} value={d.id}>
@@ -119,19 +119,20 @@ export function AddEventModal({ dimensions, events, onClose, onAddEvent, onResea
           </label>
 
           <label>
-            <span>Categoria</span>
+            <span>Domínio da Física / Categoria</span>
             <select value={category} onChange={e => setCategory(e.target.value)}>
-              <option value="HISTÓRICO">HISTÓRICO</option>
-              <option value="CIENTÍFICO">CIENTÍFICO</option>
-              <option value="TECNOLÓGICO">TECNOLÓGICO</option>
-              <option value="POLÍTICO">POLÍTICO</option>
-              <option value="NASCIMENTO">NASCIMENTO</option>
-              <option value="VIAGEM">VIAGEM</option>
+              <option value="FÍSICA TEÓRICA">FÍSICA TEÓRICA (RELATIVIDADE / CORDAS)</option>
+              <option value="COSMOLOGIA">COSMOLOGIA (BIG BANG / ENERGIA ESCURA)</option>
+              <option value="MECÂNICA QUÂNTICA">MECÂNICA QUÂNTICA (EVERETT / EPR)</option>
+              <option value="ASTROFÍSICA">ASTROFÍSICA (ONDAS GRAVITACIONAIS / BURACOS NEGROS)</option>
+              <option value="OBSERVAÇÃO">OBSERVAÇÃO ASTRONÔMICA (JWST / EHT / LIGO)</option>
+              <option value="HISTÓRICO">HISTÓRICO-CIENTÍFICO</option>
+              <option value="TECNOLÓGICO">TECNOLOGIA QUÂNTICA</option>
             </select>
           </label>
 
           <label>
-            <span>Importância: {importance}/100</span>
+            <span>Peso Causal no Continuum: {importance}/100</span>
             <input
               type="range"
               min="1"
@@ -142,23 +143,23 @@ export function AddEventModal({ dimensions, events, onClose, onAddEvent, onResea
           </label>
 
           <label>
-            <span>Evento Causa (Opcional)</span>
+            <span>Geodésica Causa Anterior (Opcional)</span>
             <select value={causeId} onChange={e => setCauseId(e.target.value)}>
-              <option value="">Nenhum (Evento Independente)</option>
+              <option value="">Nenhuma (Nó Inicial Independente)</option>
               {events.map(ev => (
                 <option key={ev.id} value={ev.id}>
-                  {ev.title} ({ev.year})
+                  {ev.title} (Ano {ev.year})
                 </option>
               ))}
             </select>
           </label>
 
           <label>
-            <span>Descrição</span>
+            <span>Descrição e Fundamentos Teóricos</span>
             <textarea
               value={description}
               onChange={e => setDescription(e.target.value)}
-              placeholder="Breve resumo da importância desse evento..."
+              placeholder="Breve resumo da implicação física, equações ou descobertas..."
               rows={3}
             />
           </label>
@@ -168,7 +169,7 @@ export function AddEventModal({ dimensions, events, onClose, onAddEvent, onResea
               Cancelar
             </button>
             <button type="submit" className="btn-cta">
-              CRIAR EVENTO
+              ESTABELECER NÓ TEMPORAL
             </button>
           </div>
         </form>
@@ -187,7 +188,7 @@ interface AddTravelerModalProps {
 export function AddTravelerModal({ dimensions, events, onClose, onAddTraveler }: AddTravelerModalProps) {
   const [name, setName] = useState('');
   const [originDimensionId, setOriginDimensionId] = useState(dimensions[0]?.id || '');
-  const [originYear, setOriginYear] = useState(2060);
+  const [originYear, setOriginYear] = useState(2045);
   const [originEventId, setOriginEventId] = useState(events[0]?.id || '');
 
   function handleSubmit(e: React.FormEvent) {
@@ -207,7 +208,7 @@ export function AddTravelerModal({ dimensions, events, onClose, onAddTraveler }:
     <div className="modal-backdrop">
       <div className="modal-card">
         <div className="modal-header">
-          <h2>+ NOVO AGENTE DO MODELO</h2>
+          <h2>+ NOVA SONDA / OBSERVADOR RELATIVÍSTICO</h2>
           <button type="button" className="btn-modal-close" onClick={onClose}>
             ✕
           </button>
@@ -215,18 +216,18 @@ export function AddTravelerModal({ dimensions, events, onClose, onAddTraveler }:
 
         <form onSubmit={handleSubmit} className="modal-form">
           <label>
-            <span>Nome do agente *</span>
+            <span>Identificação da Sonda / Observador *</span>
             <input
               type="text"
               value={name}
               onChange={e => setName(e.target.value)}
-              placeholder="Ex: Pesquisador responsável"
+              placeholder="Ex: Sonda Quântica ER-01"
               required
             />
           </label>
 
           <label>
-            <span>Modelo de origem</span>
+            <span>Variedade de Origem</span>
             <select value={originDimensionId} onChange={e => setOriginDimensionId(e.target.value)}>
               {dimensions.map(d => (
                 <option key={d.id} value={d.id}>
@@ -237,7 +238,7 @@ export function AddTravelerModal({ dimensions, events, onClose, onAddTraveler }:
           </label>
 
           <label>
-            <span>Ano de referência</span>
+            <span>Ano da Coordenada de Origem</span>
             <input
               type="number"
               value={originYear}
@@ -246,12 +247,12 @@ export function AddTravelerModal({ dimensions, events, onClose, onAddTraveler }:
           </label>
 
           <label>
-            <span>Evento de referência (para análise causal)</span>
+            <span>Nó Geodésico Âncora de Origem (Preservação de Novikov)</span>
             <select value={originEventId} onChange={e => setOriginEventId(e.target.value)}>
               <option value="">Nenhum</option>
               {events.map(ev => (
                 <option key={ev.id} value={ev.id}>
-                  {ev.title} ({ev.year})
+                  {ev.title} (Ano {ev.year})
                 </option>
               ))}
             </select>
@@ -262,7 +263,7 @@ export function AddTravelerModal({ dimensions, events, onClose, onAddTraveler }:
               Cancelar
             </button>
             <button type="submit" className="btn-cta">
-              CRIAR AGENTE
+              LANÇAR OBSERVADOR
             </button>
           </div>
         </form>
@@ -280,7 +281,7 @@ interface TimeTravelModalProps {
 
 export function TimeTravelModal({ travelers, events, onClose, onExecuteTravel }: TimeTravelModalProps) {
   const [travelerId, setTravelerId] = useState(travelers[0]?.id || '');
-  const [destinationYear, setDestinationYear] = useState(1990);
+  const [destinationYear, setDestinationYear] = useState(1935);
   const [alterTargetEventId, setAlterTargetEventId] = useState('');
 
   function handleSubmit(e: React.FormEvent) {
@@ -299,7 +300,7 @@ export function TimeTravelModal({ travelers, events, onClose, onExecuteTravel }:
     <div className="modal-backdrop">
       <div className="modal-card">
         <div className="modal-header">
-          <h2>CRIAR INTERVENÇÃO CAUSAL</h2>
+          <h2>INTERVENÇÃO MÉTRICA NO CONE DE LUZ</h2>
           <button type="button" className="btn-modal-close" onClick={onClose}>
             ✕
           </button>
@@ -307,18 +308,18 @@ export function TimeTravelModal({ travelers, events, onClose, onExecuteTravel }:
 
         <form onSubmit={handleSubmit} className="modal-form">
           <label>
-            <span>Selecione o agente</span>
+            <span>Selecione a Sonda / Observador</span>
             <select value={travelerId} onChange={e => setTravelerId(e.target.value)}>
               {travelers.map(t => (
                 <option key={t.id} value={t.id}>
-                  {t.name} (Atual: {t.currentYear})
+                  {t.name} (Coordenada Atual: Ano {t.currentYear})
                 </option>
               ))}
             </select>
           </label>
 
           <label>
-            <span>Ano da intervenção</span>
+            <span>Ano de Destino da Intervenção</span>
             <input
               type="number"
               value={destinationYear}
@@ -327,12 +328,12 @@ export function TimeTravelModal({ travelers, events, onClose, onExecuteTravel }:
           </label>
 
           <label>
-            <span>Evento a alterar (opcional)</span>
+            <span>Nó Geodésico a Perturbar (Efeito Borboleta)</span>
             <select value={alterTargetEventId} onChange={e => setAlterTargetEventId(e.target.value)}>
-              <option value="">Nenhuma alteração (Apenas observação)</option>
+              <option value="">Apenas Observação Relativística (Sem perturbação)</option>
               {events.map(ev => (
                 <option key={ev.id} value={ev.id}>
-                  Apagar/Modificar: {ev.title} ({ev.year})
+                  Perturbar / Aniquilar: {ev.title} (Ano {ev.year})
                 </option>
               ))}
             </select>
@@ -343,7 +344,7 @@ export function TimeTravelModal({ travelers, events, onClose, onExecuteTravel }:
               Cancelar
             </button>
             <button type="submit" className="btn-cta btn-travel-submit">
-              APLICAR INTERVENÇÃO
+              DISPARAR INTERVENÇÃO CAUSAL
             </button>
           </div>
         </form>
@@ -374,7 +375,7 @@ export function AddDimensionModal({ onClose, onAddDimension }: AddDimensionModal
     <div className="modal-backdrop">
       <div className="modal-card">
         <div className="modal-header">
-          <h2>+ NOVA DIMENSÃO</h2>
+          <h2>+ NOVA VARIEDADE DIMENSIONAL (11D)</h2>
           <button type="button" className="btn-modal-close" onClick={onClose}>
             ✕
           </button>
@@ -382,18 +383,18 @@ export function AddDimensionModal({ onClose, onAddDimension }: AddDimensionModal
 
         <form onSubmit={handleSubmit} className="modal-form">
           <label>
-            <span>Nome da Dimensão *</span>
+            <span>Nome da Dimensão Paralela *</span>
             <input
               type="text"
               value={name}
               onChange={e => setName(e.target.value)}
-              placeholder="Ex: Realidade Primordial"
+              placeholder="Ex: Ramo Quântico AdS-03 ou Vácuo de Calabi-Yau B"
               required
             />
           </label>
 
           <label>
-            <span>Designação Código</span>
+            <span>Designação Métrica (Código)</span>
             <input
               type="text"
               value={designation}
@@ -403,7 +404,7 @@ export function AddDimensionModal({ onClose, onAddDimension }: AddDimensionModal
           </label>
 
           <label>
-            <span>Cor de Identificação</span>
+            <span>Espectro Cromático de Frequência</span>
             <input
               type="color"
               value={color}
@@ -416,7 +417,7 @@ export function AddDimensionModal({ onClose, onAddDimension }: AddDimensionModal
               Cancelar
             </button>
             <button type="submit" className="btn-cta">
-              CRIAR DIMENSÃO
+              SINTETIZAR DIMENSÃO
             </button>
           </div>
         </form>

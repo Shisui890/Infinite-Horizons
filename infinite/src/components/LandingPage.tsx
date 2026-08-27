@@ -16,9 +16,10 @@ export default function LandingPage({ onStartSimulator }: Props) {
           <span className="brand-name">INFINITE<span>-HORIZONS</span></span>
         </a>
         <div className="landing-nav-links">
-          <a href="#concept-section">O laboratório</a>
+          <a href="#concept-section">Fundamentação Teórica</a>
           <a href="#features-section">Capacidades</a>
-          <button type="button" onClick={onStartSimulator}>Abrir simulador <span>↗</span></button>
+          <a href="#demo-section">Simulador Vivo</a>
+          <button type="button" onClick={onStartSimulator}>Laboratório Temporal <span>↗</span></button>
         </div>
       </nav>
       <HeroSection onStartSimulator={onStartSimulator} />
@@ -34,11 +35,11 @@ export default function LandingPage({ onStartSimulator }: Props) {
             <span className="footer-title">INFINITE-HORIZONS</span>
           </div>
           <p className="footer-tagline">
-            Investigue causas. Teste hipóteses. Entenda as consequências.
+            Investigação de Causalidade, Relatividade Geral, Supercordas e Multiverso Quântico.
           </p>
           <div className="footer-divider" />
           <p className="footer-copy">
-            &copy; {new Date().getFullYear()} Infinite-Horizons — Laboratório Temporal
+            &copy; {new Date().getFullYear()} Infinite-Horizons — Laboratório de Física Teórica e Simulação Causal
           </p>
         </div>
       </footer>

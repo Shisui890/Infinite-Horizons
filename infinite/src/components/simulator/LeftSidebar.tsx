@@ -9,13 +9,13 @@ interface Props {
 }
 
 const TRAVELER_STATUS_LABELS: Record<TravelerStatus, { label: string; color: string }> = {
-  [TravelerStatus.NORMAL]: { label: 'ESTÁVEL', color: 'var(--color-stable)' },
-  [TravelerStatus.TRAVELING]: { label: 'EM TRÂNSITO', color: 'var(--color-warning)' },
+  [TravelerStatus.NORMAL]: { label: 'CONGRUENTE', color: 'var(--color-stable)' },
+  [TravelerStatus.TRAVELING]: { label: 'EM CURVATURA', color: 'var(--color-warning)' },
   [TravelerStatus.DISPLACED]: { label: 'DESLOCADO', color: 'var(--color-warning)' },
-  [TravelerStatus.ORIGIN_THREATENED]: { label: 'ORIGEM AMEAÇADA', color: 'var(--color-warning)' },
-  [TravelerStatus.PARADOXICAL]: { label: 'PARADOXAL', color: 'var(--color-paradox)' },
-  [TravelerStatus.ERASED]: { label: 'APAGADO', color: 'var(--text-muted)' },
-  [TravelerStatus.DUPLICATED]: { label: 'DUPLICADO', color: 'var(--color-dimensional)' },
+  [TravelerStatus.ORIGIN_THREATENED]: { label: 'AMEAÇA DE NOVIKOV', color: 'var(--color-warning)' },
+  [TravelerStatus.PARADOXICAL]: { label: 'CURVA FECHADA (CTC)', color: 'var(--color-paradox)' },
+  [TravelerStatus.ERASED]: { label: 'ANIQUILADO', color: 'var(--text-muted)' },
+  [TravelerStatus.DUPLICATED]: { label: 'BIFURCAÇÃO QUÂNTICA', color: 'var(--color-dimensional)' },
 };
 
 export default function LeftSidebar({
@@ -30,9 +30,9 @@ export default function LeftSidebar({
       {/* Dimensions Section */}
       <div className="sim-sidebar-section">
         <div className="sim-sidebar-header">
-          <span className="sim-sidebar-title">DIMENSÕES ({dimensions.length})</span>
+          <span className="sim-sidebar-title">VARIEDADES DIMENSIONAIS ({dimensions.length})</span>
           <button type="button" className="sim-btn-xs" onClick={onOpenAddDimension} title="Adicionar Dimensão">
-            + Nova
+            + Nova (11D)
           </button>
         </div>
 
@@ -52,8 +52,8 @@ export default function LeftSidebar({
                   <span className="sim-dim-name">{dim.name}</span>
                 </div>
                 <div className="sim-dim-footer">
-                  <span className="sim-dim-events">{dim.events.length} eventos</span>
-                  <span className="sim-dim-integrity">{dim.integrity}% inst.</span>
+                  <span className="sim-dim-events">{dim.events.length} nós de geodésica</span>
+                  <span className="sim-dim-integrity">{dim.integrity}% coerência</span>
                 </div>
               </button>
             );
@@ -66,7 +66,7 @@ export default function LeftSidebar({
       {/* Travelers Section */}
       <div className="sim-sidebar-section">
         <div className="sim-sidebar-header">
-          <span className="sim-sidebar-title">AGENTES DO MODELO ({travelers.length})</span>
+          <span className="sim-sidebar-title">SONDAS & OBSERVADORES ({travelers.length})</span>
         </div>
 
         <div className="sim-traveler-list">
@@ -74,13 +74,13 @@ export default function LeftSidebar({
             const st = TRAVELER_STATUS_LABELS[trv.status] || { label: trv.status, color: '#fff' };
             return (
               <div key={trv.id} className="sim-traveler-card">
-                <div className="sim-trv-icon">TR</div>
+                <div className="sim-trv-icon">OBS</div>
                 <div className="sim-trv-info">
                   <span className="sim-trv-name">{trv.name}</span>
                   <span className="sim-trv-loc">
-                    Local: Ano {trv.currentYear} ({trv.currentDimensionId === 'dim-omega-01' ? 'Ω-01' : 'Ω-02'})
+                    Coordenada: Ano {trv.currentYear} ({trv.currentDimensionId.replace('dim-', '').toUpperCase()})
                   </span>
-                  <span className="sim-trv-origin">Origem: Ano {trv.originYear}</span>
+                  <span className="sim-trv-origin">Origem Métrico-Temporal: Ano {trv.originYear}</span>
                 </div>
                 <span className="sim-trv-status" style={{ color: st.color }}>
                   {st.label}

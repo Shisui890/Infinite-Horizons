@@ -19,6 +19,8 @@ import EventInspector from './EventInspector';
 import ParadoxConsole from './ParadoxConsole';
 import AIDrawer from './ai/AIDrawer';
 import TemporalControls from './TemporalControls';
+import ConferenceModeModal from '../presentation/ConferenceModeModal';
+import Minkowski3DModal from '../visualization/Minkowski3DModal';
 import {
   AddEventModal,
   AddTravelerModal,
@@ -59,6 +61,10 @@ export default function SimulatorView({ onExit, initialState }: Props) {
   // AI Drawer & Last Result State
   const [showAIDrawer, setShowAIDrawer] = useState(false);
   const [lastAIResult, setLastAIResult] = useState<AIButterflyResult | null>(null);
+
+  // New Academic Presentation & 3D Visualization States
+  const [showConferenceMode, setShowConferenceMode] = useState(false);
+  const [showMinkowski3D, setShowMinkowski3D] = useState(false);
 
   // Modals state
   const [showAddEvent, setShowAddEvent] = useState(false);
@@ -309,7 +315,7 @@ export default function SimulatorView({ onExit, initialState }: Props) {
 
       SimulationService.updateSimulation(updatedUniv);
       setUniverseState(prev => ({ ...prev, universe: updatedUniv }));
-      addLog(`Viajante "${data.name}" registrado no tempo originário (${data.originYear}).`, 'info');
+      addLog(`Referencial de observação "${data.name}" registrado na coordenada de referência (${data.originYear}).`, 'info');
     },
     [universe, addLog]
   );
@@ -322,7 +328,7 @@ export default function SimulatorView({ onExit, initialState }: Props) {
       traveler.currentYear = data.destinationYear;
 
       addLog(
-        `Agente ${traveler.name} recebeu uma intervenção no ano ${data.destinationYear}.`,
+        `Referencial ${traveler.name} recalibrado para a coordenada ${data.destinationYear}.`,
         'warning'
       );
 
@@ -375,6 +381,8 @@ export default function SimulatorView({ onExit, initialState }: Props) {
         onOpenAddEvent={() => setShowAddEvent(true)}
         onOpenAddTraveler={() => setShowAddTraveler(true)}
         onOpenTimeTravel={() => setShowTimeTravel(true)}
+        onOpenConferenceMode={() => setShowConferenceMode(true)}
+        onOpenMinkowski3D={() => setShowMinkowski3D(true)}
         onToggleAIDrawer={() => setShowAIDrawer(prev => !prev)}
         onReset={handleReset}
         canUndo={history.length > 0}
@@ -427,8 +435,8 @@ export default function SimulatorView({ onExit, initialState }: Props) {
 
       <TemporalControls
         year={timelineYear}
-        minYear={1950}
-        maxYear={2080}
+        minYear={1900}
+        maxYear={2060}
         eventCount={activeDimensionEvents.length}
         visibleEventCount={visibleEventCount}
         isPlaying={isTimelinePlaying}
@@ -480,6 +488,22 @@ export default function SimulatorView({ onExit, initialState }: Props) {
         <AddDimensionModal
           onClose={() => setShowAddDimension(false)}
           onAddDimension={handleAddDimension}
+        />
+      )}
+
+      {/* Academic Presentation Modal */}
+      {showConferenceMode && (
+        <ConferenceModeModal
+          universe={universe}
+          onClose={() => setShowConferenceMode(false)}
+        />
+      )}
+
+      {/* Minkowski 3D & Calabi-Yau Visualization Modal */}
+      {showMinkowski3D && (
+        <Minkowski3DModal
+          universe={universe}
+          onClose={() => setShowMinkowski3D(false)}
         />
       )}
     </div>

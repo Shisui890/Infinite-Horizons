@@ -12,13 +12,13 @@ export default function ParadoxConsole({ paradoxes, logs, onInvestigateParadox }
       {/* Paradox Panel */}
       <div className="sim-console-left">
         <div className="console-header">
-          <span className="console-title">PARADOXOS ATIVOS ({paradoxes.length})</span>
+          <span className="console-title">CURVAS TIPO TEMPO FECHADAS & PARADOXOS ({paradoxes.length})</span>
         </div>
 
         <div className="console-paradox-list">
           {paradoxes.length === 0 ? (
             <div className="no-paradoxes">
-              <span>✓ Nenhum paradoxo detectado. A linha temporal está estável.</span>
+              <span>✓ Nenhuma violação do princípio de Novikov detectada. O continuum espaço-temporal permanece estável.</span>
             </div>
           ) : (
             paradoxes.map(pdx => (
@@ -33,7 +33,7 @@ export default function ParadoxConsole({ paradoxes, logs, onInvestigateParadox }
                   className="btn-investigate"
                   onClick={() => onInvestigateParadox(pdx)}
                 >
-                  INVESTIGAR CADEIA CAUSAL
+                  INVESTIGAR CONES DE LUZ & GEODÉSICAS
                 </button>
               </div>
             ))
@@ -44,7 +44,7 @@ export default function ParadoxConsole({ paradoxes, logs, onInvestigateParadox }
       {/* Log Terminal */}
       <div className="sim-console-right">
         <div className="console-header">
-          <span className="console-title">TERMINAL DE SIMULAÇÃO</span>
+          <span className="console-title">TERMINAL DE MÉTRICA & TERMODINÂMICA</span>
         </div>
         <div className="terminal-logs">
           {logs.map(log => (
