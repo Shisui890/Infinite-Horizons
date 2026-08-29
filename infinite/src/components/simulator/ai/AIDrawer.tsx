@@ -139,7 +139,7 @@ export default function AIDrawer({ universe, lastAIResult, onClose, onApplyResol
           className={`ai-tab-btn ${activeTab === 'symposium' ? 'active' : ''}`}
           onClick={() => setActiveTab('symposium')}
         >
-          Simpósio Multi-Agente 🎓
+          Simpósio Multi-Agente
         </button>
         <button
           type="button"
@@ -240,7 +240,7 @@ export default function AIDrawer({ universe, lastAIResult, onClose, onApplyResol
                 onClick={handleStartDebate}
                 disabled={isDebating}
               >
-                {isDebating ? 'Simulando Painel com Claude 3.5 Sonnet...' : 'Iniciar Debate Científico ao Vivo ⚡'}
+                {isDebating ? 'Simulando Painel com Claude 3.5 Sonnet...' : 'Iniciar Debate Científico ao Vivo'}
               </button>
             </div>
 

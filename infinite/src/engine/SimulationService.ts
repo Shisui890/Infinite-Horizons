@@ -27,7 +27,47 @@ export class SimulationService {
     };
 
     const events: TemporalEvent[] = [
-      // Dimensão 1: Continuum Relativístico & Cosmologia Estabelecida
+      // Dimensão 1: Continuum Eletromagnético, Relativístico & Cosmologia Estabelecida
+      {
+        id: 'evt-099',
+        dimensionId: 'dim-omega-01',
+        title: 'Equações de Maxwell & Eletrodinâmica Clássica',
+        description: 'James Clerk Maxwell unifica eletricidade, magnetismo e óptica em quatro equações diferenciais. Demonstra que a luz é uma onda eletromagnética que se propaga no vácuo com velocidade constante invariante c = 1/√(μ₀ε₀).',
+        year: 1865,
+        category: 'ELETROMAGNETISMO',
+        importance: 98,
+        position: { x: 40, y: 100 },
+        status: EventStatus.STABLE,
+        parents: [],
+        children: ['evt-100'],
+        causes: [],
+        consequences: ['evt-100'],
+        isAnchor: true,
+        sourceUrl: 'https://royalsocietypublishing.org/doi/10.1098/rstl.1865.0008',
+        evidenceKind: 'scientific_theory',
+        evidenceConfidence: 100,
+        uncertainty: 'Fundamento que estabeleceu a constância da velocidade da luz como lei universal da física.',
+      },
+      {
+        id: 'evt-100',
+        dimensionId: 'dim-omega-01',
+        title: 'Relatividade Especial & Invariância de Lorentz',
+        description: 'Albert Einstein formula a Relatividade Especial: as leis físicas e a velocidade da luz c são invariantes em todos os referenciais inerciais. Unifica espaço e tempo no continuum 4D de Minkowski (ds² = -c²dt² + dx² + dy² + dz²) e deduz E = mc².',
+        year: 1905,
+        category: 'FÍSICA TEÓRICA',
+        importance: 100,
+        position: { x: 75, y: 220 },
+        status: EventStatus.STABLE,
+        parents: ['evt-099'],
+        children: ['evt-101'],
+        causes: ['evt-099'],
+        consequences: ['evt-101'],
+        isAnchor: true,
+        sourceUrl: 'https://einsteinpapers.press.princeton.edu/vol2-doc/311',
+        evidenceKind: 'scientific_theory',
+        evidenceConfidence: 100,
+        uncertainty: 'Comprovada experimentalmente com precisão extrema em colisores de partículas e satélites.',
+      },
       {
         id: 'evt-101',
         dimensionId: 'dim-omega-01',
@@ -38,9 +78,9 @@ export class SimulationService {
         importance: 99,
         position: { x: 100, y: 110 },
         status: EventStatus.STABLE,
-        parents: [],
+        parents: ['evt-100'],
         children: ['evt-102', 'evt-103'],
-        causes: [],
+        causes: ['evt-100'],
         consequences: ['evt-102', 'evt-103'],
         isAnchor: true,
         sourceUrl: 'https://einsteinpapers.press.princeton.edu/vol6-doc/225',
@@ -243,6 +283,8 @@ export class SimulationService {
     dim2.events = events.filter(e => e.dimensionId === dim2.id);
 
     const edges: CausalEdge[] = [
+      { id: 'edg-0a', source: 'evt-099', target: 'evt-100', type: CausalRelation.CAUSES, active: true, evidence: 'A invariância da velocidade da luz nas equações de Maxwell levou à formulação da Relatividade Especial.' },
+      { id: 'edg-0b', source: 'evt-100', target: 'evt-101', type: CausalRelation.CAUSES, active: true, evidence: 'A incompatibilidade entre gravitação newtoniana e Relatividade Especial motivou Einstein a formular a curvatura do espaço-tempo.' },
       { id: 'edg-1', source: 'evt-101', target: 'evt-102', type: CausalRelation.CAUSES, active: true, evidence: 'Geometria do espaço-tempo fundamenta buracos de minhoca e cones de luz.' },
       { id: 'edg-2', source: 'evt-101', target: 'evt-103', type: CausalRelation.ENABLES, active: true, evidence: 'Modelos cosmológicos de Friedmann-Lemaître decorrem das equações de Einstein.' },
       { id: 'edg-3', source: 'evt-103', target: 'evt-104', type: CausalRelation.CAUSES, active: true, evidence: 'Parâmetros de densidade da CMB orientaram a busca por aceleração via supernovas.' },

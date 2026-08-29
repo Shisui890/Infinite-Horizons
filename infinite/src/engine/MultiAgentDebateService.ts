@@ -30,12 +30,12 @@ export interface DebateReport {
 
 export const DEBATE_AGENTS: DebateAgent[] = [
   {
-    id: 'dr_vance',
-    name: 'Dr. Marcus Vance',
+    id: 'dr_thorne',
+    name: 'Dr. Kip Thorne (Simulado)',
     title: 'Especialista em Relatividade Geral & Buracos Negros',
     specialty: 'Métrica de Kerr, Cones de Luz & Princípio da Censura Cósmica de Penrose',
     avatarColor: '#00d4ff',
-    avatarIcon: '🪐',
+    avatarIcon: 'KT',
   },
   {
     id: 'dra_chen',
@@ -43,7 +43,7 @@ export const DEBATE_AGENTS: DebateAgent[] = [
     title: 'Catedrática em Teoria M & Supercordas em 11D',
     specialty: 'Variedades de Calabi-Yau, Dualidade AdS/CFT & D-Branas',
     avatarColor: '#a855f7',
-    avatarIcon: '🌌',
+    avatarIcon: 'EC',
   },
   {
     id: 'dr_patel',
@@ -51,7 +51,7 @@ export const DEBATE_AGENTS: DebateAgent[] = [
     title: 'Astrofísico & Cosmólogo Observacional',
     specialty: 'Radiação Cósmica de Fundo (Planck), Supernovas Ia & Ondas Gravitacionais (LIGO)',
     avatarColor: '#10b981',
-    avatarIcon: '🔭',
+    avatarIcon: 'RP',
   },
 ];
 

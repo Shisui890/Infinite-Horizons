@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { useLaymanMode } from '../context/LaymanModeContext';
 
 interface Props {
   onStartSimulator?: () => void;
@@ -7,6 +8,7 @@ interface Props {
 interface DemoNode {
   id: string;
   label: string;
+  laymanLabel: string;
   year: number;
   x: number;
   y: number;
@@ -20,11 +22,11 @@ interface DemoEdge {
 }
 
 const DEMO_NODES: DemoNode[] = [
-  { id: 'e1', label: 'Relatividade Geral', year: 1915, x: 70, y: 150, status: 'stable' },
-  { id: 'e2', label: 'Radiação Cósmica (CMB)', year: 1965, x: 190, y: 100, status: 'stable' },
-  { id: 'e3', label: 'Teoria das Supercordas', year: 1984, x: 310, y: 160, status: 'stable' },
-  { id: 'e4', label: 'Expansão Acelerada', year: 1998, x: 430, y: 95, status: 'altered' },
-  { id: 'e5', label: 'Ondas Gravitacionais', year: 2015, x: 550, y: 150, status: 'stable' },
+  { id: 'e1', label: 'Relatividade Geral', laymanLabel: 'Espaço Curvo (Einstein)', year: 1915, x: 70, y: 150, status: 'stable' },
+  { id: 'e2', label: 'Radiação Cósmica (CMB)', laymanLabel: 'Eco do Big Bang', year: 1965, x: 190, y: 100, status: 'stable' },
+  { id: 'e3', label: 'Teoria das Supercordas', laymanLabel: 'Cordas Musicais (11D)', year: 1984, x: 310, y: 160, status: 'stable' },
+  { id: 'e4', label: 'Expansão Acelerada', laymanLabel: 'Energia Misteriosa', year: 1998, x: 430, y: 95, status: 'altered' },
+  { id: 'e5', label: 'Ondas Gravitacionais', laymanLabel: 'Som do Espaço-Tempo', year: 2015, x: 550, y: 150, status: 'stable' },
 ];
 
 const DEMO_EDGES: DemoEdge[] = [
@@ -43,6 +45,7 @@ const STATUS_COLORS: Record<string, { main: string; glow: string; ring: string }
 };
 
 export default function DemoSection({ onStartSimulator }: Props) {
+  const { isLaymanMode } = useLaymanMode();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animRef = useRef(0);
   const frameRef = useRef(0);
@@ -129,7 +132,7 @@ export default function DemoSection({ onStartSimulator }: Props) {
         ctx!.font = '600 10px Inter, sans-serif';
         ctx!.fillStyle = 'rgba(232, 234, 246, 0.95)';
         ctx!.textAlign = 'center';
-        ctx!.fillText(node.label, node.x, node.y + 26);
+        ctx!.fillText(isLaymanMode ? node.laymanLabel : node.label, node.x, node.y + 26);
 
         ctx!.font = '9px Orbitron, sans-serif';
         ctx!.fillStyle = col.main;
@@ -140,7 +143,7 @@ export default function DemoSection({ onStartSimulator }: Props) {
       ctx!.font = '10px Orbitron, sans-serif';
       ctx!.fillStyle = 'rgba(232, 234, 246, 0.7)';
       ctx!.textAlign = 'left';
-      ctx!.fillText('COERÊNCIA DO MODELO CAUSAL', 20, 26);
+      ctx!.fillText(isLaymanMode ? 'SAÚDE DA LINHA TEMPORAL' : 'COERÊNCIA DO MODELO CAUSAL', 20, 26);
 
       ctx!.fillStyle = 'rgba(255, 255, 255, 0.08)';
       ctx!.fillRect(20, 33, 150, 6);
@@ -156,7 +159,7 @@ export default function DemoSection({ onStartSimulator }: Props) {
       ctx!.font = '10px Orbitron, sans-serif';
       ctx!.fillStyle = 'rgba(0, 212, 255, 0.9)';
       ctx!.textAlign = 'right';
-      ctx!.fillText('ESTADO: AUTOCONSISTÊNCIA PRESERVADA', W - 20, 26);
+      ctx!.fillText(isLaymanMode ? 'ESTADO: SEM PARADOXOS NO TEMPO' : 'ESTADO: AUTOCONSISTÊNCIA PRESERVADA', W - 20, 26);
 
       animRef.current = requestAnimationFrame(draw);
     }
@@ -164,32 +167,45 @@ export default function DemoSection({ onStartSimulator }: Props) {
     draw();
 
     return () => cancelAnimationFrame(animRef.current);
-  }, []);
+  }, [isLaymanMode]);
 
   return (
     <section id="demo-section" className="section demo-section">
       <div className="section-container">
         <div className="section-header">
-          <span className="section-tag">SIMULAÇÃO DE GRAFO CAUSAL</span>
-          <h2 className="section-title">Estrutura de Dependência Causal e Validação Científica</h2>
+          <span className="section-tag">
+            {isLaymanMode ? 'LINHA DO TEMPO VIVA' : 'SIMULAÇÃO DE GRAFO CAUSAL'}
+          </span>
+          <h2 className="section-title">
+            {isLaymanMode
+              ? 'Como Grandes Ideias Mudam o Destino da Humanidade'
+              : 'Estrutura de Dependência Causal e Validação Científica'}
+          </h2>
           <p className="section-subtitle">
-            Visualização topológica de marcos fundamentais da física moderna. Cada nó representa uma teoria ou
-            observação documentada, interligada por relações de dedução e comprovação empírica.
+            {isLaymanMode
+              ? 'Veja como as descobertas sobre o espaço, o tempo e os buracos negros estão conectadas como os fios de um grande filme de ficção.'
+              : 'Visualização topológica de marcos fundamentais da física moderna. Cada nó representa uma teoria ou observação documentada, interligada por relações de dedução e comprovação empírica.'}
           </p>
         </div>
 
         <div className="demo-canvas-wrapper">
           <canvas ref={canvasRef} className="demo-canvas" />
           <div className="demo-overlay-badges">
-            <span className="demo-badge demo-badge-stable">COMPROVADO EXPERIMENTALMENTE</span>
-            <span className="demo-badge demo-badge-altered">MODELO TEÓRICO EM ANÁLISE</span>
-            <span className="demo-badge demo-badge-paradox">HIPÓTESE DE UNIFICAÇÃO</span>
+            <span className="demo-badge demo-badge-stable">
+              {isLaymanMode ? 'PROVADO NO MUNDO REAL' : 'COMPROVADO EXPERIMENTALMENTE'}
+            </span>
+            <span className="demo-badge demo-badge-altered">
+              {isLaymanMode ? 'EM INVESTIGAÇÃO' : 'MODELO TEÓRICO EM ANÁLISE'}
+            </span>
+            <span className="demo-badge demo-badge-paradox">
+              {isLaymanMode ? '11 DIMENSÕES SECRETAS' : 'HIPÓTESE DE UNIFICAÇÃO'}
+            </span>
           </div>
         </div>
 
         <div className="demo-cta">
           <button type="button" className="btn-cta" onClick={onStartSimulator}>
-            <span className="btn-cta-text">EXPLORAR NO SIMULADOR</span>
+            <span className="btn-cta-text">{isLaymanMode ? 'ENTRAR NO SIMULADOR' : 'EXPLORAR NO SIMULADOR'}</span>
             <span className="btn-cta-glow" />
           </button>
         </div>

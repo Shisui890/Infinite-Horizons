@@ -3296,16 +3296,16 @@
 
 .calc-tabs {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 4px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 3px;
   margin-bottom: 10px;
 }
 
 .calc-tab-btn {
   font-family: var(--font-mono);
-  font-size: 0.65rem;
+  font-size: 0.58rem;
   font-weight: 600;
-  padding: 6px 2px;
+  padding: 6px 1px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: var(--text-muted);
@@ -3320,6 +3320,31 @@
   background: rgba(0, 212, 255, 0.18);
   border-color: #00d4ff;
   color: #00d4ff;
+}
+
+.calc-quick-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.calc-quick-pills button {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  padding: 3px 6px;
+  background: rgba(0, 212, 255, 0.08);
+  border: 1px solid rgba(0, 212, 255, 0.25);
+  color: #38bdf8;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.calc-quick-pills button:hover {
+  background: rgba(0, 212, 255, 0.2);
+  border-color: #00d4ff;
+  color: #ffffff;
 }
 
 .calc-inputs-group {
@@ -3530,4 +3555,273 @@
   font-size: 0.65rem;
   font-weight: 500;
 }
+
+/* ==================================================================== */
+/* MODO PARA LEIGOS & ANALOGIAS DE FICÇÃO CIENTÍFICA */
+/* ==================================================================== */
+.btn-toggle-layman-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(251, 191, 36, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  color: #fbbf24 !important;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.btn-toggle-layman-nav:hover,
+.btn-toggle-layman-nav.active-layman {
+  background: #fbbf24;
+  color: #06060e !important;
+  box-shadow: 0 0 16px rgba(251, 191, 36, 0.5);
+}
+
+.sim-btn-layman {
+  background: rgba(251, 191, 36, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  color: #fbbf24;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sim-btn-layman:hover,
+.sim-btn-layman.active-layman {
+  background: #fbbf24;
+  color: #06060e;
+  box-shadow: 0 0 14px rgba(251, 191, 36, 0.45);
+}
+
+/* Layman Card in Event Inspector */
+.layman-explanation-card {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.07), rgba(168, 85, 247, 0.07));
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 10px 0;
+}
+
+.layman-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.layman-badge {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #fbbf24;
+}
+
+.layman-desc {
+  font-size: 0.76rem;
+  color: #f1f5f9;
+  line-height: 1.45;
+}
+
+.layman-analogy-box {
+  background: rgba(0, 0, 0, 0.3);
+  border-left: 3px solid #fbbf24;
+  padding: 8px 10px;
+  border-radius: 0 4px 4px 0;
+}
+
+.layman-analogy-box strong {
+  display: block;
+  font-size: 0.68rem;
+  color: #fbbf24;
+  margin-bottom: 2px;
+}
+
+.layman-analogy-box p {
+  font-size: 0.72rem;
+  color: #cbd5e1;
+  line-height: 1.35;
+  margin: 0;
+}
+
+.layman-pop-culture {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #e879f9;
+  background: rgba(168, 85, 247, 0.12);
+  padding: 5px 8px;
+  border-radius: 4px;
+}
+
+.layman-fun-fact {
+  background: rgba(56, 189, 248, 0.08);
+  border: 1px dashed rgba(56, 189, 248, 0.3);
+  padding: 6px 8px;
+  border-radius: 4px;
+}
+
+.layman-fun-fact strong {
+  display: block;
+  font-size: 0.65rem;
+  color: #38bdf8;
+  margin-bottom: 2px;
+}
+
+.layman-fun-fact p {
+  font-size: 0.68rem;
+  color: #94a3b8;
+  line-height: 1.3;
+  margin: 0;
+}
+
+/* ==========================================================================
+   CHATGPT-STYLE MATH & FORMULA RENDERING SYSTEM
+   ========================================================================== */
+
+.math-formula {
+  max-width: 100%;
+  color: #f8fafc;
+  vertical-align: middle;
+}
+
+.math-inline {
+  display: inline-block;
+  font-size: 0.9em;
+  padding: 0 2px;
+}
+
+.math-inline .katex {
+  font-size: 1.05em;
+  line-height: 1.2;
+}
+
+.math-block {
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  box-sizing: border-box;
+  padding: 8px 12px;
+  margin: 8px 0;
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(0, 212, 255, 0.22);
+  border-radius: 8px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+  -webkit-overflow-scrolling: touch;
+}
+
+.math-block .katex-display {
+  display: block;
+  margin: 0 !important;
+  padding: 2px 0 !important;
+  text-align: center;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.math-block .katex {
+  font-size: clamp(0.78rem, 2.2vw, 0.95rem);
+  line-height: 1.35;
+  white-space: nowrap;
+}
+
+/* Thin sleek scrollbar for equations */
+.math-block::-webkit-scrollbar,
+.math-block .katex-display::-webkit-scrollbar,
+.physics-formula::-webkit-scrollbar,
+.conf-formula-math::-webkit-scrollbar {
+  height: 4px;
+}
+
+.math-block::-webkit-scrollbar-thumb,
+.math-block .katex-display::-webkit-scrollbar-thumb,
+.physics-formula::-webkit-scrollbar-thumb,
+.conf-formula-math::-webkit-scrollbar-thumb {
+  background: rgba(0, 212, 255, 0.35);
+  border-radius: 2px;
+}
+
+/* ==========================================================================
+   LAYMAN FORMULA CARD & EXPLANATION STYLING (CHATGPT-STYLE)
+   ========================================================================== */
+
+.layman-formula-card {
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.08) 0%, rgba(168, 85, 247, 0.08) 100%);
+  border: 1px solid rgba(0, 212, 255, 0.25);
+  border-left: 3px solid #00d4ff;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin: 10px 0;
+  text-align: left;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.layman-formula-header {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #00d4ff;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.layman-formula-math-preview {
+  display: flex;
+  justify-content: center;
+  margin: 6px 0 8px 0;
+}
+
+.layman-formula-math-preview .math-block {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  padding: 6px 12px;
+  margin: 0;
+}
+
+.layman-formula-card p {
+  font-size: 0.78rem;
+  color: #e2e8f0;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.layman-formula-card strong {
+  color: #f1f5f9;
+  font-weight: 600;
+}
+
+.layman-formula-card em {
+  color: #fbbf24;
+  font-style: normal;
+  font-weight: 600;
+}
+
+.physics-desc-text {
+  font-size: 0.76rem;
+  color: #94a3b8;
+  line-height: 1.45;
+  margin-top: 8px;
+}
+
+
+
 

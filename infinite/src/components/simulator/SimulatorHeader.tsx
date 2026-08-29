@@ -1,3 +1,4 @@
+import { useLaymanMode } from '../../context/LaymanModeContext';
 import { Universe } from '../../types/temporal';
 
 interface Props {
@@ -33,6 +34,7 @@ export default function SimulatorHeader({
   onRedo,
   onExport,
 }: Props) {
+  const { isLaymanMode, toggleLaymanMode } = useLaymanMode();
   const integrity = universe.temporalIntegrity;
   const paradoxCount = universe.paradoxes.length;
 
@@ -44,11 +46,15 @@ export default function SimulatorHeader({
       {/* 1. Left Brand & Navigation */}
       <div className="sim-header-left">
         <button type="button" className="sim-btn-exit" onClick={onExit} title="Voltar à Página Principal">
-          ← Início
+          ← {isLaymanMode ? 'Início' : 'Início'}
         </button>
         <div className="sim-title-group">
           <h1 className="sim-universe-title" title={universe.name}>{universe.name}</h1>
-          <span className="sim-universe-tag">LABORATÓRIO DE FÍSICA TEÓRICA & CAUSALIDADE</span>
+          <span className="sim-universe-tag">
+            {isLaymanMode
+              ? 'SIMULADOR DESCOMPLICADO DE VIAGEM NO TEMPO'
+              : 'LABORATÓRIO DE FÍSICA TEÓRICA & CAUSALIDADE'}
+          </span>
         </div>
       </div>
 
@@ -56,7 +62,7 @@ export default function SimulatorHeader({
       <div className="sim-header-center">
         <div className="sim-integrity-widget">
           <div className="sim-integrity-label">
-            <span>INTEGRIDADE (NOVIKOV)</span>
+            <span>{isLaymanMode ? 'SAÚDE DO TEMPO' : 'INTEGRIDADE (NOVIKOV)'}</span>
             <strong style={{ color: integrityColor }}>{integrity}%</strong>
           </div>
           <div className="sim-integrity-bar-track">
@@ -70,26 +76,38 @@ export default function SimulatorHeader({
         {paradoxCount > 0 ? (
           <div className="sim-paradox-badge sim-paradox-badge-active">
             <span className="badge-pulse-dot" />
-            <span>{paradoxCount} CTC</span>
+            <span>{paradoxCount} {isLaymanMode ? 'PARADOXO' : 'CTC'}</span>
           </div>
         ) : (
           <div className="sim-paradox-badge sim-paradox-badge-clean">
-            <span>ESTÁVEL</span>
+            <span>{isLaymanMode ? 'SEM PARADOXOS' : 'ESTÁVEL'}</span>
           </div>
         )}
       </div>
 
       {/* 3. Right Action Groups */}
       <div className="sim-header-right">
+        {/* Layman Mode Switcher */}
+        <div className="header-btn-group">
+          <button
+            type="button"
+            className={`sim-btn-layman ${isLaymanMode ? 'active-layman' : ''}`}
+            onClick={toggleLaymanMode}
+            title={isLaymanMode ? 'Voltar para o Modo Acadêmico Rigoroso' : 'Ativar Modo Simplificado para Leigos com Ficção e Analogias'}
+          >
+            {isLaymanMode ? 'Para Leigos' : 'Acadêmico'}
+          </button>
+        </div>
+
         {/* Presentation & Visual Modes Group */}
         <div className="header-btn-group">
           <button
             type="button"
             className="sim-btn-conference"
             onClick={onOpenConferenceMode}
-            title="Abrir Modo Apresentação de Slides Acadêmico"
+            title={isLaymanMode ? 'Abrir Apresentação Fácil de Slides' : 'Abrir Modo Apresentação de Slides Acadêmico'}
           >
-            Apresentação 🎓
+            {isLaymanMode ? 'Slides' : 'Apresentação'}
           </button>
 
           <button
@@ -98,7 +116,7 @@ export default function SimulatorHeader({
             onClick={onOpenMinkowski3D}
             title="Visualizar Cones de Luz 3D de Minkowski & Calabi-Yau"
           >
-            3D 🪐
+            Cones 3D
           </button>
 
           <button
@@ -107,7 +125,7 @@ export default function SimulatorHeader({
             onClick={onToggleAIDrawer}
             title="Abrir Oráculo de IA com OpenRouter / Claude 3.5"
           >
-            Oráculo IA ⚡
+            Oráculo IA
           </button>
         </div>
 

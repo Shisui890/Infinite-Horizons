@@ -19,9 +19,18 @@ export default function MathFormula({ math, block = false, className = '' }: Pro
     }
   }, [math, block]);
 
+  if (block) {
+    return (
+      <div
+        className={`math-formula math-block ${className}`}
+        dangerouslySetInnerHTML={{ __html: html }}
+      />
+    );
+  }
+
   return (
     <span
-      className={`math-formula ${block ? 'math-block' : 'math-inline'} ${className}`}
+      className={`math-formula math-inline ${className}`}
       dangerouslySetInnerHTML={{ __html: html }}
     />
   );

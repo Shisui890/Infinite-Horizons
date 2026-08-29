@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useLaymanMode } from '../../context/LaymanModeContext';
+import { getLaymanExplanation } from '../../utils/laymanContent';
 import type { TemporalEvent } from '../../types/temporal';
 import { EventStatus } from '../../types/temporal';
 import { AITemporalService } from '../../engine/AITemporalService';
@@ -24,7 +26,12 @@ const STATUS_LABELS: Record<EventStatus, { label: string; color: string }> = {
   [EventStatus.DIVERGED]: { label: 'RAMIFICAÇÃO EVERETTIANA (11D)', color: 'var(--color-dimensional)' },
 };
 
+function getStatusInfo(status: EventStatus) {
+  return STATUS_LABELS[status] || { label: status, color: '#fff' };
+}
+
 export default function EventInspector({ event, events, onAlterEvent, onSimulateAI, onClose }: Props) {
+  const { isLaymanMode } = useLaymanMode();
   const [showCalculator, setShowCalculator] = useState(false);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
 
@@ -32,18 +39,29 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
     return (
       <aside className="sim-inspector sim-inspector-empty">
         <div className="inspector-placeholder">
-          <span className="placeholder-icon">SCAN</span>
-          <p>Selecione um nó no mapa de geodésicas para inspecionar seus dados de física, métricas e causalidade.</p>
+          <span className="placeholder-icon">INFO</span>
+          <h3>{isLaymanMode ? 'Nenhum Evento Selecionado' : 'SCAN'}</h3>
+          <p>
+            {isLaymanMode
+              ? 'Clique em qualquer ponto na linha do tempo para descobrir a história, ver referências de filmes e entender a ciência!'
+              : 'Selecione um nó no mapa de geodésicas para inspecionar seus dados de física, métricas e causalidade.'}
+          </p>
         </div>
       </aside>
     );
   }
 
-  const statusInfo = STATUS_LABELS[event.status] || { label: event.status, color: '#fff' };
+  const statusInfo = getStatusInfo(event.status);
+  const layman = getLaymanExplanation(event.year, event.title);
+  
   const eventsMap = new Map(events.map(e => [e.id, e]));
 
-  const causesList = event.causes.map(id => eventsMap.get(id)).filter(Boolean);
-  const consequencesList = event.consequences.map(id => eventsMap.get(id)).filter(Boolean);
+  const causesList = (event.causes || [])
+    .map(id => eventsMap.get(id))
+    .filter((e): e is TemporalEvent => Boolean(e));
+  const consequencesList = (event.consequences || [])
+    .map(id => eventsMap.get(id))
+    .filter((e): e is TemporalEvent => Boolean(e));
   const physics = AITemporalService.explainEventWithPhysics(event);
 
   function handlePlayLigoSound() {
@@ -55,69 +73,93 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
   return (
     <aside className="sim-inspector">
       <div className="sim-inspector-header">
-        <span className="inspector-tag">DOSSIÊ DO NÓ CAUSAL</span>
+        <span className="inspector-tag">
+          {isLaymanMode ? 'GUIA DO VIAJANTE NO TEMPO' : 'DOSSIÊ DO NÓ CAUSAL'}
+        </span>
         <button type="button" className="sim-btn-close" onClick={onClose}>
           ✕
         </button>
       </div>
 
       <div className="inspector-body">
-        <h2 className="inspector-title">{event.title}</h2>
+        <h2 className="inspector-title">
+          {isLaymanMode ? layman.simpleTitle : event.title}
+        </h2>
 
         <div className="inspector-meta-grid">
           <div className="meta-item">
-            <span className="meta-label">COORDENADA TEMPORAL</span>
+            <span className="meta-label">{isLaymanMode ? 'ANO' : 'COORDENADA TEMPORAL'}</span>
             <span className="meta-value meta-year">Ano {event.year}</span>
           </div>
           <div className="meta-item">
-            <span className="meta-label">ESTADO MÉTRICO</span>
+            <span className="meta-label">{isLaymanMode ? 'STATUS DO TEMPO' : 'ESTADO MÉTRICO'}</span>
             <span className="meta-value" style={{ color: statusInfo.color }}>
-              {statusInfo.label}
+              {isLaymanMode ? (event.status === EventStatus.STABLE ? 'Salvo e Estável' : 'Linha Alterada') : statusInfo.label}
             </span>
           </div>
           <div className="meta-item">
-            <span className="meta-label">DOMÍNIO TEÓRICO</span>
-            <span className="meta-value">{event.category}</span>
+            <span className="meta-label">{isLaymanMode ? 'TIPO DE FENÔMENO' : 'DOMÍNIO TEÓRICO'}</span>
+            <span className="meta-value">{isLaymanMode ? layman.laymanCategory : event.category}</span>
           </div>
           <div className="meta-item">
-            <span className="meta-label">PESO CAUSAL</span>
+            <span className="meta-label">{isLaymanMode ? 'IMPACTO NO UNIVERSO' : 'PESO CAUSAL'}</span>
             <span className="meta-value">{event.importance}/100</span>
           </div>
         </div>
 
-        {event.description && <p className="inspector-desc">{event.description}</p>}
+        {isLaymanMode ? (
+          <div className="layman-explanation-card">
+            <div className="layman-card-header">
+              <span className="layman-badge">COMO FUNCIONA (SEM COMPLICAÇÃO)</span>
+            </div>
+            <p className="layman-desc">{layman.simpleDescription}</p>
+            <div className="layman-analogy-box">
+              <strong>Analogia do Dia a Dia:</strong>
+              <p>{layman.analogy}</p>
+            </div>
+            <div className="layman-pop-culture">
+              <span>{layman.popCultureRef}</span>
+            </div>
+            <div className="layman-fun-fact">
+              <strong>Curiosidade:</strong>
+              <p>{layman.funFact}</p>
+            </div>
+          </div>
+        ) : (
+          event.description && <p className="inspector-desc">{event.description}</p>
+        )}
 
-        {/* Audio Sonification for Gravitational Waves & Black Holes */}
         {(event.year === 2015 || event.title.toLowerCase().includes('ondas gravitacionais') || event.title.toLowerCase().includes('m87')) && (
           <div className="ligo-audio-card">
             <div className="ligo-audio-info">
-              <strong>Sinal Acústico Real do Espaço-Tempo</strong>
-              <span>Chirp de fusão GW150914 captado pelos interferômetros do LIGO</span>
+              <strong>{isLaymanMode ? 'Ouça o Som do Espaço-Tempo' : 'Sinal Acústico Real do Espaço-Tempo'}</strong>
+              <span>{isLaymanMode ? 'O chiado real de dois buracos negros colidindo gravado pelo LIGO!' : 'Chirp de fusão GW150914 captado pelos interferômetros do LIGO'}</span>
             </div>
             <button
               type="button"
               className={`btn-play-ligo ${isPlayingAudio ? 'playing' : ''}`}
               onClick={handlePlayLigoSound}
             >
-              {isPlayingAudio ? 'Reproduzindo Chirp...' : 'Ouvir Onda Gravitacional 🔊'}
+              {isPlayingAudio ? 'Reproduzindo...' : 'Ouvir Colisão no Espaço'}
             </button>
           </div>
         )}
 
         {event.sourceUrl && (
           <a className="event-source-link" href={event.sourceUrl} target="_blank" rel="noreferrer">
-            VER BASE DOCUMENTAL / TEORIA ↗
+            {isLaymanMode ? 'VER ARTIGO CIENTÍFICO ORIGINAL ↗' : 'VER BASE DOCUMENTAL / TEORIA ↗'}
           </a>
         )}
 
-        {/* Toggle Physics Sandbox Calculator */}
         <div className="calc-toggle-container">
           <button
             type="button"
             className="btn-toggle-calculator"
             onClick={() => setShowCalculator(!showCalculator)}
           >
-            {showCalculator ? '▲ Ocultar Calculadora de Tensores' : '🔬 Abrir Calculadora de Física Computacional ▼'}
+            {showCalculator
+              ? (isLaymanMode ? '▲ Fechar Brincadeira do Tempo' : '▲ Ocultar Calculadora de Tensores')
+              : (isLaymanMode ? 'Simular Efeito Interestelar & Dilatação do Tempo ▼' : 'Abrir Calculadora de Física Computacional ▼')}
           </button>
         </div>
 
@@ -139,14 +181,18 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
 
         <section className="physics-explanation">
           <div className="physics-heading">
-            <span className="section-label">INTERPRETAÇÃO EM FÍSICA TEÓRICA</span>
-            <span className="physics-note">5 PILARES DO ESPAÇO-TEMPO</span>
+            <span className="section-label">
+              {isLaymanMode ? 'COMO A FÍSICA EXPLICA ESTE EVENTO' : 'INTERPRETAÇÃO EM FÍSICA TEÓRICA'}
+            </span>
+            <span className="physics-note">
+              {isLaymanMode ? '5 LEIS FUNDAMENTAIS' : '5 PILARES DO ESPAÇO-TEMPO'}
+            </span>
           </div>
           {physics.map(item => (
             <details key={item.title} className={`physics-item physics-${item.status}`} open={item.status === 'established'}>
               <summary>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                  <span style={{ fontWeight: 600 }}>{item.title}</span>
+                  <span style={{ fontWeight: 600 }}>{isLaymanMode ? (item.laymanTitle || item.title) : item.title}</span>
                   <span style={{ fontSize: '0.72rem', color: 'var(--color-dimensional)' }}>[{item.theoryBadge}]</span>
                 </div>
                 <span>{item.statusLabel}</span>
@@ -157,7 +203,15 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
                     <MathFormula math={item.formula} block />
                   </div>
                 )}
-                <p>{item.explanation}</p>
+                {isLaymanMode && item.laymanFormulaMeaning && (
+                  <div className="layman-formula-card">
+                    <div className="layman-formula-header">O QUE ESTA FÓRMULA SIGNIFICA</div>
+                    <p>{item.laymanFormulaMeaning}</p>
+                  </div>
+                )}
+                <p className="physics-desc-text">
+                  {isLaymanMode ? (item.laymanExplanation || item.explanation) : item.explanation}
+                </p>
               </div>
             </details>
           ))}

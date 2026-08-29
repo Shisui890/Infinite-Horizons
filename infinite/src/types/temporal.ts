@@ -202,11 +202,14 @@ export interface HistoricalResearch {
 
 export interface ScientificExplanation {
   title: string;
+  laymanTitle?: string;
   status: 'established' | 'supported' | 'speculative';
   statusLabel: string;
   theoryBadge: string;
   formula?: string;
   explanation: string;
+  laymanFormulaMeaning?: string;
+  laymanExplanation?: string;
 }
 
 export interface AIFutureScenario {

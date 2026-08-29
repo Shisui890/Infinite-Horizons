@@ -3,6 +3,7 @@ import InteractiveBackground from './components/InteractiveBackground';
 import LandingPage from './components/LandingPage';
 import SimulatorView from './components/simulator/SimulatorView';
 import CreateUniverseModal from './components/CreateUniverseModal';
+import { LaymanModeProvider } from './context/LaymanModeContext';
 import type { SimulationLog, Universe } from './types/temporal';
 import './App.css';
 
@@ -12,7 +13,7 @@ function App() {
   const [generatedState, setGeneratedState] = useState<{ universe: Universe; logs: SimulationLog[] } | null>(null);
 
   return (
-    <>
+    <LaymanModeProvider>
       <InteractiveBackground />
 
       {view === 'landing' ? (
@@ -31,7 +32,7 @@ function App() {
           }}
         />
       )}
-    </>
+    </LaymanModeProvider>
   );
 }
 

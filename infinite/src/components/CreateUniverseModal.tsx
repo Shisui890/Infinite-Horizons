@@ -61,7 +61,7 @@ export default function CreateUniverseModal({ onClose, onCreated }: Props) {
             onClick={handleLoadDefault}
             disabled={isCreating}
           >
-            Carregar Padrão ⚡
+            Carregar Padrão
           </button>
         </div>
 

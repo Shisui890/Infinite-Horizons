@@ -254,7 +254,7 @@ export default function Minkowski3DModal({ universe, onClose }: Props) {
 
         <div className="minkowski-canvas-wrapper" ref={containerRef}>
           <div className="minkowski-instructions">
-            <span>🖱️ Clique e arraste para rotacionar o espaço-tempo em 3D | Roda do mouse para Zoom</span>
+            <span>Clique e arraste para rotacionar o espaço-tempo em 3D | Roda do mouse para Zoom</span>
           </div>
         </div>
       </div>
