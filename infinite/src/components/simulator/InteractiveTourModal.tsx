@@ -7,45 +7,81 @@ interface Props {
   onOpenShortcuts?: () => void;
 }
 
+interface TourStep {
+  badge: string;
+  title: string;
+  description: React.ReactNode;
+  highlightTarget: string;
+}
+
 export default function InteractiveTourModal({ isOpen, onClose, onOpenShortcuts }: Props) {
   const [currentStep, setCurrentStep] = useState(0);
 
   if (!isOpen) return null;
 
-  const tourSteps = [
+  const tourSteps: TourStep[] = [
     {
       badge: 'PASSO 1 DE 5 • O UNIVERSO ATIVO',
       title: 'Bem-vindo ao Laboratório Infinite Horizons',
-      description:
-        'Você está no controle de um modelo de espaço-tempo relativístico. À esquerda estão as Variedades Dimensionais (11D e paralelas). No centro, o Grafo Causal mostra como os eventos históricos se conectam através da velocidade da luz.',
+      description: (
+        <>
+          Você está no controle de um modelo de espaço-tempo relativístico. À esquerda estão as Variedades Dimensionais (11D e paralelas). No centro, o Grafo Causal mostra como os eventos históricos se conectam através da velocidade da luz.
+        </>
+      ),
       highlightTarget: '.sim-universe-title',
     },
     {
       badge: 'PASSO 2 DE 5 • CONTROLE TEMPORAL',
       title: 'A Máquina do Tempo e Régua de Anos',
-      description:
-        'Na barra inferior, você pode arrastar a coordenada de tempo ou clicar em Reproduzir (atalho: Espaço). O universo se expandirá ano a ano, revelando apenas os eventos que já aconteceram até aquela época.',
+      description: (
+        <>
+          Na barra inferior, você pode arrastar a coordenada de tempo ou clicar em <strong>Reproduzir</strong>{' '}
+          <span className="tour-kbd-pill">
+            <span className="tour-kbd-label">ATALHO</span>
+            <kbd className="tour-kbd-key">Espaço</kbd>
+          </span>. O universo se expandirá ano a ano, revelando apenas os eventos que já aconteceram até aquela época.
+        </>
+      ),
       highlightTarget: '.time-scrubber-container',
     },
     {
       badge: 'PASSO 3 DE 5 • INTERVENÇÕES & FÍSICA',
       title: 'Inspecione Nós e Altere a História',
-      description:
-        'Clique em qualquer nó no gráfico para abrir o Inspetor Lateral à direita. Lá você pode ouvir o som de ondas gravitacionais, ler as equações de Einstein e testar o que acontece ao alterar ou anular um evento do passado.',
+      description: (
+        <>
+          Clique em qualquer nó no gráfico para abrir o Inspetor Lateral à direita. Lá você pode ouvir o som de ondas gravitacionais, ler as equações de Einstein e testar o que acontece ao alterar ou anular um evento do passado.
+        </>
+      ),
       highlightTarget: '.timeline-canvas-container',
     },
     {
       badge: 'PASSO 4 DE 5 • INTELIGÊNCIA ARTIFICIAL',
       title: 'Crono-Oráculo de IA e Efeito Borboleta',
-      description:
-        'O botão "Oráculo IA" na barra superior (atalho: O) conecta você a um comitê científico com modelos de IA de ponta para calcular ramificações no multiverso, resolver paradoxos de Novikov e debater hipóteses.',
+      description: (
+        <>
+          O botão <strong>&quot;Oráculo IA&quot;</strong> na barra superior{' '}
+          <span className="tour-kbd-pill">
+            <span className="tour-kbd-label">ATALHO</span>
+            <kbd className="tour-kbd-key">O</kbd>
+          </span>{' '}
+          conecta você a um comitê científico com modelos de IA de ponta para calcular ramificações no multiverso, resolver paradoxos de Novikov e debater hipóteses.
+        </>
+      ),
       highlightTarget: '.sim-btn-ai',
     },
     {
       badge: 'PASSO 5 DE 5 • ATALHOS & ÁUDIO CÓSMICO',
       title: 'Navegação por Teclado e Som Espacial',
-      description:
-        'O laboratório possui sintetizador de áudio nativo (controle na barra superior) e atalhos rápidos: Espaço (play/pause), setas (navegar anos), L (modo didático), Esc (fechar janelas) e ? para a lista completa.',
+      description: (
+        <>
+          O laboratório possui sintetizador de áudio nativo (controle na barra superior) e atalhos rápidos:{' '}
+          <span className="tour-kbd-pill"><kbd className="tour-kbd-key">Espaço</kbd></span> play/pause,{' '}
+          <span className="tour-kbd-pill"><kbd className="tour-kbd-key">←</kbd> <kbd className="tour-kbd-key">→</kbd></span> navegar anos,{' '}
+          <span className="tour-kbd-pill"><kbd className="tour-kbd-key">L</kbd></span> modo didático,{' '}
+          <span className="tour-kbd-pill"><kbd className="tour-kbd-key">Esc</kbd></span> fechar janelas e{' '}
+          <span className="tour-kbd-pill"><kbd className="tour-kbd-key">?</kbd></span> para o guia completo.
+        </>
+      ),
       highlightTarget: '.shortcuts-tip',
     },
   ];
@@ -116,7 +152,7 @@ export default function InteractiveTourModal({ isOpen, onClose, onOpenShortcuts 
                   onOpenShortcuts();
                 }}
               >
-                Ver Atalhos (?)
+                Ver Atalhos <kbd className="mini-kbd" style={{ marginLeft: '4px' }}>?</kbd>
               </button>
             )}
             <button type="button" className="btn-tour-primary" onClick={handleNext}>

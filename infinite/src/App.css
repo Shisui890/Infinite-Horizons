@@ -8326,6 +8326,45 @@
   color: #ffffff;
 }
 
+/* Styled Shortcut Keycap Pills */
+.tour-kbd-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  vertical-align: middle;
+  background: rgba(0, 229, 255, 0.08);
+  border: 1px solid rgba(0, 229, 255, 0.35);
+  padding: 2px 7px 2px 6px;
+  border-radius: 6px;
+  margin: 0 4px;
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.15);
+}
+
+.tour-kbd-label {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #00e5ff;
+}
+
+.tour-kbd-key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-bottom: 2px solid rgba(0, 229, 255, 0.6);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+
 
 
 
