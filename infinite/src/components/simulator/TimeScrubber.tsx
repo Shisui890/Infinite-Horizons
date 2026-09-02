@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useSimulationStore } from '../../store/useSimulationStore';
 import { useLaymanMode } from '../../context/LaymanModeContext';
+import { CosmicAudio } from '../../engine/CosmicAudioEngine';
 
 export default function TimeScrubber() {
   const { isLaymanMode } = useLaymanMode();
@@ -70,7 +71,12 @@ export default function TimeScrubber() {
           min={minYear}
           max={maxYear}
           value={timelineYear}
-          onChange={e => setTimelineYear(Number(e.target.value))}
+          onChange={e => {
+            const val = Number(e.target.value);
+            setTimelineYear(val);
+            const prog = (val - minYear) / Math.max(1, maxYear - minYear);
+            CosmicAudio.playTemporalWarp(prog);
+          }}
           className="time-scrubber-slider"
           aria-label="Controle deslizante de navegação temporal"
         />
@@ -82,7 +88,10 @@ export default function TimeScrubber() {
           <button
             type="button"
             className="btn-scrubber-nav"
-            onClick={() => setTimelineYear(minYear)}
+            onClick={() => {
+              setTimelineYear(minYear);
+              CosmicAudio.playTemporalWarp(0);
+            }}
             title="Início dos Tempos"
           >
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -93,7 +102,11 @@ export default function TimeScrubber() {
           <button
             type="button"
             className="btn-scrubber-nav"
-            onClick={() => setTimelineYear(Math.max(minYear, timelineYear - 5))}
+            onClick={() => {
+              const ny = Math.max(minYear, timelineYear - 5);
+              setTimelineYear(ny);
+              CosmicAudio.playTemporalWarp((ny - minYear) / Math.max(1, maxYear - minYear));
+            }}
             title="-5 Anos"
           >
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -104,7 +117,12 @@ export default function TimeScrubber() {
           <button
             type="button"
             className={`btn-scrubber-play ${isTimelinePlaying ? 'active' : ''}`}
-            onClick={() => setIsTimelinePlaying(!isTimelinePlaying)}
+            onClick={() => {
+              const next = !isTimelinePlaying;
+              setIsTimelinePlaying(next);
+              if (next) CosmicAudio.playNodeSelect(70);
+              else CosmicAudio.playTemporalWarp(0.5);
+            }}
             title={isTimelinePlaying ? 'Pausar' : 'Reproduzir Tempo'}
           >
             {isTimelinePlaying ? (
@@ -127,7 +145,11 @@ export default function TimeScrubber() {
           <button
             type="button"
             className="btn-scrubber-nav"
-            onClick={() => setTimelineYear(Math.min(maxYear, timelineYear + 5))}
+            onClick={() => {
+              const ny = Math.min(maxYear, timelineYear + 5);
+              setTimelineYear(ny);
+              CosmicAudio.playTemporalWarp((ny - minYear) / Math.max(1, maxYear - minYear));
+            }}
             title="+5 Anos"
           >
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -138,8 +160,11 @@ export default function TimeScrubber() {
           <button
             type="button"
             className="btn-scrubber-nav"
-            onClick={() => setTimelineYear(2025)}
-            title="Presente (2025)"
+            onClick={() => {
+              setTimelineYear(maxYear);
+              CosmicAudio.playTemporalWarp(1);
+            }}
+            title="Presente / Futuro Máximo"
           >
             PRESENTE
           </button>

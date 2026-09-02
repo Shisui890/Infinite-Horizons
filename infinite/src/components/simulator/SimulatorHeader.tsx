@@ -4,6 +4,7 @@ import { Universe } from '../../types/temporal';
 import { getStoredLanguage, setStoredLanguage, DICTIONARY } from '../../utils/i18n';
 import type { Language } from '../../utils/i18n';
 import { URLCompression } from '../../utils/urlCompression';
+import { CosmicAudio } from '../../engine/CosmicAudioEngine';
 
 interface Props {
   universe: Universe;
@@ -17,12 +18,14 @@ interface Props {
   onToggleAIDrawer: () => void;
   onOpenComparator: () => void;
   onOpenGuide?: () => void;
+  onOpenShortcuts?: () => void;
+  onStartTour?: () => void;
   onReset: () => void;
   canUndo: boolean;
   canRedo: boolean;
   onUndo: () => void;
   onRedo: () => void;
-  onExport: (format: 'json' | 'csv' | 'latex' | 'bibtex' | 'png') => void;
+  onExport: (format: 'json' | 'csv' | 'latex' | 'bibtex' | 'png' | 'pdf') => void;
 }
 
 export default function SimulatorHeader({
@@ -37,6 +40,8 @@ export default function SimulatorHeader({
   onToggleAIDrawer,
   onOpenComparator,
   onOpenGuide,
+  onOpenShortcuts,
+  onStartTour,
   onReset,
   canUndo,
   canRedo,
@@ -47,6 +52,13 @@ export default function SimulatorHeader({
   const { isLaymanMode, toggleLaymanMode } = useLaymanMode();
   const [lang, setLang] = useState<Language>(getStoredLanguage());
   const [copiedToast, setCopiedToast] = useState(false);
+  const [isAudioMuted, setIsAudioMuted] = useState(CosmicAudio.isMuted());
+
+  function toggleAudio() {
+    const nextMuted = CosmicAudio.toggleMute();
+    setIsAudioMuted(nextMuted);
+    if (!nextMuted) CosmicAudio.playNodeSelect(80);
+  }
 
   const t = DICTIONARY[lang];
   const integrity = universe.temporalIntegrity;
@@ -247,6 +259,60 @@ export default function SimulatorHeader({
               <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13" />
             </svg>
           </button>
+          {/* Audio Synthesizer Toggle */}
+          <button
+            type="button"
+            className={`sim-btn-icon-util ${!isAudioMuted ? 'active-audio' : ''}`}
+            onClick={toggleAudio}
+            title={isAudioMuted ? 'Ativar Efeitos Sonoros Cósmicos' : 'Silenciar Áudio Cósmico'}
+            aria-label="Controle de Áudio Cósmico"
+          >
+            {isAudioMuted ? (
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="1" y1="1" x2="23" y2="23" />
+                <path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6" />
+                <path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23" />
+                <line x1="12" y1="19" x2="12" y2="23" />
+                <line x1="8" y1="23" x2="16" y2="23" />
+              </svg>
+            ) : (
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+              </svg>
+            )}
+          </button>
+
+          {/* Keyboard Shortcuts Cheatsheet */}
+          {onOpenShortcuts && (
+            <button
+              type="button"
+              className="sim-btn-icon-util"
+              onClick={onOpenShortcuts}
+              title="Guia de Atalhos de Teclado (Pressione ?)"
+              aria-label="Atalhos de Teclado"
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                <line x1="12" y1="17" x2="12.01" y2="17" />
+              </svg>
+            </button>
+          )}
+
+          {/* Interactive Guided Tour */}
+          {onStartTour && (
+            <button
+              type="button"
+              className="sim-btn-icon-util btn-tour-trigger"
+              onClick={onStartTour}
+              title="Iniciar Tour Guiado Interativo na Tela"
+            >
+              Tour
+            </button>
+          )}
+
           {onOpenGuide && (
             <button
               type="button"
@@ -257,6 +323,7 @@ export default function SimulatorHeader({
               Guia
             </button>
           )}
+
           <button
             type="button"
             className="sim-btn-icon-util"
@@ -265,11 +332,12 @@ export default function SimulatorHeader({
           >
             Reset
           </button>
+
           <select
             className="sim-export-select"
             defaultValue=""
             onChange={event => {
-              if (event.target.value) onExport(event.target.value as 'json' | 'csv' | 'latex' | 'bibtex' | 'png');
+              if (event.target.value) onExport(event.target.value as 'json' | 'csv' | 'latex' | 'bibtex' | 'png' | 'pdf');
               event.target.value = '';
             }}
             aria-label="Exportar modelo"
@@ -277,9 +345,10 @@ export default function SimulatorHeader({
             <option value="">{t.export}</option>
             <option value="json">JSON</option>
             <option value="csv">CSV</option>
-            <option value="latex">LaTeX (.tex)</option>
+            <option value="latex">Artigo LaTeX (.tex)</option>
+            <option value="pdf">Relatório PDF / Imprimir</option>
             <option value="bibtex">BibTeX (.bib)</option>
-            <option value="png">Imagem Poster 4K</option>
+            <option value="png">Poster 4K</option>
           </select>
         </div>
       </div>

@@ -2,6 +2,7 @@ import { useRef, useEffect, useState, useCallback } from 'react';
 import type { TemporalEvent, CausalEdge } from '../../types/temporal';
 import { EventStatus } from '../../types/temporal';
 import { LigoAudio } from '../../engine/LigoAudioService';
+import { CosmicAudio } from '../../engine/CosmicAudioEngine';
 import { useLaymanMode } from '../../context/LaymanModeContext';
 import { getLaymanExplanation } from '../../utils/laymanContent';
 
@@ -12,6 +13,15 @@ interface Props {
   highlightChain: string[];
   visibleUntilYear: number;
   onSelectEvent: (eventId: string) => void;
+}
+
+interface GravitationalRipple {
+  x: number;
+  y: number;
+  radius: number;
+  maxRadius: number;
+  opacity: number;
+  color: string;
 }
 
 const STATUS_COLORS: Record<EventStatus, string> = {
@@ -75,6 +85,30 @@ export default function TimelineCanvas({
   const nodePositionsRef = useRef<Map<string, { x: number; y: number; labelY: number; labelAbove: boolean }>>(
     new Map()
   );
+
+  // Gravitational Wave Ripples on Spacetime Grid
+  const ripplesRef = useRef<GravitationalRipple[]>([]);
+
+  const emitRippleAt = useCallback((x: number, y: number, color: string = '#00d4ff') => {
+    ripplesRef.current.push({
+      x,
+      y,
+      radius: 6,
+      maxRadius: 220,
+      opacity: 0.95,
+      color,
+    });
+    CosmicAudio.playMetricWave();
+  }, []);
+
+  useEffect(() => {
+    if (selectedEventId) {
+      const pos = nodePositionsRef.current.get(selectedEventId);
+      if (pos) {
+        emitRippleAt(pos.x, pos.y, '#00d4ff');
+      }
+    }
+  }, [selectedEventId, emitRippleAt]);
 
   const calculateLayout = useCallback((w: number, h: number) => {
     const positions = new Map<string, { x: number; y: number; labelY: number; labelAbove: boolean }>();
@@ -262,6 +296,32 @@ export default function TimelineCanvas({
         ctx!.arc(px, py, isHighlighted ? 3 : 2, 0, Math.PI * 2);
         ctx!.fillStyle = isHighlighted ? '#ef4444' : '#00d4ff';
         ctx!.fill();
+      }
+
+      // 3.5 Draw Relativistic Gravitational Wave Ripples
+      ripplesRef.current = ripplesRef.current.filter(r => r.opacity > 0.02);
+      for (const rip of ripplesRef.current) {
+        rip.radius += 3.2;
+        rip.opacity *= 0.958;
+
+        ctx!.save();
+        ctx!.beginPath();
+        ctx!.arc(rip.x, rip.y, rip.radius, 0, Math.PI * 2);
+        ctx!.strokeStyle = rip.color;
+        ctx!.lineWidth = Math.max(1, 3.2 * rip.opacity);
+        ctx!.globalAlpha = rip.opacity;
+        ctx!.shadowColor = rip.color;
+        ctx!.shadowBlur = 14 * rip.opacity;
+        ctx!.stroke();
+
+        if (rip.radius > 24) {
+          ctx!.beginPath();
+          ctx!.arc(rip.x, rip.y, rip.radius * 0.7, 0, Math.PI * 2);
+          ctx!.lineWidth = Math.max(0.8, 1.6 * rip.opacity);
+          ctx!.globalAlpha = rip.opacity * 0.45;
+          ctx!.stroke();
+        }
+        ctx!.restore();
       }
 
       // 4. Draw Events / Nodes
@@ -538,6 +598,9 @@ export default function TimelineCanvas({
           const dist = Math.hypot(clickX - pos.x, clickY - pos.y);
           if (dist <= 26) {
             onSelectEvent(id);
+            const ev = sortedEvents.find(e => e.id === id);
+            CosmicAudio.playNodeSelect(ev ? ev.importance : 70);
+            emitRippleAt(pos.x, pos.y, ev?.status === EventStatus.PARADOXICAL ? '#ef4444' : '#00d4ff');
             LigoAudio.playSubtleTick();
             break;
           }
@@ -559,6 +622,9 @@ export default function TimelineCanvas({
       const dist = Math.hypot(clickX - pos.x, clickY - pos.y);
       if (dist <= 26) {
         onSelectEvent(id);
+        const ev = sortedEvents.find(e => e.id === id);
+        CosmicAudio.playNodeSelect(ev ? ev.importance : 70);
+        emitRippleAt(pos.x, pos.y, ev?.status === EventStatus.PARADOXICAL ? '#ef4444' : '#00d4ff');
         LigoAudio.playSubtleTick();
         break;
       }
@@ -569,6 +635,26 @@ export default function TimelineCanvas({
     <div ref={containerRef} className="sim-canvas-container">
       {/* Top Floating Interactive HUD */}
       <div className="canvas-floating-controls">
+        <button
+          type="button"
+          className="btn-canvas-hud"
+          onClick={() => {
+            const positions = nodePositionsRef.current;
+            let count = 0;
+            for (const [, pos] of positions.entries()) {
+              const c = count;
+              setTimeout(() => {
+                emitRippleAt(pos.x, pos.y, c % 2 === 0 ? '#00d4ff' : '#a855f7');
+              }, c * 90);
+              count++;
+              if (count >= 5) break;
+            }
+          }}
+          title={isLaymanMode ? 'Disparar ondas de choque pelo espaço-tempo' : 'Emitir Perturbação de Ondas Gravitacionais na Métrica'}
+        >
+          {isLaymanMode ? 'Ondas no Espaço' : 'Ondas Gravitacionais'}
+        </button>
+
         <button
           type="button"
           className={`btn-canvas-hud ${showHeatmap ? 'active-heat' : ''}`}

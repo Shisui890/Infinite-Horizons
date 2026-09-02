@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, lazy, Suspense } from 'react';
+import { useState, useCallback, useEffect, useRef, lazy, Suspense } from 'react';
 import type {
   Universe,
   TemporalEvent,
@@ -20,13 +20,16 @@ import EventInspector from './EventInspector';
 import ParadoxConsole from './ParadoxConsole';
 import TimeScrubber from './TimeScrubber';
 import ReplayControls from './ReplayControls';
-import { exportToLaTeX, exportToBibTeX } from '../../utils/exportAcademic';
+import { exportToBibTeX } from '../../utils/exportAcademic';
 import {
   AddEventModal,
   AddTravelerModal,
   TimeTravelModal,
   AddDimensionModal,
 } from './Modals';
+import { CosmicAudio } from '../../engine/CosmicAudioEngine';
+import { ScientificReportEngine } from '../../engine/ScientificReportEngine';
+import { useLaymanMode } from '../../context/LaymanModeContext';
 
 // Lazy-loaded Heavy Modals & Drawers (Code Splitting)
 const ConferenceModeModal = lazy(() => import('../presentation/ConferenceModeModal'));
@@ -35,6 +38,8 @@ const MonteCarloModal = lazy(() => import('./MonteCarloModal'));
 const AIDrawer = lazy(() => import('./ai/AIDrawer'));
 const PreflightPreviewModal = lazy(() => import('./PreflightPreviewModal'));
 const DimensionComparatorModal = lazy(() => import('./DimensionComparatorModal'));
+const KeyboardShortcutsModal = lazy(() => import('./KeyboardShortcutsModal'));
+const InteractiveTourModal = lazy(() => import('./InteractiveTourModal'));
 
 interface Props {
   onExit: () => void;
@@ -78,7 +83,18 @@ export default function SimulatorView({ onExit, onOpenGuide, initialState }: Pro
     resetUniverse,
   } = useSimulationStore();
 
+  const { isLaymanMode, toggleLaymanMode } = useLaymanMode();
   const [showComparatorModal, setShowComparatorModal] = useState(false);
+  const [showShortcutsModal, setShowShortcutsModal] = useState(false);
+  const [showTourModal, setShowTourModal] = useState(false);
+  const [shortcutToast, setShortcutToast] = useState<string | null>(null);
+  const toastTimerRef = useRef<number | null>(null);
+
+  const triggerToast = useCallback((msg: string) => {
+    setShortcutToast(msg);
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    toastTimerRef.current = window.setTimeout(() => setShortcutToast(null), 1800);
+  }, []);
 
   useEffect(() => {
     if (initialState) {
@@ -92,29 +108,170 @@ export default function SimulatorView({ onExit, onOpenGuide, initialState }: Pro
   const { universe, logs } = universeState;
   const [lastAIResult, setLastAIResult] = useState<AIButterflyResult | null>(null);
 
-  // Keyboard Shortcuts (Ctrl+Z: Undo, Ctrl+Shift+Z/Ctrl+Y: Redo)
+  // Full Keyboard Shortcuts Engine
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement ||
+        e.target instanceof HTMLSelectElement
+      ) {
         return;
       }
 
-      if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+      // Undo / Redo
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
         if (e.shiftKey) {
           if (canRedo()) redo();
         } else {
           if (canUndo()) undo();
         }
-      } else if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
+        return;
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') {
         if (canRedo()) redo();
+        return;
+      }
+
+      // Space: Play / Pause Timeline
+      if (e.code === 'Space') {
+        e.preventDefault();
+        const store = useSimulationStore.getState();
+        const next = !store.isTimelinePlaying;
+        store.setIsTimelinePlaying(next);
+        if (next) {
+          CosmicAudio.playNodeSelect(75);
+          triggerToast('Linha do Tempo em Reprodução');
+        } else {
+          CosmicAudio.playTemporalWarp(0.5);
+          triggerToast('Linha do Tempo Pausada');
+        }
+        return;
+      }
+
+      // ArrowLeft: Step Year Backward
+      if (e.code === 'ArrowLeft') {
+        e.preventDefault();
+        const step = e.shiftKey ? 1 : 5;
+        const store = useSimulationStore.getState();
+        const ny = Math.max(1850, store.timelineYear - step);
+        store.setTimelineYear(ny);
+        CosmicAudio.playTemporalWarp(0.3);
+        triggerToast(`Ano ${ny} AD (-${step}a)`);
+        return;
+      }
+
+      // ArrowRight: Step Year Forward
+      if (e.code === 'ArrowRight') {
+        e.preventDefault();
+        const step = e.shiftKey ? 1 : 5;
+        const store = useSimulationStore.getState();
+        const ny = Math.min(2200, store.timelineYear + step);
+        store.setTimelineYear(ny);
+        CosmicAudio.playTemporalWarp(0.7);
+        triggerToast(`Ano ${ny} AD (+${step}a)`);
+        return;
+      }
+
+      // Escape: Close all active modals/drawers
+      if (e.code === 'Escape') {
+        setShowShortcutsModal(false);
+        setShowTourModal(false);
+        setShowConferenceMode(false);
+        setShowMinkowski3D(false);
+        setShowMonteCarlo(false);
+        setShowAIDrawer(false);
+        setShowAddEvent(false);
+        setShowAddTraveler(false);
+        setShowTimeTravel(false);
+        setShowAddDimension(false);
+        setShowComparatorModal(false);
+        setSelectedEventId(null);
+        return;
+      }
+
+      // O: Toggle AI Oracle Drawer
+      if (e.code === 'KeyO' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        const next = !showAIDrawer;
+        setShowAIDrawer(next);
+        if (next) CosmicAudio.playOracleChime();
+        triggerToast(next ? 'Oráculo IA Aberto' : 'Oráculo IA Fechado');
+        return;
+      }
+
+      // C: Toggle Dimension Comparator
+      if (e.code === 'KeyC' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        setShowComparatorModal(prev => !prev);
+        CosmicAudio.playNodeSelect(85);
+        return;
+      }
+
+      // M: Toggle Monte Carlo Simulation
+      if (e.code === 'KeyM' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        const store = useSimulationStore.getState();
+        setShowMonteCarlo(!store.showMonteCarlo);
+        CosmicAudio.playNodeSelect(80);
+        return;
+      }
+
+      // L: Toggle Layman / Academic Mode
+      if (e.code === 'KeyL' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        toggleLaymanMode();
+        CosmicAudio.playNodeSelect(60);
+        triggerToast(isLaymanMode ? 'Modo Rigoroso Ativado' : 'Modo Didático Ativado');
+        return;
+      }
+
+      // H: Toggle Heatmap
+      if (e.code === 'KeyH' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        const heatBtn = document.querySelector('.btn-canvas-hud') as HTMLButtonElement | null;
+        if (heatBtn) heatBtn.click();
+        triggerToast('Mapa de Calor Alternado');
+        return;
+      }
+
+      // ?: Open Keyboard Shortcuts Cheatsheet
+      if (e.key === '?' || (e.shiftKey && e.code === 'Slash')) {
+        e.preventDefault();
+        setShowShortcutsModal(prev => !prev);
+        CosmicAudio.playNodeSelect(90);
+        return;
       }
     }
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [canUndo, canRedo, undo, redo]);
+  }, [
+    canUndo,
+    canRedo,
+    undo,
+    redo,
+    showAIDrawer,
+    setShowAIDrawer,
+    setShowConferenceMode,
+    setShowMinkowski3D,
+    setShowMonteCarlo,
+    setShowAddEvent,
+    setShowAddTraveler,
+    setShowTimeTravel,
+    setShowAddDimension,
+    setSelectedEventId,
+    toggleLaymanMode,
+    isLaymanMode,
+    triggerToast,
+  ]);
 
-  const handleExport = useCallback((format: 'json' | 'csv' | 'latex' | 'bibtex' | 'png') => {
+  const handleExport = useCallback((format: 'json' | 'csv' | 'latex' | 'bibtex' | 'png' | 'pdf') => {
+    if (format === 'pdf') {
+      ScientificReportEngine.openPrintableReport(universe);
+      triggerToast('Relatório PDF aberto para impressão');
+      return;
+    }
+
     if (format === 'png') {
       const canvas = document.querySelector('.sim-canvas') as HTMLCanvasElement;
       if (canvas) {
@@ -123,6 +280,19 @@ export default function SimulatorView({ onExit, onOpenGuide, initialState }: Pro
         link.href = canvas.toDataURL('image/png');
         link.click();
       }
+      return;
+    }
+
+    if (format === 'latex') {
+      const latexCode = ScientificReportEngine.generateLaTeX(universe);
+      const blob = new Blob([latexCode], { type: 'application/x-latex;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `artigo_cientifico_${universe.id}.tex`;
+      link.click();
+      URL.revokeObjectURL(url);
+      triggerToast('Artigo LaTeX exportado (.tex)');
       return;
     }
 
@@ -144,10 +314,6 @@ export default function SimulatorView({ onExit, onOpenGuide, initialState }: Pro
       ].join('\n');
       mimeType = 'text/csv';
       fileExtension = 'csv';
-    } else if (format === 'latex') {
-      content = exportToLaTeX(universe);
-      mimeType = 'application/x-latex';
-      fileExtension = 'tex';
     } else if (format === 'bibtex') {
       content = exportToBibTeX(universe);
       mimeType = 'text/plain';
@@ -161,7 +327,7 @@ export default function SimulatorView({ onExit, onOpenGuide, initialState }: Pro
     link.download = `infinite_horizons_${universe.id}_${Date.now()}.${fileExtension}`;
     link.click();
     URL.revokeObjectURL(url);
-  }, [universe, universeState]);
+  }, [universe, universeState, triggerToast]);
 
   const activeDimension =
     universe.dimensions.find(dimension => dimension.id === activeDimensionId) ||
@@ -303,6 +469,8 @@ export default function SimulatorView({ onExit, onOpenGuide, initialState }: Pro
         onToggleAIDrawer={() => setShowAIDrawer(!showAIDrawer)}
         onOpenComparator={() => setShowComparatorModal(true)}
         onOpenGuide={onOpenGuide}
+        onOpenShortcuts={() => setShowShortcutsModal(true)}
+        onStartTour={() => setShowTourModal(true)}
         onReset={resetUniverse}
         canUndo={canUndo()}
         canRedo={canRedo()}
@@ -465,6 +633,35 @@ export default function SimulatorView({ onExit, onOpenGuide, initialState }: Pro
             }}
           />
         </Suspense>
+      )}
+
+      {/* Keyboard Shortcuts Cheatsheet Modal */}
+      {showShortcutsModal && (
+        <Suspense fallback={null}>
+          <KeyboardShortcutsModal
+            isOpen={showShortcutsModal}
+            onClose={() => setShowShortcutsModal(false)}
+          />
+        </Suspense>
+      )}
+
+      {/* Interactive Guided Tour Modal */}
+      {showTourModal && (
+        <Suspense fallback={null}>
+          <InteractiveTourModal
+            isOpen={showTourModal}
+            onClose={() => setShowTourModal(false)}
+            onOpenShortcuts={() => setShowShortcutsModal(true)}
+          />
+        </Suspense>
+      )}
+
+      {/* HUD Toast for Keyboard Actions */}
+      {shortcutToast && (
+        <div className="shortcut-toast-pill" role="status" aria-live="polite">
+          <span className="toast-dot" />
+          <span>{shortcutToast}</span>
+        </div>
       )}
     </div>
   );
