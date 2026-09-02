@@ -129,37 +129,37 @@ export default function DemoSection({ onStartSimulator }: Props) {
         ctx!.lineWidth = 1;
         ctx!.stroke();
 
-        ctx!.font = '600 10px Inter, sans-serif';
-        ctx!.fillStyle = 'rgba(232, 234, 246, 0.95)';
+        ctx!.font = '600 11px "Plus Jakarta Sans", system-ui, sans-serif';
+        ctx!.fillStyle = '#f8fafc';
         ctx!.textAlign = 'center';
         ctx!.fillText(isLaymanMode ? node.laymanLabel : node.label, node.x, node.y + 26);
 
-        ctx!.font = '9px Orbitron, sans-serif';
+        ctx!.font = '500 10px "JetBrains Mono", monospace';
         ctx!.fillStyle = col.main;
-        ctx!.fillText(String(node.year), node.x, node.y + 39);
+        ctx!.fillText(String(node.year), node.x, node.y + 40);
       }
 
-      // Top Status Bar: Clean Layout with No Text Overlap
-      ctx!.font = '10px Orbitron, sans-serif';
-      ctx!.fillStyle = 'rgba(232, 234, 246, 0.7)';
+      // Top Status Bar: Clean Minimalist Observatory Telemetry
+      ctx!.font = '600 10px "JetBrains Mono", monospace';
+      ctx!.fillStyle = 'rgba(148, 163, 184, 0.85)';
       ctx!.textAlign = 'left';
-      ctx!.fillText(isLaymanMode ? 'SAÚDE DA LINHA TEMPORAL' : 'COERÊNCIA DO MODELO CAUSAL', 20, 26);
+      ctx!.fillText(isLaymanMode ? 'ESTABILIDADE DA LINHA' : 'COERÊNCIA MÉTRICA (DAG)', 24, 26);
 
       ctx!.fillStyle = 'rgba(255, 255, 255, 0.08)';
-      ctx!.fillRect(20, 33, 150, 6);
+      ctx!.fillRect(24, 33, 140, 5);
 
-      ctx!.fillStyle = '#00d4ff';
-      ctx!.fillRect(20, 33, 147, 6);
+      ctx!.fillStyle = '#00e5ff';
+      ctx!.fillRect(24, 33, 137, 5);
 
-      ctx!.font = '10px Orbitron, sans-serif';
-      ctx!.fillStyle = '#00d4ff';
-      ctx!.fillText('98%', 178, 40);
+      ctx!.font = '600 10px "JetBrains Mono", monospace';
+      ctx!.fillStyle = '#00e5ff';
+      ctx!.fillText('98.4%', 172, 39);
 
       // Right Status Indicator
-      ctx!.font = '10px Orbitron, sans-serif';
-      ctx!.fillStyle = 'rgba(0, 212, 255, 0.9)';
+      ctx!.font = '600 10px "JetBrains Mono", monospace';
+      ctx!.fillStyle = 'rgba(0, 229, 255, 0.9)';
       ctx!.textAlign = 'right';
-      ctx!.fillText(isLaymanMode ? 'ESTADO: SEM PARADOXOS NO TEMPO' : 'ESTADO: AUTOCONSISTÊNCIA PRESERVADA', W - 20, 26);
+      ctx!.fillText(isLaymanMode ? 'STATUS: LIVRE DE PARADOXOS' : 'STATUS: AUTOCONSISTÊNCIA PRESERVADA', W - 24, 26);
 
       animRef.current = requestAnimationFrame(draw);
     }
@@ -174,17 +174,17 @@ export default function DemoSection({ onStartSimulator }: Props) {
       <div className="section-container">
         <div className="section-header">
           <span className="section-tag">
-            {isLaymanMode ? 'LINHA DO TEMPO VIVA' : 'SIMULAÇÃO DE GRAFO CAUSAL'}
+            {isLaymanMode ? 'EXPERIMENTO VIVO' : 'SIMULAÇÃO DE GRAFO CAUSAL'}
           </span>
           <h2 className="section-title">
             {isLaymanMode
-              ? 'Como Grandes Ideias Mudam o Destino da Humanidade'
-              : 'Estrutura de Dependência Causal e Validação Científica'}
+              ? 'Veja as Ideias Conectadas no Espaço-Tempo'
+              : 'Estrutura Topológica de Dependência Causal'}
           </h2>
           <p className="section-subtitle">
             {isLaymanMode
-              ? 'Veja como as descobertas sobre o espaço, o tempo e os buracos negros estão conectadas como os fios de um grande filme de ficção.'
-              : 'Visualização topológica de marcos fundamentais da física moderna. Cada nó representa uma teoria ou observação documentada, interligada por relações de dedução e comprovação empírica.'}
+              ? 'Cada marco científico influencia as descobertas seguintes. Experimente alterar ou criar novos caminhos no simulador completo.'
+              : 'Visualização da rede de causalidade relativística. Cada nó representa uma formulação teórica ou evidência empírica.'}
           </p>
         </div>
 
@@ -192,21 +192,26 @@ export default function DemoSection({ onStartSimulator }: Props) {
           <canvas ref={canvasRef} className="demo-canvas" />
           <div className="demo-overlay-badges">
             <span className="demo-badge demo-badge-stable">
-              {isLaymanMode ? 'PROVADO NO MUNDO REAL' : 'COMPROVADO EXPERIMENTALMENTE'}
+              <span className="badge-dot dot-stable" />
+              {isLaymanMode ? 'Fato Comprovado' : 'Comprovado Empiricamente'}
             </span>
             <span className="demo-badge demo-badge-altered">
-              {isLaymanMode ? 'EM INVESTIGAÇÃO' : 'MODELO TEÓRICO EM ANÁLISE'}
+              <span className="badge-dot dot-altered" />
+              {isLaymanMode ? 'Em Investigação' : 'Modelo Teórico em Teste'}
             </span>
             <span className="demo-badge demo-badge-paradox">
-              {isLaymanMode ? '11 DIMENSÕES SECRETAS' : 'HIPÓTESE DE UNIFICAÇÃO'}
+              <span className="badge-dot dot-paradox" />
+              {isLaymanMode ? '11 Dimensões' : 'Hipótese de Unificação'}
             </span>
           </div>
         </div>
 
         <div className="demo-cta">
           <button type="button" className="btn-cta" onClick={onStartSimulator}>
-            <span className="btn-cta-text">{isLaymanMode ? 'ENTRAR NO SIMULADOR' : 'EXPLORAR NO SIMULADOR'}</span>
-            <span className="btn-cta-glow" />
+            <span>{isLaymanMode ? 'Abrir Laboratório Completo' : 'Entrar no Laboratório Temporal'}</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
           </button>
         </div>
       </div>

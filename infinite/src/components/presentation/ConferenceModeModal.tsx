@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useLaymanMode } from '../../context/LaymanModeContext';
 import { getLaymanExplanation } from '../../utils/laymanContent';
 import type { Universe, TemporalEvent } from '../../types/temporal';
@@ -94,19 +94,23 @@ const FORMULAS_BY_YEAR: Record<number, FormulaDetail> = {
 
 export default function ConferenceModeModal({ universe, onClose }: Props) {
   const { isLaymanMode } = useLaymanMode();
-  const events = universe.dimensions.flatMap(d => d.events).sort((a, b) => a.year - b.year);
+  const events = useMemo(
+    () => universe.dimensions.flatMap(d => d.events).sort((a, b) => a.year - b.year),
+    [universe]
+  );
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const totalEvents = events.length;
 
   const currentEvent: TemporalEvent | undefined = events[currentIndex];
 
   const handleNext = useCallback(() => {
-    setCurrentIndex(prev => (prev < events.length - 1 ? prev + 1 : 0));
-  }, [events.length]);
+    setCurrentIndex(prev => (prev < totalEvents - 1 ? prev + 1 : 0));
+  }, [totalEvents]);
 
   const handlePrev = useCallback(() => {
-    setCurrentIndex(prev => (prev > 0 ? prev - 1 : events.length - 1));
-  }, [events.length]);
+    setCurrentIndex(prev => (prev > 0 ? prev - 1 : Math.max(0, totalEvents - 1)));
+  }, [totalEvents]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -291,7 +295,7 @@ export default function ConferenceModeModal({ universe, onClose }: Props) {
           </button>
 
           <div className="conf-timeline-dots">
-            {events.map((ev, idx) => (
+            {events.map((ev: TemporalEvent, idx: number) => (
               <button
                 key={ev.id}
                 type="button"

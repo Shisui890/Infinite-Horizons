@@ -1,5 +1,5 @@
 import type { TemporalEvent, Traveler, CausalEdge, Paradox } from '../types/temporal';
-import { ParadoxType, ParadoxSeverity, EventStatus, TravelerStatus } from '../types/temporal';
+import { ParadoxType, ParadoxSeverity, EventStatus } from '../types/temporal';
 import { GraphEngine } from './GraphEngine';
 
 export class ParadoxEngine {
@@ -9,8 +9,9 @@ export class ParadoxEngine {
     edges: CausalEdge[]
   ): Paradox[] {
     const paradoxes: Paradox[] = [];
-    const eventsMap = new Map<string, TemporalEvent>(events.map(e => [e.id, e]));
+    const eventsMap = new Map<string, TemporalEvent>(events.map(e => [e.id, { ...e }]));
 
+    // 1. Paradoxo do Avô (Inconsistência de Contorno de Novikov)
     for (const traveler of travelers) {
       if (!traveler.originEventId) continue;
 
@@ -22,8 +23,6 @@ export class ParadoxEngine {
         originEvent.status === EventStatus.COLLAPSED ||
         originEvent.status === EventStatus.PARADOXICAL
       ) {
-        traveler.status = TravelerStatus.PARADOXICAL;
-
         paradoxes.push({
           id: `pdx-gf-${traveler.id}`,
           type: ParadoxType.GRANDFATHER_PARADOX,
@@ -35,37 +34,67 @@ export class ParadoxEngine {
           travelerId: traveler.id,
           causalChain: Array.from(GraphEngine.getAncestors(originEvent.id, edges)).concat(originEvent.id),
         });
-
-        originEvent.status = EventStatus.PARADOXICAL;
       }
     }
 
+    // 2. Loops Causais & Paradoxo de Bootstrap (Informação Sem Origem Causal)
     const cycles = GraphEngine.findCycles(events, edges);
     for (let i = 0; i < cycles.length; i++) {
       const cycle = cycles[i];
       const firstEvent = eventsMap.get(cycle[0]);
 
       if (firstEvent) {
+        // Verificar se algum nó do ciclo tem premissa causal externa
+        const hasExternalAncestor = cycle.some(nodeId => {
+          const parents = GraphEngine.getParents(nodeId, edges);
+          return parents.some(p => !cycle.includes(p));
+        });
+
+        const isBootstrap = !hasExternalAncestor && cycle.length >= 2;
+
         paradoxes.push({
-          id: `pdx-loop-${i}`,
-          type: ParadoxType.CAUSAL_LOOP,
-          severity: ParadoxSeverity.HIGH,
-          title: `Loop Causal Fechado (Dependência Circular)`,
-          description: `Detectada dependência causal circular fechada no grafo de geodésicas, violando a estrutura acíclica e a conservação de probabilidade global (${cycle.length} nós acoplados).`,
+          id: isBootstrap ? `pdx-boot-${i}` : `pdx-loop-${i}`,
+          type: isBootstrap ? ParadoxType.BOOTSTRAP_PARADOX : ParadoxType.CAUSAL_LOOP,
+          severity: isBootstrap ? ParadoxSeverity.CATASTROPHIC : ParadoxSeverity.HIGH,
+          title: isBootstrap
+            ? `Paradoxo Ontológico de Bootstrap (${cycle.length} nós sem origem primordial)`
+            : `Loop Causal Fechado (Dependência Circular)`,
+          description: isBootstrap
+            ? `A informação circula eternamente em geodésica fechada sem evento criador primordial documentado (entropia nula de origem). Nós envolvidos: ${cycle.join(' → ')}.`
+            : `Detectada dependência causal circular fechada no grafo de geodésicas, violando a estrutura acíclica (${cycle.length} nós acoplados).`,
           dimensionId: firstEvent.dimensionId,
           eventId: firstEvent.id,
           causalChain: cycle,
         });
+      }
+    }
 
-        for (const eventId of cycle) {
-          const ev = eventsMap.get(eventId);
-          if (ev && ev.status === EventStatus.STABLE) {
-            ev.status = EventStatus.PARADOXICAL;
-          }
-        }
+    // 3. Conflito de Duplicação Temporal (Mesmo Viajante Co-existente com Estados Incompatíveis)
+    const travelerYearMap = new Map<string, Traveler[]>();
+    for (const traveler of travelers) {
+      const key = `${traveler.name}-${traveler.currentDimensionId}-${traveler.currentYear}`;
+      const existing = travelerYearMap.get(key) || [];
+      existing.push(traveler);
+      travelerYearMap.set(key, existing);
+    }
+
+    for (const [, duplicates] of travelerYearMap.entries()) {
+      if (duplicates.length > 1) {
+        const lead = duplicates[0];
+        paradoxes.push({
+          id: `pdx-dup-${lead.id}`,
+          type: ParadoxType.TEMPORAL_CONTRADICTION,
+          severity: ParadoxSeverity.HIGH,
+          title: `Interferência de Co-existência: ${lead.name}`,
+          description: `Detectadas ${duplicates.length} instâncias simultâneas do mesmo observador no ano ${lead.currentYear} da dimensão ${lead.currentDimensionId}, gerando indeterminação na linha de universo.`,
+          dimensionId: lead.currentDimensionId,
+          travelerId: lead.id,
+          causalChain: duplicates.map(d => d.id),
+        });
       }
     }
 
     return paradoxes;
   }
 }
+

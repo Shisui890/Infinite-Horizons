@@ -15,14 +15,42 @@ import type {
 import { EventStatus, CausalRelation } from '../types/temporal';
 import { SimulationService } from './SimulationService';
 
-export class AITemporalService {
-  private static config: AIConfig = {
-    provider: (import.meta.env.VITE_AI_PROVIDER as 'builtin' | 'openrouter' | 'custom_api') || 'custom_api',
-    endpoint: import.meta.env.VITE_AI_ENDPOINT || '/api/temporal',
-    apiKey: import.meta.env.VITE_OPENROUTER_API_KEY || '',
-    openRouterModel: import.meta.env.VITE_OPENROUTER_MODEL || 'anthropic/claude-3.5-sonnet',
+const AI_STORAGE_KEY = 'infinite-horizons:ai-config';
+
+function loadInitialConfig(): AIConfig {
+  const envProvider = (import.meta.env.VITE_AI_PROVIDER as 'builtin' | 'openrouter' | 'custom_api') || 'openrouter';
+  const envEndpoint = import.meta.env.VITE_AI_ENDPOINT || '/api/temporal';
+  const envApiKey = import.meta.env.VITE_OPENROUTER_API_KEY || '';
+  const envModel = import.meta.env.VITE_OPENROUTER_MODEL || 'anthropic/claude-3.5-sonnet';
+
+  try {
+    const saved = localStorage.getItem(AI_STORAGE_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      return {
+        provider: parsed.provider || envProvider,
+        endpoint: parsed.endpoint || envEndpoint,
+        apiKey: parsed.apiKey || envApiKey,
+        openRouterModel: parsed.openRouterModel || envModel,
+        autoButterflyEnabled: parsed.autoButterflyEnabled !== undefined ? parsed.autoButterflyEnabled : true,
+      };
+    }
+  } catch {
+    // Ignore storage parse error
+  }
+
+  return {
+    provider: envProvider,
+    endpoint: envEndpoint,
+    apiKey: envApiKey,
+    openRouterModel: envModel,
     autoButterflyEnabled: true,
   };
+}
+
+export class AITemporalService {
+  private static config: AIConfig = loadInitialConfig();
+  private static responseCache = new Map<string, { data: unknown; timestamp: number }>();
 
   public static getConfig(): AIConfig {
     return this.config;
@@ -30,6 +58,107 @@ export class AITemporalService {
 
   public static updateConfig(newConfig: Partial<AIConfig>) {
     this.config = { ...this.config, ...newConfig };
+    try {
+      localStorage.setItem(AI_STORAGE_KEY, JSON.stringify(this.config));
+    } catch {
+      // Storage quota or error
+    }
+  }
+
+  /**
+   * Extrai e faz parse seguro de JSON retornado por LLMs
+   */
+  public static extractJson<T>(raw: string): T | null {
+    if (!raw) return null;
+    try {
+      const match = raw.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
+      const cleaned = match ? match[0] : raw.replace(/```json/gi, '').replace(/```/g, '').trim();
+      return JSON.parse(cleaned) as T;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Recupera resposta do cache se válida (< 10 minutos)
+   */
+  public static getCached<T>(key: string): T | null {
+    const cached = this.responseCache.get(key);
+    if (cached && Date.now() - cached.timestamp < 10 * 60 * 1000) {
+      return cached.data as T;
+    }
+    return null;
+  }
+
+  /**
+   * Salva resposta em cache
+   */
+  public static setCache(key: string, data: unknown) {
+    this.responseCache.set(key, { data, timestamp: Date.now() });
+  }
+
+  /**
+   * Testa a conexão com o OpenRouter ou API customizada e mede a latência em milissegundos
+   */
+  public static async testConnection(): Promise<{ success: boolean; latencyMs: number; message: string }> {
+    const startTime = performance.now();
+    if (this.config.provider === 'openrouter') {
+      if (!this.config.apiKey) {
+        return { success: false, latencyMs: 0, message: 'Chave de API do OpenRouter não configurada.' };
+      }
+
+      try {
+        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${this.config.apiKey}`,
+            'HTTP-Referer': 'https://infinite-horizons.app',
+            'X-Title': 'Infinite Horizons Temporal Simulator',
+          },
+          body: JSON.stringify({
+            model: this.config.openRouterModel || 'anthropic/claude-3.5-sonnet',
+            max_tokens: 10,
+            messages: [{ role: 'user', content: 'Ping' }],
+          }),
+        });
+
+        const latencyMs = Math.round(performance.now() - startTime);
+
+        if (response.ok) {
+          return {
+            success: true,
+            latencyMs,
+            message: `Conectado com sucesso ao OpenRouter (${this.config.openRouterModel}) em ${latencyMs}ms.`,
+          };
+        } else {
+          const errData = await response.json().catch(() => ({}));
+          const errMsg = (errData as any)?.error?.message || response.statusText;
+          return { success: false, latencyMs, message: `Erro HTTP ${response.status}: ${errMsg}` };
+        }
+      } catch (err: any) {
+        const latencyMs = Math.round(performance.now() - startTime);
+        return { success: false, latencyMs, message: `Falha de rede ao conectar com OpenRouter: ${err?.message || err}` };
+      }
+    }
+
+    // Provedor custom_api
+    try {
+      const endpoint = this.config.endpoint || '/api/temporal';
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ task: 'ping' }),
+      });
+      const latencyMs = Math.round(performance.now() - startTime);
+      if (response.ok) {
+        return { success: true, latencyMs, message: `Servidor Serverless conectado em ${latencyMs}ms.` };
+      }
+      return { success: false, latencyMs, message: `Endpoint respondeu com status ${response.status}.` };
+    } catch (err: any) {
+      const latencyMs = Math.round(performance.now() - startTime);
+      return { success: false, latencyMs, message: `Erro ao conectar com endpoint: ${err?.message || err}` };
+    }
   }
 
   /**
@@ -722,4 +851,94 @@ Retorne APENAS um JSON:
       },
     ];
   }
+
+  /**
+   * Conversação livre em tempo real com o Oráculo Físico via SSE / Streaming
+   */
+  public static async streamChatWithOracle(
+    messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>,
+    onChunk: (accumulatedText: string) => void
+  ): Promise<string> {
+    // 1. OpenRouter com streaming ativo
+    if (this.config.provider === 'openrouter' && this.config.apiKey) {
+      try {
+        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${this.config.apiKey}`,
+            'HTTP-Referer': 'https://infinite-horizons.app',
+            'X-Title': 'Infinite Horizons AI Co-Pilot',
+          },
+          body: JSON.stringify({
+            model: this.config.openRouterModel || 'anthropic/claude-3.5-sonnet',
+            temperature: 0.2,
+            stream: true,
+            messages,
+          }),
+        });
+
+        if (response.ok && response.body) {
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder('utf-8');
+          let accumulated = '';
+          let buffer = '';
+
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop() || '';
+
+            for (const line of lines) {
+              const trimmed = line.trim();
+              if (!trimmed || trimmed.startsWith(':')) continue;
+              if (trimmed === 'data: [DONE]') break;
+
+              if (trimmed.startsWith('data: ')) {
+                try {
+                  const data = JSON.parse(trimmed.slice(6)) as {
+                    choices?: Array<{ delta?: { content?: string } }>;
+                  };
+                  const chunk = data.choices?.[0]?.delta?.content;
+                  if (chunk) {
+                    accumulated += chunk;
+                    onChunk(accumulated);
+                  }
+                } catch {
+                  // Ignore JSON parse errors in stream chunks
+                }
+              }
+            }
+          }
+
+          if (accumulated.trim()) return accumulated;
+        }
+      } catch (err) {
+        console.warn('Streaming do OpenRouter falhou, aplicando fallback acústico:', err);
+      }
+    }
+
+    // 2. Fallback de Simulação Local com Streaming Sintético
+    const lastUserMsg = messages.filter(m => m.role === 'user').pop()?.content || '';
+    const fallbackAnswer = `Analisando a questão sob o ponto de vista da Relatividade Geral e Gravitação Quântica:
+
+Para a premissa levantada ("${lastUserMsg.slice(0, 100)}"):
+
+1. **Estrutura Métrica**: As geodésicas de espaço-tempo respeitam a invariância do intervalo de Minkowski $ds^2 = -c^2 dt^2 + dx^2 + dy^2 + dz^2$. Qualquer intervenção causal propaga uma onda de curvatura no cone de luz futuro.
+2. **Censura Cronológica de Novikov**: As equações de campo proíbem soluções com autocontradição lógica ($P(\\text{paradoxo}) = 0$). O universo auto-ajusta probabilidades para preservar a integridade.
+3. **Recomendação**: Para explorar esta hipótese com máxima estabilidade, recomenda-se criar uma bifurcação dimensional ($\\\\Omega\\\\text{-03}$) ou ancorar os nós antecedentes.`;
+
+    let current = '';
+    const words = fallbackAnswer.split(' ');
+    for (let i = 0; i < words.length; i++) {
+      current += (i === 0 ? '' : ' ') + words[i];
+      onChunk(current);
+      await new Promise(r => setTimeout(r, 20));
+    }
+    return current;
+  }
 }
+

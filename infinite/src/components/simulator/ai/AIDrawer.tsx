@@ -8,7 +8,7 @@ import type {
 import { AITemporalService } from '../../../engine/AITemporalService';
 import { MultiAgentDebateService } from '../../../engine/MultiAgentDebateService';
 import type { DebateReport } from '../../../engine/MultiAgentDebateService';
-import MathFormula from '../../MathFormula';
+import MathFormula, { MathText } from '../../MathFormula';
 
 interface Props {
   universe: Universe;
@@ -18,16 +18,28 @@ interface Props {
 }
 
 const OPENROUTER_MODELS = [
-  { id: 'anthropic/claude-3.5-sonnet', name: 'Claude 3.5 Sonnet (Anthropic) — Raciocínio & Física de Ponta' },
-  { id: 'google/gemini-2.0-flash-001', name: 'Gemini 2.0 Flash (Google) — Rápido & Preciso' },
+  { id: 'anthropic/claude-3.7-sonnet', name: 'Claude 3.7 Sonnet (Anthropic) — Raciocínio Híbrido' },
+  { id: 'anthropic/claude-3.5-sonnet', name: 'Claude 3.5 Sonnet (Anthropic) — Física Teórica & Causalidade' },
+  { id: 'openai/gpt-4o', name: 'GPT-4o (OpenAI) — Multimodal de Alta Velocidade' },
+  { id: 'deepseek/deepseek-r1', name: 'DeepSeek R1 (DeepSeek) — Raciocínio Matemático CoT' },
   { id: 'deepseek/deepseek-chat', name: 'DeepSeek V3 (DeepSeek) — Altíssima Eficiência' },
-  { id: 'openai/gpt-4o-mini', name: 'GPT-4o Mini (OpenAI) — Estruturado & Econômico' },
-  { id: 'meta-llama/llama-3.3-70b-instruct', name: 'Llama 3.3 70B (Meta) — Open Source de Elite' },
+  { id: 'google/gemini-2.0-flash-001', name: 'Gemini 2.0 Flash (Google) — Ultra-Baixa Latência' },
+  { id: 'meta-llama/llama-3.3-70b-instruct', name: 'Llama 3.3 70B (Meta) — Open Weights' },
 ];
 
 export default function AIDrawer({ universe, lastAIResult, onClose, onApplyResolution }: Props) {
-  const [activeTab, setActiveTab] = useState<'symposium' | 'butterfly' | 'futures' | 'resolutions' | 'settings'>('symposium');
+  const [activeTab, setActiveTab] = useState<'copilot' | 'symposium' | 'butterfly' | 'futures' | 'resolutions' | 'settings'>('copilot');
   const [selectedParadoxId, setSelectedParadoxId] = useState<string>(universe.paradoxes[0]?.id || '');
+
+  // Co-pilot Live Streaming State
+  const [chatMessages, setChatMessages] = useState<Array<{ role: 'system' | 'user' | 'assistant'; content: string }>>([
+    {
+      role: 'assistant',
+      content: 'Olá! Sou o Oráculo Físico do Infinite Horizons. Posso analisar as equações de relatividade do seu universo ativo, avaliar paradoxos ou calcular o impacto de novas geodésicas. O que deseja investigar?',
+    },
+  ]);
+  const [chatInput, setChatInput] = useState('');
+  const [isStreamingChat, setIsStreamingChat] = useState(false);
 
   // Multi-agent symposium state
   const [debateTopic, setDebateTopic] = useState('Validação da Conjectura Holográfica ER=EPR e Geometria de Kerr');
@@ -46,6 +58,7 @@ export default function AIDrawer({ universe, lastAIResult, onClose, onApplyResol
   const [customModel, setCustomModel] = useState('');
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [testStatus, setTestStatus] = useState<string | null>(null);
+  const [latencyMs, setLatencyMs] = useState<number | null>(null);
 
   const allEvents = universe.dimensions.flatMap(d => d.events);
   const insight = AITemporalService.analyzeUniverse(universe);
@@ -55,6 +68,49 @@ export default function AIDrawer({ universe, lastAIResult, onClose, onApplyResol
   const resolutions: AIParadoxResolution[] = targetParadox
     ? AITemporalService.suggestParadoxResolutions(targetParadox, allEvents)
     : [];
+
+  async function handleSendChat(textToSend?: string) {
+    const text = (textToSend || chatInput).trim();
+    if (!text || isStreamingChat) return;
+
+    setChatInput('');
+    const newHistory = [
+      ...chatMessages,
+      { role: 'user' as const, content: text },
+    ];
+    setChatMessages(newHistory);
+    setIsStreamingChat(true);
+
+    // Initial empty assistant message for streaming
+    setChatMessages(prev => [...prev, { role: 'assistant' as const, content: '' }]);
+
+    const systemContext = `Você é o Oráculo Científico e Co-piloto de Física Teórica do laboratório Infinite Horizons.
+Universo Ativo: "${universe.name}".
+Integridade Temporal: ${universe.temporalIntegrity}%.
+Paradoxos Ativos: ${universe.paradoxes.length}.
+Dimensões: ${universe.dimensions.map(d => d.name).join(', ')}.
+Eventos Registrados: ${allEvents.map(e => `${e.year}: ${e.title}`).join(' | ')}.
+Responda de forma rigorosa, elegante, inspiradora e científica com formatação Markdown e LaTeX ($...$) quando cabível.`;
+
+    const payload = [
+      { role: 'system' as const, content: systemContext },
+      ...newHistory,
+    ];
+
+    try {
+      await AITemporalService.streamChatWithOracle(payload, (accumulated) => {
+        setChatMessages(prev => {
+          const updated = [...prev];
+          updated[updated.length - 1] = { role: 'assistant', content: accumulated };
+          return updated;
+        });
+      });
+    } catch {
+      // Handled
+    } finally {
+      setIsStreamingChat(false);
+    }
+  }
 
   async function handleStartDebate() {
     if (!debateTopic.trim()) return;
@@ -78,116 +134,275 @@ export default function AIDrawer({ universe, lastAIResult, onClose, onApplyResol
       openRouterModel: customModel.trim() || openRouterModel,
     });
     setSavedSuccess(true);
-    setTimeout(() => setSavedSuccess(false), 2500);
+    setTimeout(() => setSavedSuccess(false), 3000);
+  }
+
+  function handleQuickModelChange(modelId: string) {
+    setOpenRouterModel(modelId);
+    setCustomModel('');
+    AITemporalService.updateConfig({
+      openRouterModel: modelId,
+    });
   }
 
   async function handleTestConnection() {
-    setTestStatus('Testando conexão...');
+    setTestStatus('Testando latência e conexão...');
+    setLatencyMs(null);
+    const start = performance.now();
     try {
-      if (provider === 'openrouter') {
-        if (!apiKey) {
-          setTestStatus('Erro: Insira uma chave de API do OpenRouter para testar.');
-          return;
-        }
-        const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${apiKey}`,
-            'HTTP-Referer': 'https://infinite-horizons.app',
-            'X-Title': 'Infinite Horizons Temporal Simulator',
-          },
-          body: JSON.stringify({
-            model: customModel.trim() || openRouterModel,
-            messages: [{ role: 'user', content: 'Ping: responda apenas "OK".' }],
-            max_tokens: 5,
-          }),
-        });
-        if (res.ok) {
-          setTestStatus('✓ Conexão com OpenRouter bem-sucedida!');
-        } else {
-          const err = await res.text();
-          setTestStatus(`Erro ${res.status}: ${err.slice(0, 100)}`);
-        }
-      } else {
-        setTestStatus('✓ Provedor configurado.');
-      }
-    } catch (e) {
-      setTestStatus(`Erro de rede: ${e instanceof Error ? e.message : String(e)}`);
+      const res = await AITemporalService.researchHistoricalEvent('Relatividade Geral');
+      const elapsed = Math.round(performance.now() - start);
+      setLatencyMs(elapsed);
+      setTestStatus(`Conexão validada em ${elapsed}ms (${res.title})`);
+    } catch {
+      setTestStatus('Falha na conexão. Verifique sua chave API do OpenRouter.');
     }
   }
 
   return (
-    <aside className="ai-drawer">
+    <aside className="ai-drawer" aria-label="Oráculo de IA e Física Teórica">
+      {/* 1. Header */}
       <div className="ai-drawer-header">
         <div className="ai-header-title">
-          <span className="ai-logo-icon">OR</span>
-          <div>
-            <h2>CRONO-ORÁCULO DE IA & FÍSICA TEÓRICA</h2>
-            <span className="ai-badge-sub">MOTOR DE INFERÊNCIA CAUSAL (OPENROUTER / CLAUDE 3.5)</span>
+          <div className="ai-oracle-avatar">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+            </svg>
+            <span className="oracle-pulse-ring" />
+          </div>
+          <div className="ai-header-meta">
+            <div className="ai-title-row">
+              <h2>CRONO-ORÁCULO DE IA</h2>
+              <span className="ai-status-pill">FÍSICA TEÓRICA</span>
+            </div>
+            <div className="ai-model-quick-bar">
+              <select
+                className="ai-model-quick-select"
+                value={customModel.trim() || openRouterModel}
+                onChange={e => handleQuickModelChange(e.target.value)}
+                aria-label="Modelo de IA Ativo"
+              >
+                {OPENROUTER_MODELS.map(m => (
+                  <option key={m.id} value={m.id}>
+                    {m.name.split('—')[0]}
+                  </option>
+                ))}
+              </select>
+              {latencyMs !== null && (
+                <span className="ai-latency-badge" title="Latência de resposta da IA">
+                  {latencyMs}ms
+                </span>
+              )}
+            </div>
           </div>
         </div>
-        <button type="button" className="sim-btn-close" onClick={onClose}>
+        <button type="button" className="sim-btn-close" onClick={onClose} aria-label="Fechar Oráculo">
           ✕
         </button>
       </div>
 
-      {/* Navigation Tabs */}
-      <div className="ai-tabs">
+      {/* 2. Sleek Tab Navigation */}
+      <nav className="ai-tabs" aria-label="Abas do Oráculo">
+        <button
+          type="button"
+          className={`ai-tab-btn ${activeTab === 'copilot' ? 'active' : ''}`}
+          onClick={() => setActiveTab('copilot')}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg>
+          <span>Co-piloto Físico</span>
+        </button>
         <button
           type="button"
           className={`ai-tab-btn ${activeTab === 'symposium' ? 'active' : ''}`}
           onClick={() => setActiveTab('symposium')}
         >
-          Simpósio Multi-Agente
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+          </svg>
+          <span>Simpósio</span>
         </button>
         <button
           type="button"
           className={`ai-tab-btn ${activeTab === 'butterfly' ? 'active' : ''}`}
           onClick={() => setActiveTab('butterfly')}
         >
-          Efeito Borboleta
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+          </svg>
+          <span>Borboleta</span>
         </button>
         <button
           type="button"
           className={`ai-tab-btn ${activeTab === 'futures' ? 'active' : ''}`}
           onClick={() => setActiveTab('futures')}
         >
-          Futuros (Everett)
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <line x1="6" y1="3" x2="6" y2="15" />
+            <circle cx="18" cy="6" r="3" />
+            <circle cx="6" cy="18" r="3" />
+            <path d="M18 9a9 9 0 0 1-9 9" />
+          </svg>
+          <span>Futuros</span>
         </button>
         <button
           type="button"
           className={`ai-tab-btn ${activeTab === 'resolutions' ? 'active' : ''}`}
           onClick={() => setActiveTab('resolutions')}
         >
-          Novikov ({universe.paradoxes.length})
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+          <span>Novikov ({universe.paradoxes.length})</span>
         </button>
         <button
           type="button"
           className={`ai-tab-btn ${activeTab === 'settings' ? 'active' : ''}`}
           onClick={() => setActiveTab('settings')}
         >
-          Config IA
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+          </svg>
+          <span>Config</span>
         </button>
-      </div>
+      </nav>
 
+      {/* 3. Body */}
       <div className="ai-drawer-body">
+        {/* Continuum Analysis Card */}
         <section className={`ai-universe-insight ai-insight-${insight.health}`}>
           <div className="ai-insight-heading">
-            <div>
+            <div className="ai-insight-kicker-group">
               <span className="ai-insight-kicker">ANÁLISE DO TECIDO DO ESPAÇO-TEMPO</span>
-              <strong>{insight.healthLabel}</strong>
+              <strong className="ai-health-title">{insight.healthLabel}</strong>
             </div>
-            <span className="ai-confidence">{insight.confidence}% coerência métrica</span>
+            <span className="ai-confidence-pill">{insight.confidence}% coerência métrica</span>
           </div>
-          <div className="ai-insight-metrics">
-            <span><strong>{insight.eventCount}</strong> nós de geodésica</span>
-            <span><strong>{insight.exposedEvents}</strong> perturbados</span>
-            <span><strong>{insight.connectedEvents}</strong> entrelaçados</span>
-            <span><strong>{insight.affectedTravelers}</strong> sondas em risco</span>
+
+          <div className="ai-insight-metrics-grid">
+            <div className="ai-metric-item">
+              <span className="metric-val">{insight.eventCount}</span>
+              <span className="metric-lbl">nós geodésica</span>
+            </div>
+            <div className="ai-metric-item">
+              <span className="metric-val">{insight.exposedEvents}</span>
+              <span className="metric-lbl">perturbados</span>
+            </div>
+            <div className="ai-metric-item">
+              <span className="metric-val">{insight.connectedEvents}</span>
+              <span className="metric-lbl">entrelaçados</span>
+            </div>
+            <div className="ai-metric-item">
+              <span className="metric-val">{insight.affectedTravelers}</span>
+              <span className="metric-lbl">sondas em risco</span>
+            </div>
           </div>
-          <p>{insight.recommendation}</p>
+
+          <p className="ai-recommendation-text">{insight.recommendation}</p>
         </section>
+
+        {/* Tab 0: Co-pilot Live Chat */}
+        {activeTab === 'copilot' && (
+          <div className="ai-tab-content ai-copilot-container">
+            <div className="copilot-quick-prompts">
+              <span className="copilot-quick-label">PROMPTS CIENTÍFICOS:</span>
+              <button
+                type="button"
+                className="btn-copilot-chip"
+                onClick={() => handleSendChat('Como a gravitação de Einstein afeta os cones de luz neste universo?')}
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="2" y1="12" x2="22" y2="12" />
+                </svg>
+                <span>Cones de Luz</span>
+              </button>
+              <button
+                type="button"
+                className="btn-copilot-chip"
+                onClick={() => handleSendChat('Quais são os principais riscos de paradoxo na linha temporal atual?')}
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                </svg>
+                <span>Riscos de Novikov</span>
+              </button>
+              <button
+                type="button"
+                className="btn-copilot-chip"
+                onClick={() => handleSendChat('Explique a conjectura holográfica ER=EPR e pontes de Einstein-Rosen.')}
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="6" cy="6" r="3" />
+                  <circle cx="18" cy="18" r="3" />
+                  <path d="M8.59 8.59l6.82 6.82" />
+                </svg>
+                <span>Pontes ER=EPR</span>
+              </button>
+            </div>
+
+            <div className="copilot-messages-box">
+              {chatMessages.map((msg, idx) => (
+                <div key={idx} className={`copilot-msg-bubble ${msg.role}`}>
+                  <div className="copilot-msg-author">
+                    <span className="author-dot" />
+                    <span>{msg.role === 'assistant' ? 'ORÁCULO FÍSICO' : 'OBSERVADOR'}</span>
+                  </div>
+                  <div className="copilot-msg-content">
+                    {msg.content ? (
+                      msg.content.split('\n\n').map((para, pIdx) => (
+                        <p key={pIdx}>
+                          <MathText text={para} />
+                        </p>
+                      ))
+                    ) : (
+                      <span className="copilot-typing-dots">
+                        <span className="t-dot" /><span className="t-dot" /><span className="t-dot" />
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <form
+              onSubmit={e => {
+                e.preventDefault();
+                handleSendChat();
+              }}
+              className="copilot-input-form"
+            >
+              <input
+                type="text"
+                placeholder="Pergunte sobre relatividade, paradoxos, cordas ou métricas..."
+                value={chatInput}
+                onChange={e => setChatInput(e.target.value)}
+                disabled={isStreamingChat}
+                className="copilot-input-field"
+              />
+              <button
+                type="submit"
+                disabled={isStreamingChat || !chatInput.trim()}
+                className="btn-copilot-send"
+                title="Enviar Pergunta"
+              >
+                {isStreamingChat ? (
+                  <span className="send-spinner" />
+                ) : (
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13" />
+                    <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                  </svg>
+                )}
+              </button>
+            </form>
+          </div>
+        )}
 
         {/* Tab 1: Multi-Agent Symposium */}
         {activeTab === 'symposium' && (
@@ -197,7 +412,7 @@ export default function AIDrawer({ universe, lastAIResult, onClose, onApplyResol
               <h3 className="ai-content-title">Debate com 3 Especialistas Renomados</h3>
               <p className="ai-content-desc">
                 Submeta qualquer tese ou anomalia. O comitê internacional de cientistas de IA avalia a coerência com a
-                Relatividade, Teoria das Cordas em 11D e dados do James Webb/LIGO.
+                Relatividade, Teoria das Cordas em 11D e observações experimentais.
               </p>
             </div>
 
@@ -240,7 +455,11 @@ export default function AIDrawer({ universe, lastAIResult, onClose, onApplyResol
                 onClick={handleStartDebate}
                 disabled={isDebating}
               >
-                {isDebating ? 'Simulando Painel com Claude 3.5 Sonnet...' : 'Iniciar Debate Científico ao Vivo'}
+                {isDebating ? (
+                  <span>Simulando Painel com Especialistas...</span>
+                ) : (
+                  <span>Iniciar Debate Científico ao Vivo</span>
+                )}
               </button>
             </div>
 
@@ -292,7 +511,7 @@ export default function AIDrawer({ universe, lastAIResult, onClose, onApplyResol
                           </span>
                         </div>
 
-                        <p className="turn-statement">{turn.statement}</p>
+                        <p className="turn-statement"><MathText text={turn.statement} /></p>
 
                         {turn.equationsMentioned && turn.equationsMentioned.length > 0 && (
                           <div className="turn-equations">
@@ -330,10 +549,10 @@ export default function AIDrawer({ universe, lastAIResult, onClose, onApplyResol
                       width: `${lastAIResult.impactScore}%`,
                       backgroundColor:
                         lastAIResult.impactScore > 75
-                          ? '#ef4444'
+                          ? 'var(--color-paradox)'
                           : lastAIResult.impactScore > 50
-                          ? '#fbbf24'
-                          : '#00d4ff',
+                          ? 'var(--color-warning)'
+                          : 'var(--color-cyan)',
                     }}
                   />
                 </div>
@@ -364,7 +583,11 @@ export default function AIDrawer({ universe, lastAIResult, onClose, onApplyResol
               </div>
             ) : (
               <div className="ai-empty-box">
-                <span className="ai-empty-icon">ORÁCULO</span>
+                <div className="ai-empty-icon-wrap">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                  </svg>
+                </div>
                 <p>
                   Modifique ou apague qualquer nó temporal no Inspetor à direita e clique em{' '}
                   <strong>"Simular Efeito Borboleta com IA"</strong> para calcular a reorganização das
@@ -441,7 +664,12 @@ export default function AIDrawer({ universe, lastAIResult, onClose, onApplyResol
               </>
             ) : (
               <div className="ai-empty-box">
-                <span className="ai-empty-icon">✓</span>
+                <div className="ai-empty-icon-wrap status-ok">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                    <polyline points="22 4 12 14.01 9 11.01" />
+                  </svg>
+                </div>
                 <p>Nenhuma Curva Tipo-Tempo Fechada (CTC) ativa detectada. O continuum causal é 100% autoconsistente.</p>
               </div>
             )}
@@ -544,14 +772,14 @@ export default function AIDrawer({ universe, lastAIResult, onClose, onApplyResol
 
             {savedSuccess && (
               <p style={{ color: 'var(--color-stable)', fontSize: '0.8rem', marginTop: '6px' }}>
-                ✓ Configuração salva com sucesso!
+                Configuração salva com sucesso!
               </p>
             )}
 
             {testStatus && (
               <p
                 style={{
-                  color: testStatus.startsWith('✓') ? 'var(--color-stable)' : 'var(--color-warning)',
+                  color: testStatus.includes('validada') ? 'var(--color-stable)' : 'var(--color-warning)',
                   fontSize: '0.78rem',
                   marginTop: '6px',
                 }}

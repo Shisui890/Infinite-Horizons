@@ -55,10 +55,13 @@ export const DEBATE_AGENTS: DebateAgent[] = [
   },
 ];
 
+import { AITemporalService } from './AITemporalService';
+
 export class MultiAgentDebateService {
   public static async conductDebate(topic: string): Promise<DebateReport> {
-    const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY || '';
-    const model = import.meta.env.VITE_OPENROUTER_MODEL || 'anthropic/claude-3.5-sonnet';
+    const aiConfig = AITemporalService.getConfig();
+    const apiKey = aiConfig.apiKey || import.meta.env.VITE_OPENROUTER_API_KEY || '';
+    const model = aiConfig.openRouterModel || import.meta.env.VITE_OPENROUTER_MODEL || 'anthropic/claude-3.5-sonnet';
 
     if (apiKey) {
       try {
@@ -67,7 +70,7 @@ export class MultiAgentDebateService {
           headers: {
             Authorization: `Bearer ${apiKey}`,
             'Content-Type': 'application/json',
-            'HTTP-Referer': 'https://infinite-horizons.local',
+            'HTTP-Referer': 'https://infinite-horizons.app',
             'X-Title': 'Infinite Horizons Multi-Agent Symposium',
           },
           body: JSON.stringify({
@@ -119,7 +122,8 @@ Responda ESTRITAMENTE em JSON com a seguinte estrutura:
         if (response.ok) {
           const json = await response.json();
           const rawContent = json.choices?.[0]?.message?.content || '';
-          const cleaned = rawContent.replace(/```json/gi, '').replace(/```/g, '').trim();
+          const match = rawContent.match(/\{[\s\S]*\}/);
+          const cleaned = match ? match[0] : rawContent.replace(/```json/gi, '').replace(/```/g, '').trim();
           const parsed = JSON.parse(cleaned);
 
           return {

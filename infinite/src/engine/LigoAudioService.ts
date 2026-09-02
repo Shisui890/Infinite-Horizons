@@ -73,6 +73,95 @@ class LigoAudioEngine {
       // Ignore
     }
   }
+
+  // Alarme de paradoxo temporal (frequência dissonante pulsada)
+  public playParadoxAlarm() {
+    try {
+      const ctx = this.getContext();
+      const now = ctx.currentTime;
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc1.type = 'sawtooth';
+      osc2.type = 'sine';
+
+      osc1.frequency.setValueAtTime(520, now);
+      osc1.frequency.linearRampToValueAtTime(440, now + 0.3);
+
+      osc2.frequency.setValueAtTime(528, now);
+      osc2.frequency.linearRampToValueAtTime(436, now + 0.3);
+
+      gain.gain.setValueAtTime(0.12, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+      osc1.connect(gain);
+      osc2.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc1.start(now);
+      osc2.start(now);
+      osc1.stop(now + 0.35);
+      osc2.stop(now + 0.35);
+    } catch {
+      // Ignore
+    }
+  }
+
+  // Salto temporal de geodésica (dispersão de fase quântica)
+  public playTimeJump() {
+    try {
+      const ctx = this.getContext();
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(150, now);
+      osc.frequency.exponentialRampToValueAtTime(900, now + 0.2);
+      osc.frequency.exponentialRampToValueAtTime(300, now + 0.45);
+
+      gain.gain.setValueAtTime(0.02, now);
+      gain.gain.exponentialRampToValueAtTime(0.25, now + 0.2);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.45);
+    } catch {
+      // Ignore
+    }
+  }
+
+  // Estabilização de integridade (Acorde maior harmônico 432 Hz)
+  public playStabilization() {
+    try {
+      const ctx = this.getContext();
+      const now = ctx.currentTime;
+      const frequencies = [432, 540, 648]; // Proporção harmônica áurea
+
+      frequencies.forEach(freq => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now);
+
+        gain.gain.setValueAtTime(0.05, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.6);
+      });
+    } catch {
+      // Ignore
+    }
+  }
 }
 
 export const LigoAudio = new LigoAudioEngine();
+

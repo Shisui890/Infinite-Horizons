@@ -2,24 +2,63 @@ import { useState } from 'react';
 import InteractiveBackground from './components/InteractiveBackground';
 import LandingPage from './components/LandingPage';
 import SimulatorView from './components/simulator/SimulatorView';
+import HowItWorksPage from './components/HowItWorksPage';
 import CreateUniverseModal from './components/CreateUniverseModal';
 import { LaymanModeProvider } from './context/LaymanModeContext';
 import type { SimulationLog, Universe } from './types/temporal';
+import { URLCompression } from './utils/urlCompression';
 import './App.css';
 
+function getInitialSharedState(): { universe: Universe; logs: SimulationLog[] } | null {
+  if (typeof window !== 'undefined' && window.location.hash) {
+    const decoded = URLCompression.decodeUniverseFromHash(window.location.hash);
+    if (decoded) {
+      return {
+        universe: decoded,
+        logs: [
+          {
+            id: `log-shared-${Date.now()}`,
+            timestamp: new Date().toLocaleTimeString(),
+            message: `Universo compartilhado "${decoded.name}" carregado com sucesso via URL.`,
+            type: 'success',
+          },
+        ],
+      };
+    }
+  }
+  return null;
+}
+
 function App() {
-  const [view, setView] = useState<'landing' | 'simulator'>('landing');
+  const [initialShared] = useState(getInitialSharedState);
+  const [view, setView] = useState<'landing' | 'simulator' | 'guide'>(initialShared ? 'simulator' : 'landing');
   const [showCreateUniverse, setShowCreateUniverse] = useState(false);
-  const [generatedState, setGeneratedState] = useState<{ universe: Universe; logs: SimulationLog[] } | null>(null);
+  const [generatedState, setGeneratedState] = useState<{ universe: Universe; logs: SimulationLog[] } | null>(initialShared);
 
   return (
     <LaymanModeProvider>
       <InteractiveBackground />
 
-      {view === 'landing' ? (
-        <LandingPage onStartSimulator={() => setShowCreateUniverse(true)} />
-      ) : (
-        <SimulatorView initialState={generatedState} onExit={() => setView('landing')} />
+      {view === 'landing' && (
+        <LandingPage
+          onStartSimulator={() => setShowCreateUniverse(true)}
+          onOpenGuide={() => setView('guide')}
+        />
+      )}
+
+      {view === 'guide' && (
+        <HowItWorksPage
+          onBack={() => setView('landing')}
+          onStartSimulator={() => setShowCreateUniverse(true)}
+        />
+      )}
+
+      {view === 'simulator' && (
+        <SimulatorView
+          initialState={generatedState}
+          onExit={() => setView('landing')}
+          onOpenGuide={() => setView('guide')}
+        />
       )}
 
       {showCreateUniverse && (

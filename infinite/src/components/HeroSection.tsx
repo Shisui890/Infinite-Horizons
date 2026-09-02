@@ -3,9 +3,10 @@ import { useLaymanMode } from '../context/LaymanModeContext';
 
 interface Props {
   onStartSimulator: () => void;
+  onOpenGuide: () => void;
 }
 
-export default function HeroSection({ onStartSimulator }: Props) {
+export default function HeroSection({ onStartSimulator, onOpenGuide }: Props) {
   const { isLaymanMode } = useLaymanMode();
   const titleRef = useRef<HTMLHeadingElement>(null);
 
@@ -17,78 +18,82 @@ export default function HeroSection({ onStartSimulator }: Props) {
 
   return (
     <section id="hero-section" className="hero-section">
+      {/* Background Subtle Horizon Aura */}
+      <div className="hero-glow-aura" />
+
       <div className="hero-content">
         <div className="hero-badge">
-          <span className="hero-badge-dot" />
-          <span>
+          <span className="hero-badge-pulse" />
+          <span className="hero-badge-text">
             {isLaymanMode
-              ? 'GUIA DESCOMPLICADO: ENTENDA COMO FUNCIONA O UNIVERSO'
-              : 'INFINITE-HORIZONS / LABORATÓRIO DE FÍSICA TEÓRICA & CAUSALIDADE'}
+              ? 'FÍSICA DESCOMPLICADA • ESPAÇO, TEMPO & COSMOS'
+              : 'LABORATÓRIO DE FÍSICA TEÓRICA & CAUSALIDADE'}
           </span>
         </div>
 
         <h1 ref={titleRef} className="hero-title">
           {isLaymanMode ? (
             <>
-              <span className="hero-title-line">Como o Tempo e o Espaço Funcionam.</span>
-              <span className="hero-title-line hero-title-gradient">Entenda a Física do Cosmos de Forma Simples.</span>
+              Como o Tempo e o Espaço <br />
+              <span className="hero-title-gradient">Realmente Funcionam</span>
             </>
           ) : (
             <>
-              <span className="hero-title-line">Modele o Espaço-Tempo.</span>
-              <span className="hero-title-line hero-title-gradient">Simule as Ramificações do Multiverso.</span>
+              Modele o Espaço-Tempo. <br />
+              <span className="hero-title-gradient">Simule a Causalidade Universal.</span>
             </>
           )}
         </h1>
 
-        <p className="hero-subtitle">
-          {isLaymanMode
-            ? 'Descubra por que o tempo desacelera perto de um buraco negro, como a gravidade deforma o espaço e o que a ciência diz sobre o multiverso.'
-            : 'Da Relatividade Geral de Einstein às Supercordas em 11 Dimensões.'}
-        </p>
-
         <p className="hero-description">
           {isLaymanMode
-            ? 'A física moderna provou que o nosso universo é elástico: o tempo não corre igual para todos, o espaço se dobra na presença de matéria pesada e a luz viaja com velocidade máxima fixa. Aqui você explora essas teorias através de analogias fáceis e visualizações diretas de causa e efeito.'
-            : 'Investigue a curvatura geométrica do espaço-tempo, trace cones de luz de Minkowski, altere geodésicas históricas e observe o efeito borboleta colapsar ou bifurcar realidades sob as leis fundamentais da física quântica e termodinâmica.'}
+            ? 'Descubra por que o tempo é elástico, como a gravidade deforma a estrutura do cosmos e o que a ciência moderna revela sobre buracos negros e realidades paralelas.'
+            : 'Investigue a curvatura métrica de Einstein, trace geodésicas nos cones de luz de Minkowski e observe perturbações causais sob as leis da relatividade e supercordas.'}
         </p>
 
         <div className="hero-actions">
           <button type="button" id="cta-start" className="btn-cta" onClick={onStartSimulator}>
-            <span className="btn-cta-text">{isLaymanMode ? 'EXPLORAR O ESPAÇO-TEMPO' : 'INICIAR LABORATÓRIO TEMPORAL'}</span>
-            <span className="btn-cta-glow" />
+            <span>{isLaymanMode ? 'Explorar o Espaço-Tempo' : 'Iniciar Laboratório'}</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
           </button>
-          <a href="#concept-section" id="cta-demo" className="btn-secondary">
-            {isLaymanMode ? 'VER COMO FUNCIONA A FÍSICA' : 'EXPLORAR AS TEORIAS FÍSICAS'}
-          </a>
+          <button type="button" className="btn-secondary" onClick={onOpenGuide}>
+            <span>Como Funciona o Site</span>
+          </button>
         </div>
 
-        <div className="hero-stats">
-          <div className="hero-stat">
-            <span className="hero-stat-value">{isLaymanMode ? 'VELOCIDADE DA LUZ' : '11 DIMENSÕES'}</span>
-            <span className="hero-stat-label">{isLaymanMode ? 'O limite máximo de velocidade no vácuo' : 'Teoria M & Calabi-Yau'}</span>
+        {/* Minimalist Telemetry Dashboard */}
+        <div className="hero-telemetry-bar">
+          <div className="telemetry-item">
+            <span className="telemetry-val">{isLaymanMode ? '300.000 km/s' : 'c = 2.997×10⁸ m/s'}</span>
+            <span className="telemetry-lbl">{isLaymanMode ? 'Velocidade Limite da Luz' : 'Constante Universal Relativística'}</span>
           </div>
-          <div className="hero-stat-separator" />
-          <div className="hero-stat">
-            <span className="hero-stat-value">{isLaymanMode ? 'TEMPO ELÁSTICO' : 'CONES DE LUZ'}</span>
-            <span className="hero-stat-label">{isLaymanMode ? 'O tempo desacelera para quem viaja rápido' : 'Relatividade & Causalidade'}</span>
+          <div className="telemetry-separator" />
+          <div className="telemetry-item">
+            <span className="telemetry-val">{isLaymanMode ? 'Tempo Elástico' : 'Cones de Minkowski'}</span>
+            <span className="telemetry-lbl">{isLaymanMode ? 'Dilatação por Velocidade e Gravidade' : 'Invariância do Intervalo Δs²'}</span>
           </div>
-          <div className="hero-stat-separator" />
-          <div className="hero-stat">
-            <span className="hero-stat-value">{isLaymanMode ? 'ESPAÇO CURVADO' : 'NOVIKOV'}</span>
-            <span className="hero-stat-label">{isLaymanMode ? 'A gravidade é o tecido do espaço afundando' : 'Autoconsistência & Anti-Paradoxo'}</span>
+          <div className="telemetry-separator" />
+          <div className="telemetry-item">
+            <span className="telemetry-val">{isLaymanMode ? 'Espaço Curvo' : '11 Dimensões'}</span>
+            <span className="telemetry-lbl">{isLaymanMode ? 'Matéria Deforma o Tecido Cósmico' : 'Variedades de Calabi-Yau & Teoria M'}</span>
           </div>
-          <div className="hero-stat-separator" />
-          <div className="hero-stat">
-            <span className="hero-stat-value">{isLaymanMode ? 'MULTIVERSO' : 'MULTIVERSO'}</span>
-            <span className="hero-stat-label">{isLaymanMode ? 'A física das infinitas probabilidades' : 'Paisagem de Supercordas'}</span>
+          <div className="telemetry-separator" />
+          <div className="telemetry-item">
+            <span className="telemetry-val">{isLaymanMode ? 'Sem Paradoxos' : 'Autoconsistência'}</span>
+            <span className="telemetry-lbl">{isLaymanMode ? 'A Física Impede Contradições' : 'Princípio de Novikov & Feynman δS=0'}</span>
           </div>
         </div>
       </div>
 
       <div className="hero-scroll-indicator">
-        <span className="hero-scroll-line" />
-        <span className="hero-scroll-label">{isLaymanMode ? 'ROLE PARA ENTENDER MAIS' : 'EXPLORAR GEOMETRIA CAUSAL'}</span>
+        <a href="#concept-section" className="scroll-indicator-link" aria-label="Rolar para a próxima seção">
+          <span className="scroll-indicator-mouse">
+            <span className="scroll-indicator-wheel" />
+          </span>
+          <span className="scroll-indicator-text">{isLaymanMode ? 'Explorar' : 'Fundamentação'}</span>
+        </a>
       </div>
     </section>
   );

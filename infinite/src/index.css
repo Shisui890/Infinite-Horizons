@@ -1,51 +1,72 @@
-/* ===== DESIGN SYSTEM — INFINITE-HORIZONS ===== */
+/* ===== DESIGN SYSTEM — INFINITE-HORIZONS (MUSEUM-GRADE ASTROPHYSICS) ===== */
 
 /* --- Design Tokens --- */
 :root {
-  /* Background */
-  --bg-void: #06060e;
-  --bg-deep: #0a0a14;
-  --bg-surface: rgba(12, 12, 24, 0.65);
-  --bg-glass: rgba(16, 16, 32, 0.45);
-  --bg-glass-hover: rgba(22, 22, 44, 0.55);
+  /* Backgrounds */
+  --bg-void: #07090e;
+  --bg-deep: #0b0e17;
+  --bg-surface: rgba(13, 17, 27, 0.72);
+  --bg-card: rgba(16, 21, 35, 0.55);
+  --bg-glass: rgba(18, 24, 40, 0.45);
+  --bg-glass-hover: rgba(26, 35, 58, 0.65);
+  --bg-input: rgba(11, 15, 25, 0.85);
 
-  /* Borders */
-  --border-glow: rgba(100, 200, 255, 0.12);
-  --border-glow-hover: rgba(100, 200, 255, 0.25);
-  --border-dim: rgba(255, 255, 255, 0.06);
+  /* Subtle Borders */
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-subtle-hover: rgba(255, 255, 255, 0.16);
+  --border-glow: rgba(0, 229, 255, 0.22);
+  --border-glow-hover: rgba(0, 229, 255, 0.45);
+  --border-dim: rgba(255, 255, 255, 0.04);
 
-  /* Text */
-  --text-primary: #e8eaf6;
-  --text-secondary: rgba(200, 210, 230, 0.65);
-  --text-muted: rgba(160, 170, 200, 0.4);
+  /* Text & Contrast Hierarchy */
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --text-accent: #38bdf8;
 
-  /* Accent Colors — Estado */
-  --color-stable: #00d4ff;
-  --color-stable-glow: rgba(0, 212, 255, 0.3);
+  /* Curated Scientific Palette */
+  --color-cyan: #00e5ff;
+  --color-cyan-glow: rgba(0, 229, 255, 0.25);
+  --color-stable: #00e5ff;
+  --color-stable-glow: rgba(0, 229, 255, 0.25);
+
+  --color-violet: #a855f7;
+  --color-violet-glow: rgba(168, 85, 247, 0.25);
   --color-dimensional: #a855f7;
-  --color-dimensional-glow: rgba(168, 85, 247, 0.3);
-  --color-warning: #fbbf24;
-  --color-warning-glow: rgba(251, 191, 36, 0.3);
-  --color-paradox: #ef4444;
-  --color-paradox-glow: rgba(239, 68, 68, 0.3);
+  --color-dimensional-glow: rgba(168, 85, 247, 0.25);
+
+  --color-amber: #f59e0b;
+  --color-amber-glow: rgba(245, 158, 11, 0.25);
+  --color-warning: #f59e0b;
+  --color-warning-glow: rgba(245, 158, 11, 0.25);
+
+  --color-coral: #f43f5e;
+  --color-coral-glow: rgba(244, 63, 94, 0.25);
+  --color-paradox: #f43f5e;
+  --color-paradox-glow: rgba(244, 63, 94, 0.25);
+
+  --color-emerald: #10b981;
+  --color-emerald-glow: rgba(16, 185, 129, 0.25);
   --color-critical: #ffffff;
 
   /* Gradients */
-  --gradient-hero: linear-gradient(135deg, #00d4ff 0%, #a855f7 50%, #ec4899 100%);
-  --gradient-nebula: radial-gradient(ellipse at 30% 20%, rgba(168, 85, 247, 0.08) 0%, transparent 60%),
-                     radial-gradient(ellipse at 70% 80%, rgba(0, 212, 255, 0.06) 0%, transparent 60%);
-  --gradient-cta: linear-gradient(135deg, #00d4ff, #6366f1, #a855f7);
+  --gradient-hero: linear-gradient(135deg, #ffffff 0%, #38bdf8 45%, #a855f7 90%);
+  --gradient-title: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
+  --gradient-subtle: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 100%);
+  --gradient-card-glow: radial-gradient(circle at 50% 0%, rgba(0, 229, 255, 0.08) 0%, transparent 70%);
+  --gradient-cta: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
 
   /* Shadows */
-  --shadow-glow-sm: 0 0 15px rgba(0, 212, 255, 0.1);
-  --shadow-glow-md: 0 0 30px rgba(0, 212, 255, 0.15);
-  --shadow-glow-lg: 0 4px 60px rgba(0, 212, 255, 0.1), 0 0 120px rgba(168, 85, 247, 0.08);
-  --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --shadow-glow-sm: 0 0 20px rgba(0, 229, 255, 0.12);
+  --shadow-glow-md: 0 0 35px rgba(0, 229, 255, 0.18);
+  --shadow-glow-lg: 0 10px 50px rgba(0, 0, 0, 0.6), 0 0 40px rgba(0, 229, 255, 0.1);
+  --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.5), 0 0 1px 1px var(--border-subtle);
 
   /* Typography */
-  --font-display: 'Orbitron', system-ui, sans-serif;
-  --font-body: 'Inter', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+  --font-display: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-body: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --font-tech: 'JetBrains Mono', ui-monospace, monospace;
 
   /* Spacing */
   --space-xs: 4px;
@@ -56,18 +77,20 @@
   --space-2xl: 48px;
   --space-3xl: 64px;
   --space-4xl: 96px;
-  --space-5xl: 128px;
+  --space-5xl: 120px;
 
   /* Border Radius */
-  --radius-sm: 6px;
-  --radius-md: 12px;
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 14px;
   --radius-lg: 20px;
   --radius-xl: 28px;
+  --radius-full: 9999px;
 
   /* Transitions */
-  --transition-fast: 150ms ease;
-  --transition-base: 300ms ease;
-  --transition-slow: 500ms ease;
+  --transition-fast: 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-base: 250ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-slow: 400ms cubic-bezier(0.16, 1, 0.3, 1);
   --transition-spring: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
@@ -96,7 +119,7 @@ body {
   line-height: 1.6;
   overflow-x: hidden;
   min-height: 100vh;
-  color-scheme: dark;
+  letter-spacing: -0.01em;
 }
 
 select,
@@ -105,26 +128,28 @@ optgroup,
 input,
 textarea {
   color-scheme: dark;
+  font-family: var(--font-body);
 }
 
 select {
-  background-color: #0c0e1e !important;
-  color: #e2e8f0 !important;
-  border: 1px solid rgba(0, 212, 255, 0.3) !important;
-  border-radius: 4px;
-  padding: 6px 10px;
-  font-family: inherit;
+  background-color: var(--bg-input) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  font-size: 0.85rem;
   outline: none;
   cursor: pointer;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 select:focus {
-  border-color: #00d4ff !important;
-  box-shadow: 0 0 10px rgba(0, 212, 255, 0.25) !important;
+  border-color: var(--color-cyan) !important;
+  box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.15) !important;
 }
 
 select option {
-  background-color: #0a0c1a !important;
+  background-color: #0b0f19 !important;
   color: #e2e8f0 !important;
   padding: 8px 12px;
 }
@@ -132,7 +157,7 @@ select option {
 select option:checked,
 select option:hover {
   background-color: #1e293b !important;
-  color: #00d4ff !important;
+  color: var(--color-cyan) !important;
 }
 
 #root {
@@ -140,47 +165,44 @@ select option:hover {
   position: relative;
 }
 
-/* --- Typography --- */
+/* --- Typography Helpers --- */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
   font-weight: 700;
   line-height: 1.15;
-  letter-spacing: 0.02em;
   color: var(--text-primary);
+  letter-spacing: -0.02em;
 }
 
 h1 {
-  font-size: clamp(2.4rem, 6vw, 4.5rem);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: clamp(2.4rem, 5.5vw, 4.2rem);
+  letter-spacing: -0.03em;
 }
 
 h2 {
-  font-size: clamp(1.5rem, 3.5vw, 2.4rem);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-size: clamp(1.6rem, 3.2vw, 2.4rem);
+  letter-spacing: -0.02em;
 }
 
 h3 {
-  font-size: clamp(1.1rem, 2vw, 1.4rem);
-  letter-spacing: 0.03em;
+  font-size: clamp(1.1rem, 1.8vw, 1.35rem);
+  letter-spacing: -0.01em;
 }
 
 p {
   color: var(--text-secondary);
-  font-size: 1.05rem;
-  line-height: 1.7;
-  max-width: 65ch;
+  font-size: 1rem;
+  line-height: 1.65;
 }
 
 a {
-  color: var(--color-stable);
+  color: var(--text-primary);
   text-decoration: none;
   transition: color var(--transition-fast);
 }
 
 a:hover {
-  color: var(--color-dimensional);
+  color: var(--color-cyan);
 }
 
 code {

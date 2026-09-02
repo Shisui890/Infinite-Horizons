@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Dimension, Traveler, TemporalEvent } from '../../types/temporal';
 import type { HistoricalResearch } from '../../types/temporal';
+import { useLaymanMode } from '../../context/LaymanModeContext';
 
 interface AddEventModalProps {
   dimensions: Dimension[];
@@ -20,6 +21,7 @@ interface AddEventModalProps {
 }
 
 export function AddEventModal({ dimensions, events, onClose, onAddEvent, onResearchHistoricalEvent }: AddEventModalProps) {
+  const { isLaymanMode } = useLaymanMode();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [year, setYear] = useState(2025);
@@ -72,33 +74,35 @@ export function AddEventModal({ dimensions, events, onClose, onAddEvent, onResea
   }
 
   return (
-    <div className="modal-backdrop">
-      <div className="modal-card">
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal-card" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>+ NOVO NÓ CAUSAL NO ESPAÇO-TEMPO</h2>
-          <button type="button" className="btn-modal-close" onClick={onClose}>
+          <h2>
+            {isLaymanMode ? '+ NOVO ACONTECIMENTO NA HISTÓRIA' : '+ NOVO NÓ CAUSAL NO ESPAÇO-TEMPO'}
+          </h2>
+          <button type="button" className="btn-modal-close" onClick={onClose} aria-label="Fechar">
             ✕
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="modal-form">
           <label>
-            <span>Título do Evento / Descoberta Teórica *</span>
+            <span>{isLaymanMode ? 'Nome do Acontecimento ou Invenção *' : 'Título do Evento / Descoberta Teórica *'}</span>
             <input
               type="text"
               value={title}
               onChange={e => setTitle(e.target.value)}
-              placeholder="Ex: Equações de Yang-Mills ou Detecção de Matéria Escura"
+              placeholder={isLaymanMode ? 'Ex: Invenção do Computador ou Descoberta da Luz' : 'Ex: Equações de Yang-Mills ou Detecção de Matéria Escura'}
               required
             />
             <button type="button" className="research-event-button" onClick={handleHistoricalResearch} disabled={isResearching}>
-              {isResearching ? 'PESQUISANDO...' : 'PESQUISAR COM IA & BASES CIENTÍFICAS'}
+              {isResearching ? 'PESQUISANDO...' : (isLaymanMode ? 'PESQUISAR AUTOMATICAMENTE COM IA' : 'PESQUISAR COM IA & BASES CIENTÍFICAS')}
             </button>
             {researchMessage && <span className="research-event-message">{researchMessage}</span>}
           </label>
 
           <label>
-            <span>Coordenada Temporal (Ano)</span>
+            <span>{isLaymanMode ? 'Ano em que Aconteceu' : 'Coordenada Temporal (Ano)'}</span>
             <input
               type="number"
               value={year}
@@ -108,7 +112,7 @@ export function AddEventModal({ dimensions, events, onClose, onAddEvent, onResea
           </label>
 
           <label>
-            <span>Variedade Dimensional</span>
+            <span>{isLaymanMode ? 'Linha do Tempo' : 'Variedade Dimensional'}</span>
             <select value={dimensionId} onChange={e => setDimensionId(e.target.value)}>
               {dimensions.map(d => (
                 <option key={d.id} value={d.id}>
@@ -119,20 +123,20 @@ export function AddEventModal({ dimensions, events, onClose, onAddEvent, onResea
           </label>
 
           <label>
-            <span>Domínio da Física / Categoria</span>
+            <span>{isLaymanMode ? 'Área da Ciência' : 'Domínio da Física / Categoria'}</span>
             <select value={category} onChange={e => setCategory(e.target.value)}>
               <option value="FÍSICA TEÓRICA">FÍSICA TEÓRICA (RELATIVIDADE / CORDAS)</option>
-              <option value="COSMOLOGIA">COSMOLOGIA (BIG BANG / ENERGIA ESCURA)</option>
-              <option value="MECÂNICA QUÂNTICA">MECÂNICA QUÂNTICA (EVERETT / EPR)</option>
-              <option value="ASTROFÍSICA">ASTROFÍSICA (ONDAS GRAVITACIONAIS / BURACOS NEGROS)</option>
-              <option value="OBSERVAÇÃO">OBSERVAÇÃO ASTRONÔMICA (JWST / EHT / LIGO)</option>
-              <option value="HISTÓRICO">HISTÓRICO-CIENTÍFICO</option>
-              <option value="TECNOLÓGICO">TECNOLOGIA QUÂNTICA</option>
+              <option value="COSMOLOGIA">COSMOLOGIA (BIG BANG / UNIVERSO)</option>
+              <option value="MECÂNICA QUÂNTICA">MECÂNICA QUÂNTICA (ÁTOMOS / PARTÍCULAS)</option>
+              <option value="ASTROFÍSICA">ASTROFÍSICA (ESTRELAS / BURACOS NEGROS)</option>
+              <option value="OBSERVAÇÃO">OBSERVAÇÃO & ASTRONOMIA (TELESCÓPIOS)</option>
+              <option value="HISTÓRICO">HISTÓRIA DA CIÊNCIA</option>
+              <option value="TECNOLÓGICO">TECNOLOGIA & ENGENHARIA</option>
             </select>
           </label>
 
           <label>
-            <span>Peso Causal no Continuum: {importance}/100</span>
+            <span>{isLaymanMode ? `Importância para a História: ${importance}%` : `Peso Causal no Continuum: ${importance}/100`}</span>
             <input
               type="range"
               min="1"
@@ -143,9 +147,9 @@ export function AddEventModal({ dimensions, events, onClose, onAddEvent, onResea
           </label>
 
           <label>
-            <span>Geodésica Causa Anterior (Opcional)</span>
+            <span>{isLaymanMode ? 'O que causou este acontecimento? (Opcional)' : 'Geodésica Causa Anterior (Opcional)'}</span>
             <select value={causeId} onChange={e => setCauseId(e.target.value)}>
-              <option value="">Nenhuma (Nó Inicial Independente)</option>
+              <option value="">{isLaymanMode ? 'Nenhum (Ponto de Partida Inicial)' : 'Nenhuma (Nó Inicial Independente)'}</option>
               {events.map(ev => (
                 <option key={ev.id} value={ev.id}>
                   {ev.title} (Ano {ev.year})
@@ -155,11 +159,11 @@ export function AddEventModal({ dimensions, events, onClose, onAddEvent, onResea
           </label>
 
           <label>
-            <span>Descrição e Fundamentos Teóricos</span>
+            <span>{isLaymanMode ? 'Explicação do que Aconteceu' : 'Descrição e Fundamentos Teóricos'}</span>
             <textarea
               value={description}
               onChange={e => setDescription(e.target.value)}
-              placeholder="Breve resumo da implicação física, equações ou descobertas..."
+              placeholder={isLaymanMode ? 'Escreva um breve resumo de como esse acontecimento mudou a história...' : 'Breve resumo da implicação física, equações ou descobertas...'}
               rows={3}
             />
           </label>
@@ -169,7 +173,7 @@ export function AddEventModal({ dimensions, events, onClose, onAddEvent, onResea
               Cancelar
             </button>
             <button type="submit" className="btn-cta">
-              ESTABELECER NÓ TEMPORAL
+              {isLaymanMode ? 'ADICIONAR À HISTÓRIA' : 'ESTABELECER NÓ TEMPORAL'}
             </button>
           </div>
         </form>
@@ -186,6 +190,7 @@ interface AddTravelerModalProps {
 }
 
 export function AddTravelerModal({ dimensions, events, onClose, onAddTraveler }: AddTravelerModalProps) {
+  const { isLaymanMode } = useLaymanMode();
   const [name, setName] = useState('');
   const [originDimensionId, setOriginDimensionId] = useState(dimensions[0]?.id || '');
   const [originYear, setOriginYear] = useState(2045);
@@ -205,29 +210,31 @@ export function AddTravelerModal({ dimensions, events, onClose, onAddTraveler }:
   }
 
   return (
-    <div className="modal-backdrop">
-      <div className="modal-card">
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal-card" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>+ NOVA SONDA / OBSERVADOR RELATIVÍSTICO</h2>
-          <button type="button" className="btn-modal-close" onClick={onClose}>
+          <h2>
+            {isLaymanMode ? '+ NOVO VIAJANTE NO TEMPO' : '+ NOVA SONDA / OBSERVADOR RELATIVÍSTICO'}
+          </h2>
+          <button type="button" className="btn-modal-close" onClick={onClose} aria-label="Fechar">
             ✕
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="modal-form">
           <label>
-            <span>Identificação da Sonda / Observador *</span>
+            <span>{isLaymanMode ? 'Nome do Viajante ou Sonda *' : 'Identificação da Sonda / Observador *'}</span>
             <input
               type="text"
               value={name}
               onChange={e => setName(e.target.value)}
-              placeholder="Ex: Sonda Quântica ER-01"
+              placeholder={isLaymanMode ? 'Ex: Cientista Temporal ou Explorador Alfa' : 'Ex: Sonda Quântica ER-01'}
               required
             />
           </label>
 
           <label>
-            <span>Variedade de Origem</span>
+            <span>{isLaymanMode ? 'Linha do Tempo de Origem' : 'Variedade de Origem'}</span>
             <select value={originDimensionId} onChange={e => setOriginDimensionId(e.target.value)}>
               {dimensions.map(d => (
                 <option key={d.id} value={d.id}>
@@ -238,7 +245,7 @@ export function AddTravelerModal({ dimensions, events, onClose, onAddTraveler }:
           </label>
 
           <label>
-            <span>Ano da Coordenada de Origem</span>
+            <span>{isLaymanMode ? 'Ano em que ele Começou' : 'Ano da Coordenada de Origem'}</span>
             <input
               type="number"
               value={originYear}
@@ -247,9 +254,9 @@ export function AddTravelerModal({ dimensions, events, onClose, onAddTraveler }:
           </label>
 
           <label>
-            <span>Nó Geodésico Âncora de Origem (Preservação de Novikov)</span>
+            <span>{isLaymanMode ? 'Acontecimento Conectado ao Ponto de Partida' : 'Nó Geodésico Âncora de Origem (Preservação de Novikov)'}</span>
             <select value={originEventId} onChange={e => setOriginEventId(e.target.value)}>
-              <option value="">Nenhum</option>
+              <option value="">{isLaymanMode ? 'Nenhum' : 'Nenhum'}</option>
               {events.map(ev => (
                 <option key={ev.id} value={ev.id}>
                   {ev.title} (Ano {ev.year})
@@ -263,7 +270,7 @@ export function AddTravelerModal({ dimensions, events, onClose, onAddTraveler }:
               Cancelar
             </button>
             <button type="submit" className="btn-cta">
-              LANÇAR OBSERVADOR
+              {isLaymanMode ? 'CRIAR VIAJANTE' : 'LANÇAR OBSERVADOR'}
             </button>
           </div>
         </form>
@@ -280,6 +287,7 @@ interface TimeTravelModalProps {
 }
 
 export function TimeTravelModal({ travelers, events, onClose, onExecuteTravel }: TimeTravelModalProps) {
+  const { isLaymanMode } = useLaymanMode();
   const [travelerId, setTravelerId] = useState(travelers[0]?.id || '');
   const [destinationYear, setDestinationYear] = useState(1935);
   const [alterTargetEventId, setAlterTargetEventId] = useState('');
@@ -297,29 +305,31 @@ export function TimeTravelModal({ travelers, events, onClose, onExecuteTravel }:
   }
 
   return (
-    <div className="modal-backdrop">
-      <div className="modal-card">
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal-card" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>INTERVENÇÃO MÉTRICA NO CONE DE LUZ</h2>
-          <button type="button" className="btn-modal-close" onClick={onClose}>
+          <h2>
+            {isLaymanMode ? 'FAZER UMA VIAGEM NO TEMPO' : 'INTERVENÇÃO MÉTRICA NO CONE DE LUZ'}
+          </h2>
+          <button type="button" className="btn-modal-close" onClick={onClose} aria-label="Fechar">
             ✕
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="modal-form">
           <label>
-            <span>Selecione a Sonda / Observador</span>
+            <span>{isLaymanMode ? 'Quem vai Viajar?' : 'Selecione a Sonda / Observador'}</span>
             <select value={travelerId} onChange={e => setTravelerId(e.target.value)}>
               {travelers.map(t => (
                 <option key={t.id} value={t.id}>
-                  {t.name} (Coordenada Atual: Ano {t.currentYear})
+                  {t.name} ({isLaymanMode ? `Ano Atual: ${t.currentYear}` : `Coordenada Atual: Ano ${t.currentYear}`})
                 </option>
               ))}
             </select>
           </label>
 
           <label>
-            <span>Ano de Destino da Intervenção</span>
+            <span>{isLaymanMode ? 'Ano para onde Deseja Viajar' : 'Ano de Destino da Intervenção'}</span>
             <input
               type="number"
               value={destinationYear}
@@ -328,12 +338,12 @@ export function TimeTravelModal({ travelers, events, onClose, onExecuteTravel }:
           </label>
 
           <label>
-            <span>Nó Geodésico a Perturbar (Efeito Borboleta)</span>
+            <span>{isLaymanMode ? 'Qual acontecimento alterar no passado?' : 'Nó Geodésico a Perturbar (Efeito Borboleta)'}</span>
             <select value={alterTargetEventId} onChange={e => setAlterTargetEventId(e.target.value)}>
-              <option value="">Apenas Observação Relativística (Sem perturbação)</option>
+              <option value="">{isLaymanMode ? 'Apenas Observar (Sem mudar nada na história)' : 'Apenas Observação Relativística (Sem perturbação)'}</option>
               {events.map(ev => (
                 <option key={ev.id} value={ev.id}>
-                  Perturbar / Aniquilar: {ev.title} (Ano {ev.year})
+                  {isLaymanMode ? `Alterar o Rumos de: ${ev.title} (Ano ${ev.year})` : `Perturbar / Aniquilar: ${ev.title} (Ano ${ev.year})`}
                 </option>
               ))}
             </select>
@@ -344,7 +354,7 @@ export function TimeTravelModal({ travelers, events, onClose, onExecuteTravel }:
               Cancelar
             </button>
             <button type="submit" className="btn-cta btn-travel-submit">
-              DISPARAR INTERVENÇÃO CAUSAL
+              {isLaymanMode ? 'SALTAR NO TEMPO' : 'DISPARAR INTERVENÇÃO CAUSAL'}
             </button>
           </div>
         </form>
@@ -359,6 +369,7 @@ interface AddDimensionModalProps {
 }
 
 export function AddDimensionModal({ onClose, onAddDimension }: AddDimensionModalProps) {
+  const { isLaymanMode } = useLaymanMode();
   const [name, setName] = useState('');
   const [designation, setDesignation] = useState('Ω-03');
   const [color, setColor] = useState('#ec4899');
@@ -372,29 +383,31 @@ export function AddDimensionModal({ onClose, onAddDimension }: AddDimensionModal
   }
 
   return (
-    <div className="modal-backdrop">
-      <div className="modal-card">
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal-card" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>+ NOVA VARIEDADE DIMENSIONAL (11D)</h2>
-          <button type="button" className="btn-modal-close" onClick={onClose}>
+          <h2>
+            {isLaymanMode ? '+ CRIAR NOVA LINHA DO TEMPO' : '+ NOVA VARIEDADE DIMENSIONAL (11D)'}
+          </h2>
+          <button type="button" className="btn-modal-close" onClick={onClose} aria-label="Fechar">
             ✕
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="modal-form">
           <label>
-            <span>Nome da Dimensão Paralela *</span>
+            <span>{isLaymanMode ? 'Nome da Nova Linha do Tempo *' : 'Nome da Dimensão Paralela *'}</span>
             <input
               type="text"
               value={name}
               onChange={e => setName(e.target.value)}
-              placeholder="Ex: Ramo Quântico AdS-03 ou Vácuo de Calabi-Yau B"
+              placeholder={isLaymanMode ? 'Ex: Linha Alternativa Onde a Luz é Mais Rápida' : 'Ex: Ramo Quântico AdS-03 ou Vácuo de Calabi-Yau B'}
               required
             />
           </label>
 
           <label>
-            <span>Designação Métrica (Código)</span>
+            <span>{isLaymanMode ? 'Sigla / Código' : 'Designação Métrica (Código)'}</span>
             <input
               type="text"
               value={designation}
@@ -404,7 +417,7 @@ export function AddDimensionModal({ onClose, onAddDimension }: AddDimensionModal
           </label>
 
           <label>
-            <span>Espectro Cromático de Frequência</span>
+            <span>{isLaymanMode ? 'Cor da Linha do Tempo' : 'Espectro Cromático de Frequência'}</span>
             <input
               type="color"
               value={color}
@@ -417,7 +430,7 @@ export function AddDimensionModal({ onClose, onAddDimension }: AddDimensionModal
               Cancelar
             </button>
             <button type="submit" className="btn-cta">
-              SINTETIZAR DIMENSÃO
+              {isLaymanMode ? 'CRIAR LINHA DO TEMPO' : 'SINTETIZAR DIMENSÃO'}
             </button>
           </div>
         </form>

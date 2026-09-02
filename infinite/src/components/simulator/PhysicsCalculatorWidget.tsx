@@ -1,10 +1,13 @@
 import { useState } from 'react';
 import { useLaymanMode } from '../../context/LaymanModeContext';
 import MathFormula from '../MathFormula';
+import { MinkowskiCalculus } from '../../engine/MinkowskiCalculus';
 
 export default function PhysicsCalculatorWidget() {
   const { isLaymanMode } = useLaymanMode();
-  const [activeCalc, setActiveCalc] = useState<'maxwell' | 'special_relativity' | 'general_relativity' | 'lyapunov'>('special_relativity');
+  const [activeCalc, setActiveCalc] = useState<
+    'special_relativity' | 'general_relativity' | 'kerr' | 'hawking' | 'lyapunov' | 'maxwell'
+  >('special_relativity');
 
   // --- Maxwell Parameters (1865) ---
   const [electricFieldE, setElectricFieldE] = useState<number>(1000); // V/m
@@ -48,9 +51,24 @@ export default function PhysicsCalculatorWidget() {
   const clampedDist = Math.max(distanceFactor, 1.0001);
   const grDilationRatio = Math.sqrt(1 - 1 / clampedDist);
   const grTimeAmplification = isInsideHorizon ? Infinity : 1 / grDilationRatio;
-  const redshiftZ = isInsideHorizon ? Infinity : 1 / grDilationRatio - 1;
   const orbitalVelocityFraction = Math.min(Math.sqrt(1 / (2 * clampedDist)), 1.0);
   const orbitalVelocityKmS = orbitalVelocityFraction * 299792;
+
+  // --- Kerr Metric Parameters (1963) ---
+  const [kerrSpin, setKerrSpin] = useState<number>(0.92);
+  const [kerrTheta, setKerrTheta] = useState<number>(90); // 90 = equator
+  const [kerrDistanceFactor, setKerrDistanceFactor] = useState<number>(1.8);
+  const kerrResult = MinkowskiCalculus.calculateKerrMetric(currentMass.massSun, kerrSpin, kerrTheta, kerrDistanceFactor);
+
+  // --- Hawking Thermodynamics Parameters (1974) ---
+  const [hawkingMassPreset, setHawkingMassPreset] = useState<'primordial' | 'stellar' | 'sgra' | 'm87'>('stellar');
+  const HAWKING_PRESETS: Record<string, { name: string; massSun: number; desc: string }> = {
+    primordial: { name: 'Primordial (10¹² kg)', massSun: 5.0e-19, desc: 'Micro-Buraco Negro do Big Bang' },
+    stellar: { name: 'Estelar (10 M☉)', massSun: 10, desc: 'Buraco Negro de Colapso Estelar' },
+    sgra: { name: 'Sagitário A* (4.3 × 10⁶ M☉)', massSun: 4.3e6, desc: 'Supermassivo no Centro da Galáxia' },
+    m87: { name: 'M87* (6.5 × 10⁹ M☉)', massSun: 6.5e9, desc: 'Buraco Negro Gigante de M87' },
+  };
+  const hawkingResult = MinkowskiCalculus.calculateHawkingThermodynamics(HAWKING_PRESETS[hawkingMassPreset].massSun);
 
   // --- Lyapunov Parameters ---
   const [lambda, setLambda] = useState<number>(0.45);
@@ -62,234 +80,127 @@ export default function PhysicsCalculatorWidget() {
       <div className="calc-tabs">
         <button
           type="button"
-          className={`calc-tab-btn ${activeCalc === 'maxwell' ? 'active' : ''}`}
-          onClick={() => setActiveCalc('maxwell')}
-        >
-          {isLaymanMode ? 'Luz' : 'Maxwell'}
-        </button>
-        <button
-          type="button"
           className={`calc-tab-btn ${activeCalc === 'special_relativity' ? 'active' : ''}`}
           onClick={() => setActiveCalc('special_relativity')}
         >
-          {isLaymanMode ? 'Nave' : 'R. Especial'}
+          {isLaymanMode ? 'Nave (Velocidade)' : 'R. Especial'}
         </button>
         <button
           type="button"
           className={`calc-tab-btn ${activeCalc === 'general_relativity' ? 'active' : ''}`}
           onClick={() => setActiveCalc('general_relativity')}
         >
-          {isLaymanMode ? 'Buraco Negro' : 'R. Geral'}
+          {isLaymanMode ? 'Gravidade & Tempo' : 'R. Geral'}
+        </button>
+        <button
+          type="button"
+          className={`calc-tab-btn ${activeCalc === 'kerr' ? 'active' : ''}`}
+          onClick={() => setActiveCalc('kerr')}
+        >
+          {isLaymanMode ? 'Buraco Giratório' : 'Métrica de Kerr'}
+        </button>
+        <button
+          type="button"
+          className={`calc-tab-btn ${activeCalc === 'hawking' ? 'active' : ''}`}
+          onClick={() => setActiveCalc('hawking')}
+        >
+          {isLaymanMode ? 'Radiação Hawking' : 'Termodinâmica'}
         </button>
         <button
           type="button"
           className={`calc-tab-btn ${activeCalc === 'lyapunov' ? 'active' : ''}`}
           onClick={() => setActiveCalc('lyapunov')}
         >
-          {isLaymanMode ? 'Borboleta' : 'Caos (λ)'}
+          {isLaymanMode ? 'Efeito Borboleta' : 'Caos (λ)'}
+        </button>
+        <button
+          type="button"
+          className={`calc-tab-btn ${activeCalc === 'maxwell' ? 'active' : ''}`}
+          onClick={() => setActiveCalc('maxwell')}
+        >
+          {isLaymanMode ? 'Luz & Ondas' : 'Maxwell'}
         </button>
       </div>
 
       <div className="calc-content-panel">
         {/* ========================================================= */}
-        {/* TAB 1: EQUAÇÕES DE MAXWELL (1865) */}
-        {/* ========================================================= */}
-        {activeCalc === 'maxwell' && (
-          <div className="calc-pane">
-            <MathFormula
-              math="c = \frac{1}{\sqrt{\mu_0 \epsilon_0}}, \qquad u = \frac{1}{2}\epsilon_0 E^2 + \frac{B^2}{2\mu_0}"
-              block
-            />
-
-            {isLaymanMode && (
-              <div className="layman-formula-card">
-                <div className="layman-formula-header">O QUE ESTA FÓRMULA SIGNIFICA</div>
-                <p>
-                  A velocidade da luz (<MathFormula math="c = 300.000\text{ km/s}" />) é o resultado natural da união entre a força elétrica (<MathFormula math="\epsilon_0" />) e a força magnética (<MathFormula math="\mu_0" />) no vácuo do espaço.
-                </p>
-              </div>
-            )}
-
-            <div className="calc-inputs-group">
-              <label>
-                <span>Intensidade do Campo Elétrico (E): <strong>{electricFieldE.toLocaleString('pt-BR')} V/m</strong></span>
-                <input
-                  type="range"
-                  min="100"
-                  max="100000"
-                  step="100"
-                  value={electricFieldE}
-                  onChange={e => setElectricFieldE(parseFloat(e.target.value))}
-                />
-              </label>
-
-              <label>
-                <span>Indução Magnética (B): <strong>{magneticFieldB.toFixed(2)} Tesla</strong></span>
-                <input
-                  type="range"
-                  min="0.01"
-                  max="20.0"
-                  step="0.05"
-                  value={magneticFieldB}
-                  onChange={e => setMagneticFieldB(parseFloat(e.target.value))}
-                />
-              </label>
-            </div>
-
-            <div className="calc-result-box">
-              <div className="result-metric">
-                <span className="result-label">VELOCIDADE DE PROPAGAÇÃO NO VÁCUO</span>
-                <strong className="result-value">{Math.round(speedOfLightMaxwell / 1000).toLocaleString('pt-BR')} km/s (c)</strong>
-              </div>
-
-              <div className="result-submetrics-grid">
-                <div className="submetric-item">
-                  <span>Densidade de Energia (u):</span>
-                  <strong>
-                    {energyDensityU >= 1e6
-                      ? `${(energyDensityU / 1e6).toFixed(2)} MJ/m³`
-                      : energyDensityU >= 1e3
-                      ? `${(energyDensityU / 1e3).toFixed(2)} kJ/m³`
-                      : `${energyDensityU.toFixed(2)} J/m³`}
-                  </strong>
-                </div>
-                <div className="submetric-item">
-                  <span>Fluxo de Poynting (|S| = E·B/μ₀):</span>
-                  <strong>
-                    {poyntingS >= 1e9
-                      ? `${(poyntingS / 1e9).toFixed(2)} GW/m²`
-                      : poyntingS >= 1e6
-                      ? `${(poyntingS / 1e6).toFixed(2)} MW/m²`
-                      : `${Math.round(poyntingS).toLocaleString('pt-BR')} W/m²`}
-                  </strong>
-                </div>
-              </div>
-
-              <p className="result-explanation">
-                {isLaymanMode
-                  ? 'A luz é uma dança contínua entre eletricidade e magnetismo: um campo elétrico variável cria magnetismo, e um campo magnético variável cria eletricidade. Isso permite que a luz se auto-propague no vácuo espacial a quase 300.000 km/s.'
-                  : 'As equações diferenciais de Maxwell unificaram eletricidade e magnetismo, demonstrando que a luz é uma onda eletromagnética cuja velocidade universal c decorre das permissividades do vácuo.'}
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* ========================================================= */}
-        {/* TAB 2: RELATIVIDADE ESPECIAL DE EINSTEIN (1905) */}
+        {/* TAB 1: RELATIVIDADE ESPECIAL */}
         {/* ========================================================= */}
         {activeCalc === 'special_relativity' && (
           <div className="calc-pane">
-            <MathFormula
-              math="\gamma = \frac{1}{\sqrt{1 - \beta^2}}, \qquad \Delta t = \gamma \Delta t_0, \qquad L = \frac{L_0}{\gamma}"
-              block
-            />
-
-            {isLaymanMode && (
-              <div className="layman-formula-card">
-                <div className="layman-formula-header">O QUE ESTA FÓRMULA SIGNIFICA</div>
-                <p>
-                  O fator de esticamento do tempo (<MathFormula math="\gamma" />) cresce conforme sua velocidade (<MathFormula math="v" />) se aproxima da velocidade da luz (<MathFormula math="c" />). A fórmula <MathFormula math="\Delta t = \gamma \Delta t_0" /> calcula quantos dias se passam na Terra enquanto você passa apenas algumas horas viajando veloz na nave!
-                </p>
-              </div>
-            )}
+            <MathFormula math="\Delta t' = \gamma \Delta t = \frac{\Delta t}{\sqrt{1 - v^2/c^2}}, \qquad L' = L \sqrt{1 - v^2/c^2}" block />
 
             <div className="calc-inputs-group">
               <label>
-                <span>Velocidade Relativística (β = v/c): <strong>{(clampedBeta * 100).toFixed(2)}% c ({Math.round(clampedBeta * 299792).toLocaleString('pt-BR')} km/s)</strong></span>
+                <span>{isLaymanMode ? 'Velocidade da Nave (% da Luz):' : 'Velocidade Relativa (β = v/c):'} <strong>{(velocityFraction * 100).toFixed(1)}% c</strong></span>
                 <input
                   type="range"
-                  min="0.00"
+                  min="0"
                   max="0.999"
                   step="0.001"
                   value={velocityFraction}
                   onChange={e => setVelocityFraction(parseFloat(e.target.value))}
                 />
               </label>
-
-              <div className="calc-quick-pills">
-                <button type="button" onClick={() => setVelocityFraction(0.000013)}>Satélite GPS</button>
-                <button type="button" onClick={() => setVelocityFraction(0.866)}>γ = 2.0 (86.6% c)</button>
-                <button type="button" onClick={() => setVelocityFraction(0.995)}>Múon Cósmico (γ = 10)</button>
-                <button type="button" onClick={() => setVelocityFraction(0.999)}>Acelerador LHC (99.9% c)</button>
-              </div>
             </div>
 
             <div className="calc-result-box">
               <div className="result-metric">
-                <span className="result-label">
-                  {isLaymanMode ? 'TEMPO NA TERRA ENQUANTO VOCÊ PASSA 1 HORA NA NAVE' : 'FATOR DE LORENTZ (γ)'}
-                </span>
-                <strong className="result-value">
-                  {isLaymanMode
-                    ? (srDilationTimeHours >= 24 ? `${(srDilationTimeHours / 24).toFixed(1)} dias na Terra` : `${srDilationTimeHours.toFixed(2)} horas na Terra`)
-                    : (lorentzGamma >= 100 ? `${lorentzGamma.toFixed(1)}× (Ultra-Relativístico)` : `${lorentzGamma.toFixed(3)}×`)}
-                </strong>
+                <span className="result-label">{isLaymanMode ? 'FATOR DE DESACELERAÇÃO DO TEMPO' : 'FATOR DE LORENTZ (γ)'}</span>
+                <strong className="result-value">{lorentzGamma.toFixed(3)}×</strong>
               </div>
 
               <div className="result-submetrics-grid">
                 <div className="submetric-item">
-                  <span>{isLaymanMode ? 'Seu Tempo (Nave):' : 'Dilatação Temporal (1h própria):'}</span>
-                  <strong>1 hora</strong>
+                  <span>{isLaymanMode ? '1 Hora na Nave Equivale a:' : 'Dilatação Temporal (1h nave):'}</span>
+                  <strong>{srDilationTimeHours.toFixed(2)}h na Terra</strong>
                 </div>
                 <div className="submetric-item">
-                  <span>{isLaymanMode ? 'Comprimento da Nave:' : 'Contração de Lorentz (L/L₀):'}</span>
+                  <span>{isLaymanMode ? 'Tamanho da Nave em Movimento:' : 'Contração de Comprimento:'}</span>
                   <strong>{lengthContractionPercent.toFixed(1)}% do original</strong>
                 </div>
                 <div className="submetric-item">
-                  <span>{isLaymanMode ? 'Energia de Movimento:' : 'Energia Cinética Relativística:'}</span>
-                  <strong>{kineticEnergyRatio.toFixed(3)} m₀c²</strong>
+                  <span>{isLaymanMode ? 'Energia Necessária:' : 'Energia Cinética (E_k/m c²):'}</span>
+                  <strong>{kineticEnergyRatio.toFixed(2)}× E₀</strong>
                 </div>
               </div>
 
               <p className="result-explanation">
                 {isLaymanMode
-                  ? 'Como a velocidade da luz é o limite universal inquebrável, o tempo desacelera para quem está em alta velocidade. Enquanto você passa 1 hora na nave, as pessoas paradas na Terra envelhecem mais rápido no ritmo calculado acima!'
-                  : 'A Relatividade Especial de 1905 demonstra que tempo e espaço são relativos ao observador inercial: conforme a velocidade se aproxima de c, o tempo externo dilata e o comprimento contrai na direção do movimento.'}
+                  ? 'Quanto mais rápido você viaja pelo espaço, mais devagar você viaja pelo tempo. A 86.6% da velocidade da luz, cada 1 hora dentro da nave corresponde a 2 horas para quem ficou na Terra.'
+                  : 'A invariância da velocidade da luz c no vácuo impõe que intervalos espaço-temporais tipo-tempo sofram rotações hiperbólicas de Lorentz, dilatando o tempo próprio do referencial móvel.'}
               </p>
             </div>
           </div>
         )}
 
         {/* ========================================================= */}
-        {/* TAB 3: RELATIVIDADE GERAL DE EINSTEIN (1915) */}
+        {/* TAB 2: RELATIVIDADE GERAL (SCHWARZSCHILD) */}
         {/* ========================================================= */}
         {activeCalc === 'general_relativity' && (
           <div className="calc-pane">
-            <MathFormula
-              math="\Delta t' = \frac{\Delta t_0}{\sqrt{1 - \frac{r_s}{r}}}, \qquad r_s = \frac{2GM}{c^2}"
-              block
-            />
-
-            {isLaymanMode && (
-              <div className="layman-formula-card">
-                <div className="layman-formula-header">O QUE ESTA FÓRMULA SIGNIFICA</div>
-                <p>
-                  A fórmula <MathFormula math="r_s = \frac{2GM}{c^2}" /> calcula o diâmetro da sombra do buraco negro a partir da sua massa (<MathFormula math="M" />). Quanto mais perto da borda (<MathFormula math="r" />) você estiver, mais a gravidade afunda o espaço e desacelera o seu tempo!
-                </p>
-              </div>
-            )}
+            <MathFormula math="r_s = \frac{2GM}{c^2}, \qquad \Delta t' = \frac{\Delta t}{\sqrt{1 - r_s / r}}" block />
 
             <div className="calc-inputs-group">
               <label>
-                <span>Referencial de Massa Gravitacional:</span>
+                <span>Corpo Celeste / Buraco Negro:</span>
                 <select
                   value={massPreset}
-                  onChange={e => setMassPreset(e.target.value as 'earth' | 'sun' | 'cygnus' | 'sgra' | 'm87' | 'ton618')}
+                  onChange={e => setMassPreset(e.target.value as any)}
                 >
-                  <option value="earth">Terra (5.97 × 10²⁴ kg)</option>
-                  <option value="sun">Sol (1 M☉)</option>
-                  <option value="cygnus">Cygnus X-1 (21.2 M☉)</option>
-                  <option value="sgra">Sagitário A* (4.3M M☉)</option>
-                  <option value="m87">M87* (6.5B M☉)</option>
-                  <option value="ton618">TON 618 (66B M☉)</option>
+                  {Object.entries(PRESET_MASSES).map(([key, item]) => (
+                    <option key={key} value={key}>
+                      {item.name} — {item.desc}
+                    </option>
+                  ))}
                 </select>
               </label>
 
               <label>
-                <span>Distância Radial ao Centro: <strong>{distanceFactor.toFixed(2)} rₛ</strong></span>
+                <span>{isLaymanMode ? 'Distância até o Buraco Negro:' : 'Distância Radial (r / rₛ):'} <strong>{distanceFactor.toFixed(2)} rₛ</strong></span>
                 <input
                   type="range"
-                  min="1.05"
+                  min="0.95"
                   max="10.0"
                   step="0.05"
                   value={distanceFactor}
@@ -300,87 +211,200 @@ export default function PhysicsCalculatorWidget() {
 
             <div className="calc-result-box">
               <div className="result-metric">
-                <span className="result-label">
-                  {isLaymanMode ? 'TAMANHO DO BURACO NEGRO (RAIO DE SCHWARZSCHILD)' : 'RAIO DE SCHWARZSCHILD (rₛ)'}
-                </span>
+                <span className="result-label">{isLaymanMode ? 'RAIO DO HORIZONTE DE EVENTOS' : 'RAIO DE SCHWARZSCHILD (rₛ)'}</span>
                 <strong className="result-value">
-                  {currentMass.isPlanetary
-                    ? `${currentMass.rsMm} mm`
-                    : rsKm >= 1.496e8
-                    ? `${(rsKm / 1.496e8).toFixed(2)} UA`
-                    : `${Math.round(rsKm).toLocaleString('pt-BR')} km`}
+                  {rsKm > 1e6
+                    ? `${(rsKm / 1e6).toFixed(2)} milhões km`
+                    : rsKm > 1000
+                    ? `${(rsKm / 1000).toFixed(1)} mil km`
+                    : `${rsKm.toFixed(2)} km`}
                 </strong>
               </div>
 
               <div className="result-submetrics-grid">
                 <div className="submetric-item">
-                  <span>{isLaymanMode ? 'Desaceleração do Tempo:' : 'Dilatação Gravitacional (Δt\'):'}</span>
-                  <strong>{grTimeAmplification < 100 ? `${grTimeAmplification.toFixed(2)}× mais lento` : 'Congelado'}</strong>
+                  <span>{isLaymanMode ? 'Desaceleração do Tempo:' : 'Dilatação Gravitacional:'}</span>
+                  <strong>{isInsideHorizon ? 'Infinito (Congelado)' : `${grTimeAmplification.toFixed(3)}×`}</strong>
                 </div>
                 <div className="submetric-item">
-                  <span>{isLaymanMode ? 'Perda de Energia da Luz:' : 'Desvio para o Vermelho (z):'}</span>
-                  <strong>+{redshiftZ < 100 ? redshiftZ.toFixed(2) : 'Infinito'}</strong>
+                  <span>{isLaymanMode ? 'Esfera de Fótons (Luz em Órbita):' : 'Esfera de Fótons (1.5 rₛ):'}</span>
+                  <strong>{rPhotonKm.toFixed(1)} km</strong>
                 </div>
                 <div className="submetric-item">
-                  <span>{isLaymanMode ? 'Órbita da Luz (1.5 rₛ):' : 'Esfera de Fótons (1.5 rₛ):'}</span>
-                  <strong>
-                    {currentMass.isPlanetary
-                      ? `${(currentMass.rsMm! * 1.5).toFixed(2)} mm`
-                      : rPhotonKm >= 1.496e8
-                      ? `${(rPhotonKm / 1.496e8).toFixed(2)} UA`
-                      : `${Math.round(rPhotonKm).toLocaleString('pt-BR')} km`}
-                  </strong>
+                  <span>{isLaymanMode ? 'Órbita Estável Mais Próxima:' : 'ISCO (3.0 rₛ):'}</span>
+                  <strong>{rIscoKm.toFixed(1)} km</strong>
                 </div>
                 <div className="submetric-item">
-                  <span>{isLaymanMode ? 'Órbita Segura (3.0 rₛ):' : 'Órbita Estável ISCO (3.0 rₛ):'}</span>
-                  <strong>
-                    {currentMass.isPlanetary
-                      ? `${(currentMass.rsMm! * 3.0).toFixed(2)} mm`
-                      : rIscoKm >= 1.496e8
-                      ? `${(rIscoKm / 1.496e8).toFixed(2)} UA`
-                      : `${Math.round(rIscoKm).toLocaleString('pt-BR')} km`}
-                  </strong>
-                </div>
-                <div className="submetric-item">
-                  <span>Velocidade Orbital (v):</span>
-                  <strong>{Math.round(orbitalVelocityKmS).toLocaleString('pt-BR')} km/s ({(orbitalVelocityFraction * 100).toFixed(1)}% c)</strong>
+                  <span>{isLaymanMode ? 'Velocidade Orbital Circular:' : 'Velocidade Orbital (v_orb):'}</span>
+                  <strong>{(orbitalVelocityFraction * 100).toFixed(1)}% c ({orbitalVelocityKmS.toFixed(0)} km/s)</strong>
                 </div>
               </div>
 
               <p className="result-explanation">
                 {isLaymanMode
-                  ? 'A gravidade extrema deforma o tecido do espaço e estica a passagem do tempo. Quanto mais perto da borda do buraco negro você fica, mais devagar o seu relógio anda em comparação com o resto do universo.'
-                  : 'A Relatividade Geral de 1915 estende a relatividade especial para referenciais acelerados e curvatura do espaço-tempo: campos gravitacionais intensos curvam geodésicas e dilatam a passagem do tempo.'}
+                  ? 'A gravidade deforma o tecido do espaço. Perto da borda do buraco negro, a atração é tão violenta que o tempo praticamente congela para quem observa de longe.'
+                  : 'A geometria exterior de Schwarzschild impõe uma singularidade coordenada em r = rs e uma esfera de fótons instável em 1.5 rs.'}
               </p>
-
-              {distanceFactor < 1.5 && (
-                <div className="calc-alert-pill">
-                  Abaixo da Esfera de Fótons (1.5 rₛ): A luz não possui órbitas fechadas estáveis.
-                </div>
-              )}
             </div>
           </div>
         )}
 
         {/* ========================================================= */}
-        {/* TAB 4: CAOS DE LYAPUNOV & CONES DE LUZ */}
+        {/* TAB 3: MÉTRICA DE KERR (BURACOS NEGROS GIRATÓRIOS) */}
+        {/* ========================================================= */}
+        {activeCalc === 'kerr' && (
+          <div className="calc-pane">
+            <MathFormula math="r_+ = M + \sqrt{M^2 - a^2}, \qquad r_E(\theta) = M + \sqrt{M^2 - a^2\cos^2\theta}, \qquad \eta_{\text{Penrose}} \le 29.3\%" block />
+
+            <div className="calc-inputs-group">
+              <label>
+                <span>{isLaymanMode ? 'Velocidade de Giro do Buraco (Spin a*):' : 'Parâmetro de Spin Adimensional (a* = J/M):'} <strong>{kerrSpin.toFixed(2)}</strong></span>
+                <input
+                  type="range"
+                  min="0"
+                  max="0.99"
+                  step="0.01"
+                  value={kerrSpin}
+                  onChange={e => setKerrSpin(parseFloat(e.target.value))}
+                />
+              </label>
+
+              <label>
+                <span>{isLaymanMode ? 'Ângulo de Entrada (0° Polo / 90° Equador):' : 'Co-latitude Polar (θ em graus):'} <strong>{kerrTheta}°</strong></span>
+                <input
+                  type="range"
+                  min="0"
+                  max="90"
+                  step="1"
+                  value={kerrTheta}
+                  onChange={e => setKerrTheta(parseInt(e.target.value, 10))}
+                />
+              </label>
+
+              <label>
+                <span>{isLaymanMode ? 'Distância do Centro (r / M):' : 'Distância Radial (r / M):'} <strong>{kerrDistanceFactor.toFixed(2)} M</strong></span>
+                <input
+                  type="range"
+                  min="0.5"
+                  max="4.0"
+                  step="0.05"
+                  value={kerrDistanceFactor}
+                  onChange={e => setKerrDistanceFactor(parseFloat(e.target.value))}
+                />
+              </label>
+            </div>
+
+            <div className="calc-result-box">
+              <div className="result-metric">
+                <span className="result-label">{isLaymanMode ? 'EXTRAÇÃO DE ENERGIA (PROCESSO DE PENROSE)' : 'EFICIÊNCIA MÁXIMA DE PENROSE'}</span>
+                <strong className="result-value" style={{ color: 'var(--color-violet)' }}>
+                  +{kerrResult.penroseEfficiencyMaxPercent.toFixed(1)}% de energia
+                </strong>
+              </div>
+
+              <div className="result-submetrics-grid">
+                <div className="submetric-item">
+                  <span>{isLaymanMode ? 'Limite da Ergosfera r_E(θ):' : 'Superfície Limite Estático (Ergosfera):'}</span>
+                  <strong>{kerrResult.rErgosphereKm.toFixed(1)} km</strong>
+                </div>
+                <div className="submetric-item">
+                  <span>{isLaymanMode ? 'Horizonte de Eventos Exterior (r+):' : 'Horizonte de Eventos (r+):'}</span>
+                  <strong>{kerrResult.rPlusKm.toFixed(1)} km</strong>
+                </div>
+                <div className="submetric-item">
+                  <span>{isLaymanMode ? 'Horizonte de Cauchy Interior (r-):' : 'Horizonte de Cauchy (r-):'}</span>
+                  <strong>{kerrResult.rMinusKm.toFixed(1)} km</strong>
+                </div>
+                <div className="submetric-item">
+                  <span>{isLaymanMode ? 'Arrasto do Espaço (Lense-Thirring):' : 'Frequência de Frame-Dragging (ω):'}</span>
+                  <strong>{kerrResult.frameDraggingOmegaRadPerSec.toFixed(2)} rad/s</strong>
+                </div>
+              </div>
+
+              <p className="result-explanation">
+                {isLaymanMode
+                  ? 'Quando um buraco negro gira, ele arrasta o próprio espaço ao seu redor como um redemoinho. Na ergosfera, é impossível ficar parado: você é forçado a girar junto com o cosmos, permitindo roubar energia rotacional!'
+                  : 'A Métrica de Kerr (1963) descreve um buraco negro estacionário com momento angular J. O arrasto de referenciais inerciais (Lense-Thirring) cria uma ergosfera onde trajetórias tipo-tempo com energia negativa permitem o Processo de Penrose.'}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================= */}
+        {/* TAB 4: TERMODINÂMICA DE HAWKING */}
+        {/* ========================================================= */}
+        {activeCalc === 'hawking' && (
+          <div className="calc-pane">
+            <MathFormula math="T_H = \frac{\hbar c^3}{8\pi G M k_B}, \qquad S_{\text{BH}} = \frac{k_B c^3 A}{4 G \hbar}, \qquad t_{\text{evap}} \approx \frac{5120\pi G^2 M^3}{\hbar c^4}" block />
+
+            <div className="calc-inputs-group">
+              <label>
+                <span>Massa do Objeto Quântico:</span>
+                <select
+                  value={hawkingMassPreset}
+                  onChange={e => setHawkingMassPreset(e.target.value as any)}
+                >
+                  {Object.entries(HAWKING_PRESETS).map(([key, item]) => (
+                    <option key={key} value={key}>
+                      {item.name} — {item.desc}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            <div className="calc-result-box">
+              <div className="result-metric">
+                <span className="result-label">{isLaymanMode ? 'TEMPO PARA EVAPORAR COMPLETAMENTE' : 'TEMPO DE EVAPORAÇÃO DE HAWKING'}</span>
+                <strong className="result-value" style={{ color: 'var(--color-emerald)' }}>
+                  {hawkingResult.evaporationTimeYears > 1e12
+                    ? `${hawkingResult.evaporationTimeYears.toExponential(2)} anos`
+                    : `${hawkingResult.evaporationTimeYears.toFixed(2)} anos`}
+                </strong>
+              </div>
+
+              <div className="result-submetrics-grid">
+                <div className="submetric-item">
+                  <span>{isLaymanMode ? 'Temperatura de Radiação:' : 'Temperatura de Hawking (T_H):'}</span>
+                  <strong>
+                    {hawkingResult.temperatureKelvin < 1e-4
+                      ? `${hawkingResult.temperatureKelvin.toExponential(2)} K`
+                      : `${hawkingResult.temperatureKelvin.toFixed(4)} K`}
+                  </strong>
+                </div>
+                <div className="submetric-item">
+                  <span>{isLaymanMode ? 'Informação Codificada no Horizonte:' : 'Entropia de Bekenstein (Bits):'}</span>
+                  <strong>{hawkingResult.entropyBits.toExponential(2)} bits</strong>
+                </div>
+                <div className="submetric-item">
+                  <span>{isLaymanMode ? 'Área da Superfície Cósmica:' : 'Área do Horizonte (A):'}</span>
+                  <strong>{hawkingResult.horizonAreaM2.toExponential(2)} m²</strong>
+                </div>
+                <div className="submetric-item">
+                  <span>{isLaymanMode ? 'Emissão Quântica:' : 'Luminosidade Hawking (Watts):'}</span>
+                  <strong>{hawkingResult.luminosityWatts.toExponential(2)} W</strong>
+                </div>
+              </div>
+
+              <p className="result-explanation">
+                {isLaymanMode
+                  ? 'Pares de partículas quânticas surgem no vácuo: quando uma cai no buraco negro e a outra escapa, o buraco negro perde massa lentamente em forma de calor (Radiação Hawking), evaporando após trilhões de anos.'
+                  : 'A 2ª Lei Generalizada da Termodinâmica impõe que a entropia de Bekenstein-Hawking (S_BH = k_B A / 4 l_P^2) codifica a informação quântica na superfície holográfica do horizonte de eventos.'}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================= */}
+        {/* TAB 5: CAOS DE LYAPUNOV */}
         {/* ========================================================= */}
         {activeCalc === 'lyapunov' && (
           <div className="calc-pane">
             <MathFormula math="|\delta \mathbf{x}(t)| \approx |\delta \mathbf{x}_0| \, e^{\lambda t}, \qquad t_{\text{Lyapunov}} = \frac{1}{\lambda}" block />
 
-            {isLaymanMode && (
-              <div className="layman-formula-card">
-                <div className="layman-formula-header">O QUE ESTA FÓRMULA SIGNIFICA</div>
-                <p>
-                  Uma pequena perturbação no passado (<MathFormula math="|\delta \mathbf{x}_0|" />) é multiplicada exponencialmente a cada segundo pela taxa de caos (<MathFormula math="\lambda" />). É a prova matemática de que pequenas ações geram transformações gigantescas no futuro!
-                </p>
-              </div>
-            )}
-
             <div className="calc-inputs-group">
               <label>
-                <span>{isLaymanMode ? 'Intensidade do Efeito Borboleta (λ):' : 'Expoente Máximo de Lyapunov (λ):'} <strong>{lambda.toFixed(2)}</strong></span>
+                <span>{isLaymanMode ? 'Taxa de Caos (λ):' : 'Expoente de Lyapunov (λ):'} <strong>{lambda.toFixed(2)}</strong></span>
                 <input
                   type="range"
                   min="0.05"
@@ -392,7 +416,7 @@ export default function PhysicsCalculatorWidget() {
               </label>
 
               <label>
-                <span>{isLaymanMode ? 'Tempo de Evolução da Mudança:' : 'Passos Temporais de Evolução (t):'} <strong>{timeSteps}</strong></span>
+                <span>{isLaymanMode ? 'Passos no Tempo:' : 'Passos Temporais (t):'} <strong>{timeSteps}</strong></span>
                 <input
                   type="range"
                   min="1"
@@ -406,24 +430,20 @@ export default function PhysicsCalculatorWidget() {
 
             <div className="calc-result-box">
               <div className="result-metric">
-                <span className="result-label">
-                  {isLaymanMode ? 'AMPLIAÇÃO DA MUDANÇA NO FUTURO' : 'AMPLIFICAÇÃO DA PERTURBAÇÃO'}
-                </span>
+                <span className="result-label">{isLaymanMode ? 'AMPLIAÇÃO DA MUDANÇA NO FUTURO' : 'AMPLIFICAÇÃO CAÓTICA'}</span>
                 <strong className="result-value">
-                  {divergence < 1000
-                    ? `${divergence.toFixed(1)}× maior`
-                    : `${divergence.toExponential(2)}× maior`}
+                  {divergence < 1000 ? `${divergence.toFixed(1)}× maior` : `${divergence.toExponential(2)}× maior`}
                 </strong>
               </div>
 
               <div className="result-submetrics-grid">
                 <div className="submetric-item">
-                  <span>{isLaymanMode ? 'Tempo para Dobrar a Mudança:' : 'Tempo de Lyapunov (1/λ):'}</span>
+                  <span>{isLaymanMode ? 'Tempo para Dobrar:' : 'Tempo de Lyapunov (1/λ):'}</span>
                   <strong>{(1 / lambda).toFixed(2)} passos</strong>
                 </div>
                 <div className="submetric-item">
-                  <span>{isLaymanMode ? 'Previsibilidade do Futuro:' : 'Horizonte Preditivo:'}</span>
-                  <strong>{lambda > 0.8 ? 'Caótico (Imprevisível)' : 'Estável (Previsível)'}</strong>
+                  <span>{isLaymanMode ? 'Previsibilidade:' : 'Regime Dinâmico:'}</span>
+                  <strong>{lambda > 0.8 ? 'Hipercaótico' : 'Quase-Integrável'}</strong>
                 </div>
               </div>
 
@@ -433,6 +453,65 @@ export default function PhysicsCalculatorWidget() {
                   : (lambda > 0.8
                     ? 'Regime Hipercaótico: O erro inicial duplica rapidamente, tornando trajetórias no espaço-tempo imprevisíveis no longo prazo.'
                     : 'Regime Quase-Integrável: Perturbações causais permanecem confinadas no cone de luz sob autoconsistência de Novikov.')}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================= */}
+        {/* TAB 6: EQUAÇÕES DE MAXWELL */}
+        {/* ========================================================= */}
+        {activeCalc === 'maxwell' && (
+          <div className="calc-pane">
+            <MathFormula math="c = \frac{1}{\sqrt{\mu_0 \epsilon_0}}, \qquad u = \frac{1}{2}\epsilon_0 E^2 + \frac{B^2}{2\mu_0}, \qquad \mathbf{S} = \frac{1}{\mu_0} (\mathbf{E} \times \mathbf{B})" block />
+
+            <div className="calc-inputs-group">
+              <label>
+                <span>{isLaymanMode ? 'Intensidade do Campo Elétrico (E):' : 'Campo Elétrico (E em V/m):'} <strong>{electricFieldE} V/m</strong></span>
+                <input
+                  type="range"
+                  min="100"
+                  max="10000"
+                  step="100"
+                  value={electricFieldE}
+                  onChange={e => setElectricFieldE(parseFloat(e.target.value))}
+                />
+              </label>
+
+              <label>
+                <span>{isLaymanMode ? 'Intensidade do Campo Magnético (B):' : 'Campo Magnético (B em Tesla):'} <strong>{magneticFieldB.toFixed(2)} T</strong></span>
+                <input
+                  type="range"
+                  min="0.1"
+                  max="10"
+                  step="0.1"
+                  value={magneticFieldB}
+                  onChange={e => setMagneticFieldB(parseFloat(e.target.value))}
+                />
+              </label>
+            </div>
+
+            <div className="calc-result-box">
+              <div className="result-metric">
+                <span className="result-label">{isLaymanMode ? 'VELOCIDADE EXATA DA LUZ CALCULADA' : 'VELOCIDADE DA LUZ DERIVADA (1/√(ε₀μ₀))'}</span>
+                <strong className="result-value">{(speedOfLightMaxwell / 1000).toFixed(0)} km/s</strong>
+              </div>
+
+              <div className="result-submetrics-grid">
+                <div className="submetric-item">
+                  <span>Densidade de Energia Eletromagnética (u):</span>
+                  <strong>{energyDensityU > 1000 ? `${(energyDensityU / 1000).toFixed(2)} kJ/m³` : `${energyDensityU.toFixed(2)} J/m³`}</strong>
+                </div>
+                <div className="submetric-item">
+                  <span>Fluxo de Potência (Vetor de Poynting |S|):</span>
+                  <strong>{poyntingS > 1e6 ? `${(poyntingS / 1e6).toFixed(2)} MW/m²` : `${(poyntingS / 1e3).toFixed(2)} kW/m²`}</strong>
+                </div>
+              </div>
+
+              <p className="result-explanation">
+                {isLaymanMode
+                  ? 'Em 1865, James Clerk Maxwell uniu a eletricidade e o magnetismo e descobriu que a luz é uma onda eletromagnética que viaja com velocidade constante fixa de quase 300.000 km/s no vácuo.'
+                  : 'A unificação de Maxwell (1865) demonstrou que a velocidade das ondas eletromagnéticas emerge diretamente das constantes fundamentais do vácuo ε₀ e μ₀.'}
               </p>
             </div>
           </div>

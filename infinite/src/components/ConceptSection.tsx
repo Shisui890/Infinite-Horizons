@@ -8,131 +8,150 @@ export default function ConceptSection() {
       <div className="section-container">
         <div className="section-header">
           <span className="section-tag">
-            {isLaymanMode ? 'ENTENDENDO OS CONCEITOS' : 'FUNDAMENTAÇÃO CIENTÍFICA'}
+            {isLaymanMode ? 'FUNDAMENTOS BÁSICOS' : 'FUNDAMENTAÇÃO TEÓRICA'}
           </span>
           <h2 className="section-title">
             {isLaymanMode
-              ? 'Como o Espaço, o Tempo e a Matéria Realmente Funcionam'
-              : 'A Física do Espaço-Tempo e a Causalidade Multidimensional'}
+              ? 'Como o Espaço, o Tempo e a Matéria Funcionam'
+              : 'Estrutura Geométrica do Espaço-Tempo & Multiverso'}
           </h2>
           <p className="section-subtitle">
             {isLaymanMode
-              ? 'Entenda os princípios mais profundos da ciência moderna: como a massa deforma o espaço, por que o tempo desacelera e o que acontece nos limites do cosmos.'
-              : 'O Infinite Horizons une relatividade geral, teoria das supercordas, mecânica quântica e termodinâmica em um motor de simulação rigoroso para investigar o que acontece quando alteramos as variáveis do cosmos.'}
+              ? 'Quatro princípios fundamentais que regem a realidade, desde a menor partícula até os limites do universo observável.'
+              : 'Pilares matemáticos e físicos que sustentam a conservação de causalidade, entropia e topologia dimensional no simulador.'}
           </p>
         </div>
 
         <div className="concept-grid">
-          <div className="concept-card concept-card-main">
-            <div className="concept-card-icon">{isLaymanMode ? 'ESTRUTURA DA MATÉRIA' : 'SUPERCORDAS'}</div>
-            <h3>{isLaymanMode ? 'As Cordas que Compõem a Matéria' : 'Teoria das Supercordas & Teoria M'}</h3>
-            <p>
-              {isLaymanMode ? (
-                <>
-                  No nível mais profundo da natureza, os átomos não são esferas sólidas: são <strong>filamentos microscópicos de energia que vibram</strong>. Assim como cordas de violino produzem notas musicais diferentes conforme vibram, essas cordas cósmicas geram luz, elétrons ou a força da gravidade.
-                </>
-              ) : (
-                <>
-                  Partículas fundamentais são <strong>filamentos vibracionais unidimensionais</strong> na escala de Planck (~10⁻³⁵ m). As dimensões espaciais extras compactificadas em <strong>variedades de Calabi-Yau</strong> geram as leis de universos paralelos no String Landscape.
-                </>
-              )}
-            </p>
-            <div className="concept-card-glow" />
-          </div>
-
+          {/* Card 1: Relatividade */}
           <div className="concept-card">
-            <div className="concept-card-icon">{isLaymanMode ? 'CURVATURA DO ESPAÇO' : 'RELATIVIDADE'}</div>
-            <h3>{isLaymanMode ? 'A Gravidade é a Deformação do Espaço' : 'Relatividade Geral & Cones de Luz'}</h3>
-            <p>
+            <div className="concept-card-top">
+              <span className="concept-card-pill pill-cyan">
+                {isLaymanMode ? 'ESPAÇO CURVO' : 'RELATIVIDADE GERAL'}
+              </span>
+              <span className="concept-card-year">1915</span>
+            </div>
+            <h3 className="concept-card-heading">
+              {isLaymanMode ? 'A Gravidade Deforma o Espaço' : 'Métrica de Einstein & Geodésicas'}
+            </h3>
+            <p className="concept-card-text">
               {isLaymanMode ? (
                 <>
-                  O espaço não é um vazio imóvel: é um <strong>tecido dinâmico que se deforma</strong> na presença de corpos pesados. O Sol afunda o espaço ao seu redor, e a Terra gira ao redor dele seguindo esse declive natural. Perto desse afundamento, <strong>o próprio tempo passa mais devagar</strong>.
+                  A matéria pesada <strong>afunda o tecido do espaço</strong>. Perto de estrelas ou buracos negros, caminhos de luz se curvam e <strong>o tempo passa mais devagar</strong>.
                 </>
               ) : (
                 <>
-                  A gravidade é a <strong>curvatura dinâmica do espaço-tempo</strong> quadridimensional. Nenhum efeito causal pode ultrapassar a velocidade da luz <em>c</em>, delimitando os cones de luz passado e futuro de cada evento.
+                  O tensor de energia-momento <em>T<sub>μν</sub></em> dita a curvatura do tensor de Ricci <em>R<sub>μν</sub></em>. A velocidade da luz <em>c</em> estabelece os <strong>cones causais de Minkowski</strong>.
                 </>
               )}
             </p>
           </div>
 
+          {/* Card 2: Supercordas */}
           <div className="concept-card">
-            <div className="concept-card-icon">{isLaymanMode ? 'MUNDO QUÂNTICO' : 'QUÂNTICA'}</div>
-            <h3>{isLaymanMode ? 'O Multiverso e as Probabilidades' : 'Multiverso Quântico de Everett'}</h3>
-            <p>
+            <div className="concept-card-top">
+              <span className="concept-card-pill pill-violet">
+                {isLaymanMode ? 'CORDA FUNDAMENTAL' : 'TEORIA DAS SUPERCORDAS'}
+              </span>
+              <span className="concept-card-year">11D / Teoria M</span>
+            </div>
+            <h3 className="concept-card-heading">
+              {isLaymanMode ? 'Filamentos de Energia Vibrantes' : 'Variedades de Calabi-Yau'}
+            </h3>
+            <p className="concept-card-text">
               {isLaymanMode ? (
                 <>
-                  Na física quântica das partículas subatômicas, um elétron pode estar em vários lugares ao mesmo tempo até ser medido. Segundo a teoria dos muitos mundos, <strong>cada possibilidade real se desdobra em um ramo separado da realidade</strong>, coexistindo em paralelo.
+                  No nível microscópico, as partículas são <strong>cordas de energia que vibram</strong> como notas musicais, originando elétrons, fótons e a gravidade em dimensões ocultas.
                 </>
               ) : (
                 <>
-                  A <strong>decoerência quântica</strong> bifurca a função de onda universal a cada evento de medição, gerando ramificações dimensionais físicas reais onde todas as probabilidades alternativas coexistem.
+                  Filamentos unidimensionais na escala de Planck (~10⁻³⁵ m) compactificados em 6 dimensões extras geram o <em>String Landscape</em> de múltiplos vácuos.
                 </>
               )}
             </p>
           </div>
 
+          {/* Card 3: Multiverso Quântico */}
           <div className="concept-card">
-            <div className="concept-card-icon">{isLaymanMode ? 'CAUSALIDADE' : 'AUTOCONSISTÊNCIA'}</div>
-            <h3>{isLaymanMode ? 'A Lei Contra Contradições no Tempo' : 'Autoconsistência de Novikov'}</h3>
-            <p>
+            <div className="concept-card-top">
+              <span className="concept-card-pill pill-emerald">
+                {isLaymanMode ? 'RAMIFICAÇÕES' : 'MECÂNICA QUÂNTICA'}
+              </span>
+              <span className="concept-card-year">Many-Worlds</span>
+            </div>
+            <h3 className="concept-card-heading">
+              {isLaymanMode ? 'O Multiverso de Probabilidades' : 'Decoerência & Bifurcações de Everett'}
+            </h3>
+            <p className="concept-card-text">
               {isLaymanMode ? (
                 <>
-                  As leis da física são matematicamente consistentes: se um caminho no tempo permitisse voltar ao passado, <strong>apenas acontecimentos que não geram contradições lógicas podem ocorrer</strong>. O universo impede que uma causa destrua o seu próprio motivo de existir.
+                  Cada decisão ou interação no nível subatômico cria <strong>ramos paralelos da realidade</strong>, permitindo que diferentes futuros coexistam simultaneamente.
                 </>
               ) : (
                 <>
-                  A <strong>2ª Lei da Termodinâmica</strong> e o princípio de Novikov garantem que o continuum proíbe paradoxos que gerem probabilidade zero, forçando a reestabilização ou a cisão em novas dimensões.
+                  A perda de coerência de fase da função de onda |Ψ⟩ gera ramificações universais ortogonais sem colapso descontínuo, preservando a unitariedade quântica.
+                </>
+              )}
+            </p>
+          </div>
+
+          {/* Card 4: Novikov & Autoconsistência */}
+          <div className="concept-card">
+            <div className="concept-card-top">
+              <span className="concept-card-pill pill-amber">
+                {isLaymanMode ? 'SEM CONTRADIÇÕES' : 'PRINCÍPIO DE NOVIKOV'}
+              </span>
+              <span className="concept-card-year">δS = 0</span>
+            </div>
+            <h3 className="concept-card-heading">
+              {isLaymanMode ? 'A Lei Anti-Paradoxo Temporal' : 'Autoconsistência & Censura Cósmica'}
+            </h3>
+            <p className="concept-card-text">
+              {isLaymanMode ? (
+                <>
+                  As leis da física são estritamente lógicas: intervenções no passado só admitem trajetórias onde <strong>nenhuma contradição anula a própria causa de origem</strong>.
+                </>
+              ) : (
+                <>
+                  Curvas tipo tempo fechadas (CTCs) são restringidas pelo princípio variacional de Feynman δS = 0. Soluções com paradoxos têm probabilidade estritamente nula (P = 0).
                 </>
               )}
             </p>
           </div>
         </div>
 
-        {/* Visual causal chain demo */}
-        <div className="concept-chain">
-          <div className="concept-chain-title">
-            {isLaymanMode
-              ? 'Como Funciona a Cadeia de Causa e Efeito no Tempo'
-              : 'Dinâmica Causal no Espaço-Tempo: Da Geodésica ao Paradoxo'}
+        {/* Visual Causal Flow Banner */}
+        <div className="concept-causal-flow-card">
+          <div className="causal-flow-header">
+            <span className="flow-badge">PROCESSO CAUSAL</span>
+            <span className="flow-title">
+              {isLaymanMode ? 'Da Causa ao Efeito Consistente' : 'Propagação de Geodésicas e Equilíbrio de Novikov'}
+            </span>
           </div>
-          <div className="concept-chain-flow">
-            <div className="chain-node chain-node-stable">
-              <span className="chain-node-label">{isLaymanMode ? 'Linha do Tempo Original' : 'Equações de Einstein (1915)'}</span>
-              <span className="chain-node-status">{isLaymanMode ? 'PRESENTE ESTÁVEL' : 'ÂNCORA METROLÓGICA'}</span>
+
+          <div className="causal-flow-track">
+            <div className="flow-step step-origin">
+              <span className="step-num">01</span>
+              <span className="step-label">{isLaymanMode ? 'Origem Histórica' : 'Evento Âncora'}</span>
+              <span className="step-sub">{isLaymanMode ? 'Presente Estável' : 'Referencial t₀'}</span>
             </div>
-            <div className="chain-arrow">
-              <svg width="40" height="20" viewBox="0 0 40 20">
-                <line x1="0" y1="10" x2="32" y2="10" stroke="rgba(0,212,255,0.4)" strokeWidth="2" />
-                <polygon points="32,5 40,10 32,15" fill="rgba(0,212,255,0.6)" />
-              </svg>
-              <span className="chain-arrow-label">{isLaymanMode ? 'ATALHO NO ESPAÇO' : 'GEODÉSICA CAUSAL'}</span>
+            <div className="flow-line">
+              <span className="flow-line-pulse pulse-cyan" />
             </div>
-            <div className="chain-node chain-node-altered">
-              <span className="chain-node-label">{isLaymanMode ? 'Intervenção no Passado' : 'Pontes ER = EPR (1935)'}</span>
-              <span className="chain-node-status">{isLaymanMode ? 'MUDANÇA DE ESTADO' : 'EMARANHAMENTO'}</span>
+
+            <div className="flow-step step-shift">
+              <span className="step-num">02</span>
+              <span className="step-label">{isLaymanMode ? 'Intervenção' : 'Perturbação Métrica'}</span>
+              <span className="step-sub">{isLaymanMode ? 'Salto Temporal' : 'Linha de Mundo'}</span>
             </div>
-            <div className="chain-arrow">
-              <svg width="40" height="20" viewBox="0 0 40 20">
-                <line x1="0" y1="10" x2="32" y2="10" stroke="rgba(251,191,36,0.4)" strokeWidth="2" />
-                <polygon points="32,5 40,10 32,15" fill="rgba(251,191,36,0.6)" />
-              </svg>
-              <span className="chain-arrow-label">{isLaymanMode ? 'CONSEQUÊNCIA EM CADEIA' : 'TEORIA M (11D)'}</span>
+            <div className="flow-line">
+              <span className="flow-line-pulse pulse-violet" />
             </div>
-            <div className="chain-node chain-node-unstable">
-              <span className="chain-node-label">{isLaymanMode ? 'Tensão Temporal' : 'Perturbação Causal'}</span>
-              <span className="chain-node-status">{isLaymanMode ? 'CONTRADIÇÃO POTENCIAL' : 'FLUTUAÇÃO QUÂNTICA'}</span>
-            </div>
-            <div className="chain-arrow">
-              <svg width="40" height="20" viewBox="0 0 40 20">
-                <line x1="0" y1="10" x2="32" y2="10" stroke="rgba(239,68,68,0.4)" strokeWidth="2" />
-                <polygon points="32,5 40,10 32,15" fill="rgba(239,68,68,0.6)" />
-              </svg>
-              <span className="chain-arrow-label">{isLaymanMode ? 'AUTO-EQUILÍBRIO' : 'CENSURA HAWKING'}</span>
-            </div>
-            <div className="chain-node chain-node-paradox">
-              <span className="chain-node-label">{isLaymanMode ? 'Novo Futuro Consistente' : 'Colapso de Novikov'}</span>
-              <span className="chain-node-status">{isLaymanMode ? 'REALIDADE REAJUSTADA' : 'CURVA TEMPO FECHADA'}</span>
+
+            <div className="flow-step step-resolution">
+              <span className="step-num">03</span>
+              <span className="step-label">{isLaymanMode ? 'Reestabilização' : 'Resolução Novikov'}</span>
+              <span className="step-sub">{isLaymanMode ? 'Realidade Coerente' : 'Bifurcação Global'}</span>
             </div>
           </div>
         </div>

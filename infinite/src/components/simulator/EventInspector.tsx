@@ -5,8 +5,10 @@ import type { TemporalEvent } from '../../types/temporal';
 import { EventStatus } from '../../types/temporal';
 import { AITemporalService } from '../../engine/AITemporalService';
 import { LigoAudio } from '../../engine/LigoAudioService';
-import MathFormula from '../MathFormula';
+import MathFormula, { MathText } from '../MathFormula';
 import PhysicsCalculatorWidget from './PhysicsCalculatorWidget';
+import ScientificStatusBadge from './ScientificStatusBadge';
+import SpacetimeIntervalCard from './SpacetimeIntervalCard';
 
 interface Props {
   event: TemporalEvent | null;
@@ -86,6 +88,17 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
           {isLaymanMode ? layman.simpleTitle : event.title}
         </h2>
 
+        {/* Rigorous Scientific Status Badge */}
+        <div style={{ marginBottom: '12px' }}>
+          <ScientificStatusBadge
+            status={event.scientificStatus}
+            evidenceKind={event.evidenceKind}
+            sourceUrl={event.sourceUrl}
+            doi={event.doi}
+            academicCitation={event.academicCitation}
+          />
+        </div>
+
         <div className="inspector-meta-grid">
           <div className="meta-item">
             <span className="meta-label">{isLaymanMode ? 'ANO' : 'COORDENADA TEMPORAL'}</span>
@@ -107,6 +120,9 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
           </div>
         </div>
 
+        {/* 4D Minkowski Spacetime Interval Calculator */}
+        <SpacetimeIntervalCard currentEvent={event} allEvents={events} />
+
         {isLaymanMode ? (
           <div className="layman-explanation-card">
             <div className="layman-card-header">
@@ -126,7 +142,11 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
             </div>
           </div>
         ) : (
-          event.description && <p className="inspector-desc">{event.description}</p>
+          event.description && (
+            <p className="inspector-desc">
+              <MathText text={event.description} />
+            </p>
+          )
         )}
 
         {(event.year === 2015 || event.title.toLowerCase().includes('ondas gravitacionais') || event.title.toLowerCase().includes('m87')) && (
@@ -167,22 +187,30 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
 
         {event.isAnchor && (
           <div className="anchor-badge">
-            <span>ÂNCORA GEODÉSICA DO CONTINUUM</span>
-            <p>Evento primordial que estabiliza o tensor métrico e preserva a autoconsistência de Novikov.</p>
+            <span>{isLaymanMode ? 'EVENTO FUNDAMENTAL DA HISTÓRIA' : 'ÂNCORA GEODÉSICA DO CONTINUUM'}</span>
+            <p>
+              {isLaymanMode
+                ? 'Este acontecimento é tão importante que serve de base firme para todas as descobertas que vieram depois.'
+                : 'Evento primordial que estabiliza o tensor métrico e preserva a autoconsistência de Novikov.'}
+            </p>
           </div>
         )}
 
         {event.isAIAnomaly && (
           <div className="ai-anomaly-badge">
-            <span>ANOMALIA QUÂNTICA GERADA POR IA</span>
-            <p>Bifurcação emergente gerada por perturbações no cone de luz.</p>
+            <span>{isLaymanMode ? 'HISTÓRIA ALTERADA POR INTELIGÊNCIA ARTIFICIAL' : 'ANOMALIA QUÂNTICA GERADA POR IA'}</span>
+            <p>
+              {isLaymanMode
+                ? 'Uma nova possibilidade gerada para testar o que aconteceria com o universo.'
+                : 'Bifurcação emergente gerada por perturbações no cone de luz.'}
+            </p>
           </div>
         )}
 
         <section className="physics-explanation">
           <div className="physics-heading">
             <span className="section-label">
-              {isLaymanMode ? 'COMO A FÍSICA EXPLICA ESTE EVENTO' : 'INTERPRETAÇÃO EM FÍSICA TEÓRICA'}
+              {isLaymanMode ? 'COMO A CIÊNCIA EXPLICA ESTE EVENTO' : 'INTERPRETAÇÃO EM FÍSICA TEÓRICA'}
             </span>
             <span className="physics-note">
               {isLaymanMode ? '5 LEIS FUNDAMENTAIS' : '5 PILARES DO ESPAÇO-TEMPO'}
@@ -210,7 +238,7 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
                   </div>
                 )}
                 <p className="physics-desc-text">
-                  {isLaymanMode ? (item.laymanExplanation || item.explanation) : item.explanation}
+                  <MathText text={isLaymanMode ? (item.laymanExplanation || item.explanation) : item.explanation} />
                 </p>
               </div>
             </details>
@@ -218,14 +246,18 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
         </section>
 
         <div className="inspector-section">
-          <span className="section-label">CONES DE LUZ PASSADO (CAUSAS: {causesList.length})</span>
+          <span className="section-label">
+            {isLaymanMode ? `O QUE PROVOCOU ESTE EVENTO (${causesList.length})` : `CONES DE LUZ PASSADO (CAUSAS: ${causesList.length})`}
+          </span>
           {causesList.length === 0 ? (
-            <span className="empty-text">Origem assintótica / Evento primordial independente</span>
+            <span className="empty-text">
+              {isLaymanMode ? 'Ponto de partida histórico (sem causa anterior cadastrada)' : 'Origem assintótica / Evento primordial independente'}
+            </span>
           ) : (
             <ul className="causal-list">
               {causesList.map(c => (
                 <li key={c!.id}>
-                  <span>{c!.title}</span>
+                  <span>{isLaymanMode ? getLaymanExplanation(c!.year, c!.title).simpleTitle : c!.title}</span>
                   <span className="causal-year">(Ano {c!.year})</span>
                 </li>
               ))}
@@ -234,14 +266,18 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
         </div>
 
         <div className="inspector-section">
-          <span className="section-label">CONES DE LUZ FUTURO (CONSEQUÊNCIAS: {consequencesList.length})</span>
+          <span className="section-label">
+            {isLaymanMode ? `O QUE ESTE EVENTO GEROU NO FUTURO (${consequencesList.length})` : `CONES DE LUZ FUTURO (CONSEQUÊNCIAS: ${consequencesList.length})`}
+          </span>
           {consequencesList.length === 0 ? (
-            <span className="empty-text">Fronteira aberta da linha temporal</span>
+            <span className="empty-text">
+              {isLaymanMode ? 'Fim da cadeia atual (ainda sem desdobramentos futuros)' : 'Fronteira aberta da linha temporal'}
+            </span>
           ) : (
             <ul className="causal-list">
               {consequencesList.map(c => (
                 <li key={c!.id}>
-                  <span>{c!.title}</span>
+                  <span>{isLaymanMode ? getLaymanExplanation(c!.year, c!.title).simpleTitle : c!.title}</span>
                   <span className="causal-year">(Ano {c!.year})</span>
                 </li>
               ))}
@@ -251,7 +287,9 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
 
         {/* Action Controls */}
         <div className="inspector-actions">
-          <span className="actions-label">INTERVENÇÃO MÉTRICA & ORÁCULO DE IA</span>
+          <span className="actions-label">
+            {isLaymanMode ? 'MUDAR A HISTÓRIA & SIMULAR COM IA' : 'INTERVENÇÃO MÉTRICA & ORÁCULO DE IA'}
+          </span>
           <div className="action-buttons-grid">
             <button
               type="button"
@@ -265,21 +303,21 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
               className="btn-action-alt btn-alter"
               onClick={() => onAlterEvent(event.id, EventStatus.ALTERED)}
             >
-              Modificar Geodésica
+              {isLaymanMode ? 'Mudar Rumos do Evento' : 'Modificar Geodésica'}
             </button>
             <button
               type="button"
               className="btn-action-alt btn-erase"
               onClick={() => onAlterEvent(event.id, EventStatus.ERASED)}
             >
-              Aniquilar Nó Temporal
+              {isLaymanMode ? 'Apagar da História' : 'Aniquilar Nó Temporal'}
             </button>
             <button
               type="button"
               className="btn-action-alt btn-restore"
               onClick={() => onAlterEvent(event.id, EventStatus.STABLE)}
             >
-              Restaurar Estado Fundamental
+              {isLaymanMode ? 'Restaurar Original' : 'Restaurar Estado Fundamental'}
             </button>
           </div>
         </div>
