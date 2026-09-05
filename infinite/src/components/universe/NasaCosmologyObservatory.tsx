@@ -7,15 +7,16 @@ import {
   type NasaObservatory,
 } from '../../data/nasaCosmologyData';
 import MathFormula, { MathText } from '../MathFormula';
+import NasaUniversePillarsView from './NasaUniversePillarsView';
 
 interface Props {
   isLaymanMode: boolean;
 }
 
-type NasaViewMode = 'epochs' | 'observatories' | 'deep_field';
+type NasaViewMode = 'pillars' | 'epochs' | 'observatories' | 'deep_field';
 
 export default function NasaCosmologyObservatory({ isLaymanMode }: Props) {
-  const [activeView, setActiveView] = useState<NasaViewMode>('epochs');
+  const [activeView, setActiveView] = useState<NasaViewMode>('pillars');
   const [selectedEpochId, setSelectedEpochId] = useState<string>('recombination_cmb');
   const [selectedObsId, setSelectedObsId] = useState<string>('jwst');
 
@@ -48,6 +49,15 @@ export default function NasaCosmologyObservatory({ isLaymanMode }: Props) {
         <nav className="nasa-mode-nav" aria-label="Abas do Observatório NASA">
           <button
             type="button"
+            className={`nasa-nav-btn ${activeView === 'pillars' ? 'active' : ''}`}
+            onClick={() => setActiveView('pillars')}
+          >
+            <span className="nasa-red-dot" />
+            <span>THE UNIVERSE // 8 PILARES NASA</span>
+          </button>
+
+          <button
+            type="button"
             className={`nasa-nav-btn ${activeView === 'epochs' ? 'active' : ''}`}
             onClick={() => setActiveView('epochs')}
           >
@@ -55,7 +65,7 @@ export default function NasaCosmologyObservatory({ isLaymanMode }: Props) {
               <circle cx="12" cy="12" r="10" />
               <polyline points="12 6 12 12 16 14" />
             </svg>
-            <span>01 // LINHA DO TEMPO CÓSMICA</span>
+            <span>LINHA DO TEMPO CÓSMICA</span>
           </button>
 
           <button
@@ -66,7 +76,7 @@ export default function NasaCosmologyObservatory({ isLaymanMode }: Props) {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
               <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
             </svg>
-            <span>02 // GRANDES OBSERVATÓRIOS</span>
+            <span>GRANDES OBSERVATÓRIOS</span>
           </button>
 
           <button
@@ -79,10 +89,17 @@ export default function NasaCosmologyObservatory({ isLaymanMode }: Props) {
               <path d="M3 12h3m12 0h3M12 3v3m0 12v3" />
               <circle cx="12" cy="12" r="9" strokeDasharray="3 3" />
             </svg>
-            <span>03 // CAMPO PROFUNDO & EXOPLANETAS</span>
+            <span>CAMPO PROFUNDO & EXOPLANETAS</span>
           </button>
         </nav>
       </header>
+
+      {/* ========================================================================= */}
+      {/* VIEW 0: THE UNIVERSE - 8 GRANDES PILARES NASA */}
+      {/* ========================================================================= */}
+      {activeView === 'pillars' && (
+        <NasaUniversePillarsView isLaymanMode={isLaymanMode} />
+      )}
 
       {/* ========================================================================= */}
       {/* VIEW 1: COSMOLOGICAL EPOCHS TIMELINE */}

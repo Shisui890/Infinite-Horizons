@@ -4,9 +4,10 @@ import { useLaymanMode } from '../context/LaymanModeContext';
 interface Props {
   onStartSimulator: () => void;
   onOpenGuide: () => void;
+  onOpenOurUniverse?: () => void;
 }
 
-export default function HeroSection({ onStartSimulator, onOpenGuide }: Props) {
+export default function HeroSection({ onStartSimulator, onOpenGuide, onOpenOurUniverse }: Props) {
   const { isLaymanMode } = useLaymanMode();
   const titleRef = useRef<HTMLHeadingElement>(null);
 
@@ -58,6 +59,14 @@ export default function HeroSection({ onStartSimulator, onOpenGuide }: Props) {
               <path d="M5 12h14M12 5l7 7-7 7" />
             </svg>
           </button>
+          
+          {onOpenOurUniverse && (
+            <button type="button" className="btn-nasa-hero" onClick={onOpenOurUniverse} title="Acessar o portal The Universe da NASA">
+              <span className="nasa-hero-meatball">NASA</span>
+              <span>The Universe // 8 Pilares</span>
+            </button>
+          )}
+
           <button type="button" className="btn-secondary" onClick={onOpenGuide}>
             <span>Como Funciona o Site</span>
           </button>

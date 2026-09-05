@@ -53,11 +53,11 @@ export default function LandingPage({ onStartSimulator, onOpenGuide, onOpenOurUn
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '6px',
-                  background: 'rgba(255, 150, 0, 0.08)',
-                  border: '1px solid rgba(255, 150, 0, 0.35)',
+                  background: 'rgba(235, 59, 71, 0.12)',
+                  border: '1px solid rgba(235, 59, 71, 0.45)',
                   borderRadius: '20px',
                   padding: '5px 14px',
-                  color: '#ffaa00',
+                  color: '#ff6b76',
                   cursor: 'pointer',
                   fontWeight: 600,
                   fontSize: '0.8rem',
@@ -65,11 +65,8 @@ export default function LandingPage({ onStartSimulator, onOpenGuide, onOpenOurUn
                   letterSpacing: '0.04em',
                 }}
               >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="10" />
-                  <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
-                </svg>
-                <span>Exploração Cósmica</span>
+                <span className="nasa-nav-meatball">NASA</span>
+                <span>The Universe // Cosmos</span>
               </button>
             )}
             <a href="#demo-section" className="nav-link">
@@ -227,7 +224,11 @@ export default function LandingPage({ onStartSimulator, onOpenGuide, onOpenOurUn
         </div>
       )}
 
-      <HeroSection onStartSimulator={onStartSimulator} onOpenGuide={onOpenGuide} />
+      <HeroSection
+        onStartSimulator={onStartSimulator}
+        onOpenGuide={onOpenGuide}
+        onOpenOurUniverse={onOpenOurUniverse}
+      />
       <ConceptSection />
       <FeaturesSection />
       <DemoSection onStartSimulator={onStartSimulator} />

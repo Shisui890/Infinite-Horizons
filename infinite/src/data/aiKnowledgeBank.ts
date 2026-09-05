@@ -163,6 +163,45 @@ export const AI_KNOWLEDGE_BANK: KnowledgeEntry[] = [
     formulaLabel: 'Entropia de Shannon e Expoente de Lyapunov Causal',
     sources: ['C. E. Shannon, Bell System Technical Journal (1948)', 'Strogatz, Nonlinear Dynamics and Chaos (2018)'],
   },
+  {
+    id: 'nasa_exoplanets',
+    keywords: ['exoplaneta', 'exoplanetas', 'planetas fora do sistema solar', 'trappist', 'zona habitavel', 'kepler', 'tess'],
+    topic: 'Astrofísica da NASA // The Universe',
+    title: 'Exoplanetas e o Censo Planetário da NASA',
+    didacticAnswer:
+      'Exoplanetas são mundos que orbitam outras estrelas além do nosso Sol. A NASA já confirmou mais de 5.700 exoplanetas, incluindo gigantes gasosos incandescentes, mundos cobertos de oceanos e planetas rochosos de tamanho similar à Terra localizados na Zona Habitável, onde pode haver água líquida.',
+    technicalAnswer:
+      'Detecção primária por Fotometria de Trânsito ($\Delta F/F = R_p^2/R_*^2$), Velocidade Radial espectroscópica e Microlenteamento Gravitacional. A missão Kepler e o satélite TESS demonstraram que a ocorrência de planetas terrestres em zonas de habitabilidade circunstelar $(\\eta_\\oplus)$ varia de 0,1 a 0,3 ao redor de estrelas do tipo solar e anãs M.',
+    formula: '\\frac{\\Delta F}{F} \\approx \\left(\\frac{R_p}{R_*}\\right)^2, \\quad T_{eq} = T_* \\left(\\frac{R_*}{2a}\\right)^{1/2} (1 - A_B)^{1/4}',
+    formulaLabel: 'Trânsito Fotométrico e Temperatura de Equilíbrio Planetária',
+    sources: ['NASA Exoplanet Archive (science.nasa.gov)', 'Borucki et al., Science (2010)'],
+  },
+  {
+    id: 'nasa_search_for_life',
+    keywords: ['vida no universo', 'busca por vida', 'astrobiologia', 'alienigena', 'bioassinatura', 'europa clipper'],
+    topic: 'Astrobiologia da NASA // The Universe',
+    title: 'A Busca por Vida no Universo (NASA Astrobiology)',
+    didacticAnswer:
+      'A NASA busca bioassinaturas rastreando os três pilares essenciais: água líquida, fontes de energia e elementos orgânicos. A investigação foca tanto em oceanos ocultos sob luas congeladas do nosso sistema solar (Europa e Encélado) quanto na detecção espectroscópica de gases de desequilíbrio (vapor d’água, metano e ozônio) com o telescópio James Webb.',
+    technicalAnswer:
+      'Análise de desequilíbrio termoquímico atmosférico multivariado em exoplanetas habitáveis combinando espectroscopia de transmissão e emissão térmica (NIRSpec/MIRI do JWST). No sistema solar, missões in situ como Europa Clipper e Dragonfly mapeiam quimiossíntese sob crostas criogênicas com plumas hidrotermais ativas.',
+    formula: 'N = R_* \\cdot f_p \\cdot n_e \\cdot f_l \\cdot f_i \\cdot f_c \\cdot L',
+    formulaLabel: 'Equação de Drake para Civilizações e Vida Extraterrestre',
+    sources: ['NASA Astrobiology Strategy', 'Seager et al., Astrobiology (2013)'],
+  },
+  {
+    id: 'nasa_dark_matter_energy',
+    keywords: ['materia escura', 'energia escura', 'constante cosmologica', 'expansao acelerada', 'rubin', 'bullet cluster'],
+    topic: 'Cosmologia da NASA // The Universe',
+    title: 'Matéria Escura e Energia Escura: O Universo Invisível',
+    didacticAnswer:
+      'Tudo o que vemos (estrelas, planetas e nós mesmos) representa menos de 5% do cosmos! Cerca de 27% é Matéria Escura — uma substância invisível com gravidade que mantém as galáxias unidas. Os outros 68% são Energia Escura — uma pressão que estica o próprio espaço e faz o universo se expandir em ritmo acelerado.',
+    technicalAnswer:
+      'No modelo padrão $\\Lambda\\text{CDM}$, a Matéria Escura Fria (CDM) explica curvas planas de rotação galáctica ($v(r) = \\text{const}$) e o desacoplamento bariônico no Aglomerado da Bala. A Energia Escura é parametrizada pela Constante Cosmológica $\\Lambda$ com equação de estado $w = P/\\rho \\approx -1$, induzindo aceleração $\\ddot{a} > 0$ detectada via Supernovas Ia.',
+    formula: '\\Omega_m + \\Omega_\\Lambda + \\Omega_k = 1, \\quad \\frac{\\ddot{a}}{a} = -\\frac{4\\pi G}{3}(\\rho + 3P/c^2) + \\frac{\\Lambda c^2}{3}',
+    formulaLabel: 'Densidades Críticas e Equação de Aceleração de Friedmann',
+    sources: ['Perlmutter & Riess, Nobel Prize (2011)', 'NASA Roman Space Telescope Cosmology Team'],
+  },
 ];
 
 /**

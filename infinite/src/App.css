@@ -13840,3 +13840,728 @@
     margin-bottom: 0;
   }
 }
+
+/* ========================================================================= */
+/* NASA "THE UNIVERSE" OFFICIAL PORTAL & 8 PILLARS SYSTEM                     */
+/* ========================================================================= */
+
+.nasa-universe-pillars-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* 1. Official NASA Ribbon */
+.nasa-official-ribbon {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(90deg, rgba(16, 91, 216, 0.15) 0%, rgba(235, 59, 71, 0.12) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+}
+
+.ribbon-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ribbon-meatball {
+  background: #105bd8;
+  color: #ffffff;
+  font-weight: 900;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  letter-spacing: 0.05em;
+}
+
+.ribbon-text {
+  color: #cbd5e1;
+  font-weight: 600;
+}
+
+.ribbon-external-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #60a5fa;
+  text-decoration: none;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.ribbon-external-link:hover {
+  color: #93c5fd;
+  text-shadow: 0 0 8px rgba(96, 165, 250, 0.6);
+}
+
+/* 2. Split Layout: Menu Left + Dossier Right */
+.nasa-universe-split-layout {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 22px;
+  align-items: start;
+}
+
+/* 3. Left Navigation Rail (Authentic to User Screenshot) */
+.nasa-universe-sidebar {
+  background: #000000;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 12px;
+  padding: 24px 20px 20px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(255, 255, 255, 0.02);
+  display: flex;
+  flex-direction: column;
+}
+
+.nasa-universe-menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 16px;
+  margin-bottom: 8px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.menu-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nasa-universe-title {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  margin: 0;
+  line-height: 1.1;
+}
+
+.nasa-universe-subtitle {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: #94a3b8;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Red / Coral circular button from NASA's exact screenshot */
+.nasa-universe-red-arrow-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #eb3b47;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 10px rgba(235, 59, 71, 0.4);
+}
+
+.nasa-universe-red-arrow-btn:hover {
+  transform: scale(1.12);
+  background: #f84551;
+  box-shadow: 0 0 20px rgba(235, 59, 71, 0.8);
+}
+
+/* The List of 8 Pillars */
+.nasa-universe-nav-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.nasa-universe-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 16px 8px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.18s ease;
+  position: relative;
+}
+
+.nasa-universe-item:last-child {
+  border-bottom: none;
+}
+
+.nasa-universe-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  padding-left: 14px;
+}
+
+.nasa-universe-item:hover .item-title-en {
+  color: #ffffff;
+}
+
+.nasa-universe-item:hover .item-arrow-icon {
+  color: #ffffff;
+  transform: translateX(4px);
+}
+
+.item-text-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.item-title-en {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 1.12rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  letter-spacing: -0.01em;
+  transition: color 0.15s ease;
+}
+
+.item-title-pt {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.45);
+  letter-spacing: 0.03em;
+}
+
+.item-arrow-icon {
+  color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+/* Active Item State */
+.nasa-universe-item.active {
+  background: rgba(255, 255, 255, 0.08);
+  border-left: 3px solid var(--pillar-accent, #00e5ff);
+  padding-left: 16px;
+}
+
+.nasa-universe-item.active .item-title-en {
+  color: #ffffff;
+  font-weight: 800;
+  text-shadow: 0 0 10px var(--pillar-accent, #00e5ff);
+}
+
+.nasa-universe-item.active .item-title-pt {
+  color: var(--pillar-accent, #00e5ff);
+}
+
+.nasa-universe-item.active .item-arrow-icon {
+  color: var(--pillar-accent, #00e5ff);
+  transform: translateX(4px);
+}
+
+.nasa-universe-source-note {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: #94a3b8;
+}
+
+.nasa-universe-source-note strong {
+  color: #cbd5e1;
+}
+
+/* 4. Right Column: Master Dossier */
+.nasa-pillar-dossier {
+  background: radial-gradient(circle at top right, rgba(25, 32, 50, 0.6) 0%, rgba(8, 12, 20, 0.95) 70%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  padding: 26px 30px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+.pillar-dossier-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 18px;
+}
+
+.hero-kicker-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.pillar-badge {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid;
+}
+
+.pillar-official-tag {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  color: #64748b;
+  letter-spacing: 0.08em;
+}
+
+.hero-title-group {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.pillar-main-title {
+  font-family: var(--font-display, sans-serif);
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  margin: 0;
+  line-height: 1.15;
+}
+
+.pillar-en-tag {
+  display: inline-flex;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.pillar-en-tag strong {
+  color: #ffffff;
+}
+
+.pillar-tagline {
+  font-size: 1.05rem;
+  color: #cbd5e1;
+  margin: 0;
+  line-height: 1.45;
+}
+
+.pillar-action-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.btn-nasa-source {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(235, 59, 71, 0.15);
+  border: 1px solid rgba(235, 59, 71, 0.45);
+  color: #ff99a0;
+  padding: 7px 16px;
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.btn-nasa-source:hover {
+  background: #eb3b47;
+  color: #ffffff;
+  box-shadow: 0 0 16px rgba(235, 59, 71, 0.5);
+}
+
+.pillar-mode-chip {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: #94a3b8;
+  display: flex;
+  gap: 6px;
+}
+
+.pillar-mode-chip strong {
+  color: #38bdf8;
+}
+
+/* 4 Key Stats Grid */
+.pillar-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.pillar-stat-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.stat-value {
+  font-family: var(--font-display, sans-serif);
+  font-size: 1.45rem;
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.stat-subtext {
+  font-size: 0.72rem;
+  color: #64748b;
+  line-height: 1.3;
+}
+
+/* Body Section: Narrative + Formula */
+.pillar-body-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pillar-narrative-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 10px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.narrative-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 0.08em;
+}
+
+.live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.narrative-text {
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: #e2e8f0;
+  margin: 0;
+}
+
+/* Formula Card */
+.pillar-formula-card {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 18px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.formula-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.formula-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #38bdf8;
+}
+
+.formula-title {
+  font-family: var(--font-display, sans-serif);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+}
+
+.formula-kicker {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  color: #64748b;
+  letter-spacing: 0.08em;
+}
+
+.formula-display-box {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 14px;
+  overflow-x: auto;
+}
+
+.pillar-math-equation {
+  color: #38bdf8;
+  font-size: 1.15rem;
+}
+
+.formula-explanation {
+  font-size: 0.82rem;
+  color: #94a3b8;
+  margin: 0;
+  line-height: 1.45;
+}
+
+/* Missions & Discoveries Split */
+.pillar-missions-discoveries-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.pillar-missions-panel,
+.pillar-discoveries-panel {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.panel-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #cbd5e1;
+  letter-spacing: 0.06em;
+  margin: 0;
+}
+
+.missions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mission-item {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mission-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.mission-name {
+  font-size: 0.82rem;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.mission-status-pill {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 12px;
+}
+
+.mission-status-pill.ativa {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.mission-status-pill.futura {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.4);
+}
+
+.mission-status-pill.legado {
+  background: rgba(148, 163, 184, 0.15);
+  color: #94a3b8;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+}
+
+.mission-role {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  line-height: 1.3;
+}
+
+.discoveries-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.discovery-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.8rem;
+  color: #e2e8f0;
+  line-height: 1.4;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.discovery-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.disc-check {
+  font-weight: 900;
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+/* Directorate Quote */
+.pillar-quote-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background: rgba(255, 255, 255, 0.02);
+  border-left: 3px solid var(--pillar-accent, #00e5ff);
+  border-radius: 0 8px 8px 0;
+  padding: 14px 18px;
+}
+
+.quote-text {
+  font-style: italic;
+  font-size: 0.85rem;
+  color: #cbd5e1;
+  margin: 0;
+  line-height: 1.45;
+}
+
+/* Landing Page Hero NASA Button */
+.btn-nasa-hero {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(235, 59, 71, 0.15);
+  border: 1px solid rgba(235, 59, 71, 0.5);
+  color: #ffffff;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-nasa-hero:hover {
+  background: #eb3b47;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 18px rgba(235, 59, 71, 0.5);
+}
+
+.nasa-hero-meatball,
+.nasa-nav-meatball {
+  background: #105bd8;
+  color: #ffffff;
+  font-weight: 900;
+  font-size: 0.58rem;
+  padding: 2px 6px;
+  border-radius: 10px;
+  letter-spacing: 0.05em;
+}
+
+.nasa-red-dot,
+.nasa-mode-badge-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #eb3b47;
+  display: inline-block;
+  box-shadow: 0 0 8px #eb3b47;
+}
+
+/* Responsive Rules */
+@media (max-width: 1024px) {
+  .nasa-universe-split-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .pillar-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .pillar-stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pillar-missions-discoveries-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pillar-main-title {
+    font-size: 1.75rem;
+  }
+
+  .pillar-action-strip {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

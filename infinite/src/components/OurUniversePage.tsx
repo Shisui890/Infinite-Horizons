@@ -74,9 +74,9 @@ export default function OurUniversePage({ onBack, onStartSimulator }: Props) {
                   ? 'CARTOGRAFIA ESTELAR // SISTEMA ONLINE'
                   : universeMode === 'aerospace_sim'
                   ? 'SIMULADOR AEROESPACIAL // KSP & RE-ENTRY'
-                  : 'OBSERVATÓRIO NASA // COSMOLOGIA & GRANDES TELESCÓPIOS'}
+                  : 'PORTAL NASA // THE UNIVERSE & COSMOLOGIA'}
               </span>
-              <span className="ed-id-sub">EXPLORAÇÃO DE CORPOS CELESTES DO UNIVERSO REAL</span>
+              <span className="ed-id-sub">EXPLORAÇÃO DE CORPOS CELESTES E DADOS DA NASA</span>
             </div>
           </div>
         </div>
@@ -112,12 +112,8 @@ export default function OurUniversePage({ onBack, onStartSimulator }: Props) {
             className={`btn-mode-nav ${universeMode === 'nasa_observatory' ? 'active' : ''}`}
             onClick={() => setUniverseMode('nasa_observatory')}
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-              <circle cx="12" cy="12" r="3" />
-              <path d="M3 12h3m12 0h3M12 3v3m0 12v3" />
-              <circle cx="12" cy="12" r="9" strokeDasharray="3 3" />
-            </svg>
-            <span>OBSERVATÓRIO NASA</span>
+            <span className="nasa-mode-badge-dot" />
+            <span>PORTAL NASA // THE UNIVERSE</span>
           </button>
         </div>
 
