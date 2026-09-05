@@ -1,3 +1,24 @@
+/* Global Sci-Fi Scrollbars */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(4, 7, 16, 0.85);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 229, 255, 0.35);
+  border-radius: 4px;
+  border: 1px solid rgba(0, 229, 255, 0.15);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 229, 255, 0.7);
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
+}
+
 /* ===== LANDING PAGE STYLES — INFINITE HORIZONS (MUSEUM-GRADE ASTROPHYSICS) ===== */
 
 /* --- Landing Page Shell --- */
@@ -9057,6 +9078,9 @@
 .ed-scanner-column {
   display: flex;
   flex-direction: column;
+  align-self: start;
+  position: sticky;
+  top: 80px;
 }
 
 /* 4. Stellar Orrery Canvas Box */
@@ -10075,6 +10099,49 @@
 
 .ed-tab-content-area {
   min-height: 280px;
+  position: relative;
+}
+
+.tab-pane {
+  max-height: min(530px, 68vh);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 6px;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 229, 255, 0.45) rgba(8, 14, 28, 0.7);
+}
+
+.tab-pane::-webkit-scrollbar {
+  width: 6px;
+}
+
+.tab-pane::-webkit-scrollbar-track {
+  background: rgba(8, 14, 28, 0.85);
+  border-radius: 4px;
+  border: 1px solid rgba(0, 229, 255, 0.12);
+}
+
+.tab-pane::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #00e5ff 0%, #0284c7 100%);
+  border-radius: 4px;
+  box-shadow: 0 0 6px rgba(0, 229, 255, 0.4);
+}
+
+.tab-pane::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #ff9900 0%, #ea580c 100%);
+  box-shadow: 0 0 10px rgba(255, 153, 0, 0.6);
+}
+
+.ed-sec-heading {
+  position: sticky;
+  top: 0;
+  background: #050813;
+  z-index: 5;
+  padding-top: 2px;
+  padding-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 /* Keplerian details box */
@@ -10201,10 +10268,8 @@
 .geology-layers-stack {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  max-height: 380px;
-  overflow-y: auto;
-  padding-right: 4px;
+  gap: 10px;
+  padding-right: 2px;
 }
 
 .geology-layer-card {
