@@ -8,6 +8,7 @@ import { getCelestialRealMedia } from '../data/celestialRealMedia';
 import StellarOrreryCanvas from './universe/StellarOrreryCanvas';
 import TargetScannerPanel from './universe/TargetScannerPanel';
 import AerospaceFlightSimulator from './aerospace/AerospaceFlightSimulator';
+import NasaCosmologyObservatory from './universe/NasaCosmologyObservatory';
 import { useLaymanMode } from '../context/LaymanModeContext';
 
 interface Props {
@@ -15,7 +16,7 @@ interface Props {
   onStartSimulator: () => void;
 }
 
-type MainUniverseMode = 'cartography' | 'aerospace_sim';
+type MainUniverseMode = 'cartography' | 'aerospace_sim' | 'nasa_observatory';
 
 export default function OurUniversePage({ onBack, onStartSimulator }: Props) {
   const { isLaymanMode, toggleLaymanMode } = useLaymanMode();
@@ -71,7 +72,9 @@ export default function OurUniversePage({ onBack, onStartSimulator }: Props) {
               <span className="ed-id-title">
                 {universeMode === 'cartography'
                   ? 'CARTOGRAFIA ESTELAR // SISTEMA ONLINE'
-                  : 'SIMULADOR AEROESPACIAL // KSP & RE-ENTRY'}
+                  : universeMode === 'aerospace_sim'
+                  ? 'SIMULADOR AEROESPACIAL // KSP & RE-ENTRY'
+                  : 'OBSERVATÓRIO NASA // COSMOLOGIA & GRANDES TELESCÓPIOS'}
               </span>
               <span className="ed-id-sub">EXPLORAÇÃO DE CORPOS CELESTES DO UNIVERSO REAL</span>
             </div>
@@ -101,7 +104,20 @@ export default function OurUniversePage({ onBack, onStartSimulator }: Props) {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
               <polygon points="12 2 2 22 22 22" />
             </svg>
-            <span>SIMULADOR AEROESPACIAL (KSP / RE-ENTRY)</span>
+            <span>SIMULADOR AEROESPACIAL</span>
+          </button>
+
+          <button
+            type="button"
+            className={`btn-mode-nav ${universeMode === 'nasa_observatory' ? 'active' : ''}`}
+            onClick={() => setUniverseMode('nasa_observatory')}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+              <circle cx="12" cy="12" r="3" />
+              <path d="M3 12h3m12 0h3M12 3v3m0 12v3" />
+              <circle cx="12" cy="12" r="9" strokeDasharray="3 3" />
+            </svg>
+            <span>OBSERVATÓRIO NASA</span>
           </button>
         </div>
 
@@ -235,6 +251,11 @@ export default function OurUniversePage({ onBack, onStartSimulator }: Props) {
       {/* MODE 2: SIMULADOR AEROESPACIAL (KSP & RE-ENTRY) */}
       {universeMode === 'aerospace_sim' && (
         <AerospaceFlightSimulator isLaymanMode={isLaymanMode} />
+      )}
+
+      {/* MODE 3: OBSERVATÓRIO NASA & COSMOLOGIA */}
+      {universeMode === 'nasa_observatory' && (
+        <NasaCosmologyObservatory isLaymanMode={isLaymanMode} />
       )}
     </div>
   );

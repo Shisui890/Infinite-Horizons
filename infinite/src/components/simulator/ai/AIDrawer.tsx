@@ -9,6 +9,11 @@ import { AITemporalService } from '../../../engine/AITemporalService';
 import { MultiAgentDebateService } from '../../../engine/MultiAgentDebateService';
 import type { DebateReport } from '../../../engine/MultiAgentDebateService';
 import MathFormula, { MathText } from '../../MathFormula';
+import {
+  searchKnowledgeBank,
+  getKnowledgeBankSeed,
+  POPULAR_COSMIC_QUERIES,
+} from '../../../data/aiKnowledgeBank';
 
 interface Props {
   universe: Universe;
@@ -35,7 +40,7 @@ export default function AIDrawer({ universe, lastAIResult, onClose, onApplyResol
   const [chatMessages, setChatMessages] = useState<Array<{ role: 'system' | 'user' | 'assistant'; content: string }>>([
     {
       role: 'assistant',
-      content: 'Olá! Sou o Oráculo Físico do Infinite Horizons. Posso analisar as equações de relatividade do seu universo ativo, avaliar paradoxos ou calcular o impacto de novas geodésicas. O que deseja investigar?',
+      content: 'Olá! Sou o Oráculo Físico do Infinite Horizons equipado com Base Local de Conhecimento (0 tokens consumidos) e integração LLM. Posso analisar as equações de relatividade do seu universo ativo, avaliar paradoxos ou calcular o impacto de novas geodésicas. O que deseja investigar?',
     },
   ]);
   const [chatInput, setChatInput] = useState('');
@@ -84,17 +89,38 @@ export default function AIDrawer({ universe, lastAIResult, onClose, onApplyResol
     // Initial empty assistant message for streaming
     setChatMessages(prev => [...prev, { role: 'assistant' as const, content: '' }]);
 
+    // 1. Verificação Primária na Base Sub-Escondida Local (Economia de 100% de Tokens!)
+    const localMatch = searchKnowledgeBank(text);
+    if (localMatch) {
+      const formattedAnswer = `⚡ **[BASE CIENTÍFICA LOCAL // 0 TOKENS CONSUMIDOS]**\n\n### ${localMatch.title}\n\n${
+        localMatch.didacticAnswer
+      }\n\n**Formulação Matemática Fundamental:**\n$$${localMatch.formula || ''}$$\n*(${localMatch.formulaLabel || localMatch.topic})*\n\n**Aprofundamento Físico e Teórico:**\n${
+        localMatch.technicalAnswer
+      }\n\n*Fontes Primárias Verificadas: ${localMatch.sources.join(', ')}*`;
+
+      setTimeout(() => {
+        setChatMessages(prev => {
+          const updated = [...prev];
+          updated[updated.length - 1] = { role: 'assistant', content: formattedAnswer };
+          return updated;
+        });
+        setIsStreamingChat(false);
+      }, 120);
+      return;
+    }
+
+    // 2. Chamada Externa via LLM com Compressão de Histórico e Injeção de Semente Compacta
+    const seed = getKnowledgeBankSeed(text);
     const systemContext = `Você é o Oráculo Científico e Co-piloto de Física Teórica do laboratório Infinite Horizons.
-Universo Ativo: "${universe.name}".
-Integridade Temporal: ${universe.temporalIntegrity}%.
-Paradoxos Ativos: ${universe.paradoxes.length}.
-Dimensões: ${universe.dimensions.map(d => d.name).join(', ')}.
-Eventos Registrados: ${allEvents.map(e => `${e.year}: ${e.title}`).join(' | ')}.
-Responda de forma rigorosa, elegante, inspiradora e científica com formatação Markdown e LaTeX ($...$) quando cabível.`;
+Universo Ativo: "${universe.name}" | Integridade: ${universe.temporalIntegrity}% | Paradoxos: ${universe.paradoxes.length} | Dimensões: ${universe.dimensions.length}.
+${seed ? `Semente Factual Compacta: ${seed}\n` : ''}Responda de forma rigorosa, elegante, inspiradora e científica com formatação Markdown e LaTeX ($...$) quando cabível.`;
+
+    // Truncar para no máximo as últimas 4 mensagens para economizar milhares de tokens por sessão
+    const recentHistory = newHistory.slice(-4);
 
     const payload = [
       { role: 'system' as const, content: systemContext },
-      ...newHistory,
+      ...recentHistory,
     ];
 
     try {
@@ -310,40 +336,29 @@ Responda de forma rigorosa, elegante, inspiradora e científica com formatação
         {activeTab === 'copilot' && (
           <div className="ai-tab-content ai-copilot-container">
             <div className="copilot-quick-prompts">
-              <span className="copilot-quick-label">PROMPTS CIENTÍFICOS:</span>
-              <button
-                type="button"
-                className="btn-copilot-chip"
-                onClick={() => handleSendChat('Como a gravitação de Einstein afeta os cones de luz neste universo?')}
-              >
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="12" cy="12" r="10" />
-                  <line x1="2" y1="12" x2="22" y2="12" />
-                </svg>
-                <span>Cones de Luz</span>
-              </button>
-              <button
-                type="button"
-                className="btn-copilot-chip"
-                onClick={() => handleSendChat('Quais são os principais riscos de paradoxo na linha temporal atual?')}
-              >
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                </svg>
-                <span>Riscos de Novikov</span>
-              </button>
-              <button
-                type="button"
-                className="btn-copilot-chip"
-                onClick={() => handleSendChat('Explique a conjectura holográfica ER=EPR e pontes de Einstein-Rosen.')}
-              >
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="6" cy="6" r="3" />
-                  <circle cx="18" cy="18" r="3" />
-                  <path d="M8.59 8.59l6.82 6.82" />
-                </svg>
-                <span>Pontes ER=EPR</span>
-              </button>
+              <div className="copilot-quick-header">
+                <span className="copilot-quick-label">BASE LOCAL (0 TOKENS):</span>
+                <span className="token-saver-pill" title="Perguntas locais não consomem tokens de API">
+                  ⚡ 0 TOKENS // INSTANTÂNEO
+                </span>
+              </div>
+              <div className="copilot-chips-wrap">
+                {POPULAR_COSMIC_QUERIES.map((q, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    className="btn-copilot-chip"
+                    onClick={() => handleSendChat(q)}
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="12" y1="16" x2="12" y2="12" />
+                      <line x1="12" y1="8" x2="12.01" y2="8" />
+                    </svg>
+                    <span>{q}</span>
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div className="copilot-messages-box">

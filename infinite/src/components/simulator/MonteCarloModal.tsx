@@ -1,4 +1,4 @@
-import { useState, useTransition, useId } from 'react';
+import { useState, useTransition, useId, useMemo } from 'react';
 import type { Universe, MonteCarloResult } from '../../types/temporal';
 import { MonteCarloService } from '../../engine/MonteCarloService';
 import { useLaymanMode } from '../../context/LaymanModeContext';
@@ -9,6 +9,8 @@ interface Props {
   onClose: () => void;
 }
 
+type ActiveTab = 'overview' | 'convergence' | 'recommendations';
+
 export default function MonteCarloModal({ universe, onClose }: Props) {
   const { isLaymanMode } = useLaymanMode();
   const [iterations, setIterations] = useState<number>(10000);
@@ -16,10 +18,13 @@ export default function MonteCarloModal({ universe, onClose }: Props) {
     MonteCarloService.runSimulation(universe, 10000)
   );
   const [isPending, startTransition] = useTransition();
-  const [activeTab, setActiveTab] = useState<'overview' | 'convergence'>('overview');
+  const [activeTab, setActiveTab] = useState<ActiveTab>('overview');
 
   const gradientId = useId();
   const health = MonteCarloService.assessGraphHealth(universe);
+  const recommendations = useMemo(() => {
+    return MonteCarloService.generateCausalRecommendations(universe, result);
+  }, [universe, result]);
 
   function handleReRun(n: number) {
     setIterations(n);
@@ -118,6 +123,14 @@ export default function MonteCarloModal({ universe, onClose }: Props) {
               >
                 {isLaymanMode ? 'Gráfico de Certeza' : 'Convergência (t)'}
               </button>
+              <button
+                type="button"
+                className={`mc-tab-toggle ${activeTab === 'recommendations' ? 'active' : ''}`}
+                onClick={() => setActiveTab('recommendations')}
+              >
+                {isLaymanMode ? 'Recomendações' : 'Estabilização'}
+                <span className="mc-tab-rec-count">{recommendations.length}</span>
+              </button>
             </div>
           </div>
 
@@ -153,7 +166,7 @@ export default function MonteCarloModal({ universe, onClose }: Props) {
             </div>
           </div>
 
-          {activeTab === 'overview' ? (
+          {activeTab === 'overview' && (
             /* Probability Cards Grid */
             <div className="mc-distribution-grid">
               {/* Stable Card */}
@@ -240,7 +253,9 @@ export default function MonteCarloModal({ universe, onClose }: Props) {
                 </div>
               </div>
             </div>
-          ) : (
+          )}
+
+          {activeTab === 'convergence' && (
             /* Live Convergence Sparkline Chart */
             <div className="mc-convergence-container">
               <div className="mc-convergence-header">
@@ -282,6 +297,54 @@ export default function MonteCarloModal({ universe, onClose }: Props) {
                 <span>0 testes</span>
                 <span>{(iterations / 2).toLocaleString('pt-BR')} testes</span>
                 <span>{iterations.toLocaleString('pt-BR')} testes</span>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'recommendations' && (
+            /* Prescriptive Stabilization Recommendations */
+            <div className="mc-recommendations-container">
+              <div className="mc-recs-header">
+                <div className="mc-recs-title-group">
+                  <span className="mc-recs-badge">DIAGNÓSTICO AUTOMÁTICO</span>
+                  <h3 className="mc-recs-title">
+                    {isLaymanMode ? 'Ações para Proteger a Linha do Tempo' : 'Prescrições de Estabilização Causal'}
+                  </h3>
+                </div>
+                <span className="mc-recs-count-tag">
+                  {recommendations.length} {recommendations.length === 1 ? 'diretiva' : 'diretivas'}
+                </span>
+              </div>
+
+              <div className="mc-recs-list">
+                {recommendations.map(rec => (
+                  <div key={rec.id} className={`mc-rec-card ${rec.type}`}>
+                    <div className="mc-rec-card-top">
+                      <div className={`mc-rec-type-tag ${rec.type}`}>
+                        <span className="mc-rec-dot" />
+                        <span className="mc-rec-type-name">
+                          {rec.type === 'critical' ? 'CRÍTICO' : rec.type === 'warning' ? 'ALERTA' : rec.type === 'optimization' ? 'OTIMIZAÇÃO' : 'ESTÁVEL'}
+                        </span>
+                      </div>
+                      <strong className="mc-rec-card-title">{rec.title}</strong>
+                    </div>
+
+                    <p className="mc-rec-card-desc">
+                      {isLaymanMode ? rec.laymanDesc : rec.technicalDesc}
+                    </p>
+
+                    <div className="mc-rec-action-row">
+                      <div className="mc-rec-action-box">
+                        <span className="mc-rec-action-label">AÇÃO SUGERIDA:</span>
+                        <span className="mc-rec-action-text">{rec.actionHint}</span>
+                      </div>
+                      <div className="mc-rec-impact-box">
+                        <span className="mc-rec-impact-label">IMPACTO ESTIMADO:</span>
+                        <span className="mc-rec-impact-val">{rec.metricImpact}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}
