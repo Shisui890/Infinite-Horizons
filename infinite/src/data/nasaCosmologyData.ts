@@ -273,7 +273,7 @@ export const NASA_DEEP_FIELD_TARGETS = [
     id: 'smacs0723',
     name: 'Lente Gravitacional de SMACS 0723 (JWST First Deep Field)',
     constellation: 'Volans (Peixe Voador)',
-    distance: '4,6 bilhões de anos-luz (aglomerado) / até 13,1 bilhões de anos-luz (arcos de fundo)',
+    distance: '4,6 a 13,1 bilhões de anos-luz',
     description:
       'Uma área do céu do tamanho de um grão de areia segurado com o braço esticado. A massa colossal do aglomerado curva o tecido do espaço-tempo como uma lente de aumento natural, amplificando e distorcendo a luz de galáxias remotas que existiram no início do universo.',
     imageUrl: '/celestial/jwst_smacs0723.jpg',
@@ -283,7 +283,7 @@ export const NASA_DEEP_FIELD_TARGETS = [
     id: 'hudf',
     name: 'Hubble Ultra Deep Field (HUDF)',
     constellation: 'Fornax (Fornalha)',
-    distance: 'Até 13 bilhões de anos-luz',
+    distance: '13,0 bilhões de anos-luz',
     description:
       'Apontado para um pedaço de céu aparentemente vazio e completamente escuro durante 11 dias de exposição acumulada, o Hubble revelou quase 10.000 galáxias completas, cada uma contendo centenas de bilhões de estrelas.',
     imageUrl: '/celestial/hubble_deep_field.jpg',
@@ -293,7 +293,7 @@ export const NASA_DEEP_FIELD_TARGETS = [
     id: 'trappist1',
     name: 'Sistema Planetário TRAPPIST-1 (NASA Spitzer/JWST)',
     constellation: 'Aquarius (Aquário)',
-    distance: '39,46 anos-luz da Terra',
+    distance: '39,5 anos-luz',
     description:
       'Uma estrela anã vermelha ultra-fria cercada por 7 planetas rochosos de tamanho similar à Terra, três dos quais (TRAPPIST-1e, f e g) orbitam na Zona Habitável, onde a água pode se manter líquida.',
     imageUrl: '/celestial/trappist1_system.jpg',
