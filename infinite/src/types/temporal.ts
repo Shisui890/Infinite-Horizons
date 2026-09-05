@@ -289,6 +289,21 @@ export interface HawkingThermodynamicsResult {
   informationStatus: 'unitary_preserved' | 'thermal_radiation' | 'page_curve_turnover';
 }
 
+export interface MichelsonMorleyResult {
+  vKmS: number;
+  beta: number; // v / c
+  armLengthM: number;
+  wavelengthNm: number;
+  timeParallelSec: number;
+  timePerpendicularSec: number;
+  classicalDeltaTSec: number;
+  classicalFringeShift: number; // Delta N = 2 * L * v^2 / (lambda * c^2)
+  observedFringeShift: number; // 0.00 (resultado nulo experimental)
+  lorentzContractionFactor: number; // sqrt(1 - beta^2)
+  etherStatus: 'refuted_by_null_result';
+  einsteinResolution: string;
+}
+
 export interface ReplayFrame {
   step: number;
   eventId: string;
@@ -339,8 +354,10 @@ export const AIFutureScenario = {};
 export const AIParadoxResolution = {};
 export const KerrMetricResult = {};
 export const HawkingThermodynamicsResult = {};
+export const MichelsonMorleyResult = {};
 export const ReplayFrame = {};
 export const PreflightImpact = {};
 export const CLICommandLog = {};
+
 
 

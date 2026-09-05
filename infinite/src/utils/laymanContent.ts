@@ -16,14 +16,23 @@ export const LAYMAN_EXPLANATIONS_BY_YEAR: Record<number, LaymanEventExplanation>
     funFact: 'Essa descoberta permitiu a invenção do rádio, do radar, da televisão, do Wi-Fi e de toda a tecnologia de comunicação sem fio moderna.',
     laymanCategory: 'ELETROMAGNETISMO E LUZ',
   },
+  1887: {
+    simpleTitle: 'O Mistério do Vento do Éter Inexistente (Experimento de Michelson-Morley)',
+    simpleDescription: 'Cientistas acreditavam que a luz precisava de uma substância invisível preenchendo todo o espaço chamada "éter luminífero" para viajar, assim como o som precisa do ar. Em 1887, Albert Michelson e Edward Morley construíram um detector óptico ultrapreciso para medir o "vento do éter" provocado pelo movimento da Terra ao redor do Sol. O resultado chocou a comunidade científica: a velocidade do vento do éter era exatamente zero! A luz viajava na mesma velocidade em qualquer direção. Esse resultado nulo criou o maior mistério da física do século XIX, preparando o terreno direto para Albert Einstein.',
+    popCultureRef: 'Exemplo: O experimento com o resultado negativo mais famoso, revolucionário e importante de toda a história da ciência.',
+    analogy: 'Imagine que você coloca a cabeça para fora da janela de um carro correndo a 120 km/h na rodovia, mas não sente absolutamente nenhuma brisa de vento no rosto. Os cientistas esperavam sentir o vento do éter cósmico pelo movimento da Terra, mas o universo não tinha vento algum!',
+    funFact: 'O interferômetro era tão incrivelmente sensível que precisou ser montado sobre uma laje de pedra maciça flutuando em uma piscina de mercúrio líquido para evitar que os passos das pessoas na calçada atrapalhassem as medições.',
+    laymanCategory: 'A CRISE DO ÉTER',
+  },
   1905: {
     simpleTitle: 'Por Que o Tempo e o Espaço Não São Fixos (Relatividade Especial)',
-    simpleDescription: 'Albert Einstein percebeu que a velocidade da luz é constante para qualquer pessoa no universo, não importa quão rápido ela esteja se movendo. Para que isso seja verdade, o tempo e o espaço precisam ser elásticos: se você viajar numa nave a 99% da velocidade da luz, o seu relógio andará muito mais devagar e o tamanho da sua nave encolherá em relação a quem ficou parado na Terra.',
+    simpleDescription: 'Albert Einstein resolveu o mistério do experimento de 1887 de forma genial: o éter simplesmente não existe! Ele percebeu que a velocidade da luz no vácuo é invariante e constante para qualquer observador no universo, não importando a velocidade com que você se mova. Para que isso seja verdade, o tempo e o espaço deixam de ser rígidos: se você viajar numa nave a 99% da velocidade da luz, o seu relógio andará muito mais devagar e o tamanho da sua nave encolherá em relação a quem ficou parado na Terra.',
     popCultureRef: 'Exemplo: No filme Interestelar, viajar em alta velocidade ou perto de muita gravidade faz horas de viagem equivalerem a anos na Terra.',
     analogy: 'Imagine que você tem uma cota fixa de movimento total. Se você gasta quase toda essa cota correndo em altíssima velocidade pelo espaço, sobra quase nada de cota para você avançar no tempo, fazendo seu envelhecimento quase congelar.',
     funFact: 'Os satélites de GPS em órbita se movem tão rápido que seus computadores precisam corrigir essa diferença no tempo todos os dias, senão o seu mapa erraria a sua localização por vários quilômetros!',
     laymanCategory: 'TEMPO E VELOCIDADE',
   },
+
   1915: {
     simpleTitle: 'A Gravidade Como Deformação do Espaço-Tempo (Relatividade Geral)',
     simpleDescription: 'Einstein revolucionou nossa visão do cosmos ao mostrar que a gravidade não é um puxão invisível entre objetos, mas sim a curvatura que corpos pesados causam no próprio tecido do espaço e do tempo. O Sol não puxa a Terra diretamente: o Sol afunda o espaço ao seu redor, e a Terra simplesmente segue o caminho natural e curvado dentro desse afundamento.',

@@ -101,6 +101,7 @@ export default function CreateUniverseModal({ onClose, onCreated }: Props) {
           <div className="universe-create-examples">
             <span className="examples-label">Sugestões:</span>
             <div className="examples-pills">
+              <button type="button" onClick={() => setTopic('O Problema do Éter e Relatividade Especial')}>Éter & Relatividade</button>
               <button type="button" onClick={() => setTopic('Teoria M e Supercordas em 11D')}>Supercordas 11D</button>
               <button type="button" onClick={() => setTopic('Buracos de Minhoca e Pontes ER=EPR')}>Pontes ER=EPR</button>
               <button type="button" onClick={() => setTopic('Multiverso Quântico de Hugh Everett')}>Multiverso Everett</button>

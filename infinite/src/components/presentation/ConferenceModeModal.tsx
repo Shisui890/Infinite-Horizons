@@ -24,6 +24,12 @@ const FORMULAS_BY_YEAR: Record<number, FormulaDetail> = {
     laymanLabel: 'A Equação da Luz de Maxwell',
     laymanMeaning: 'Esta fórmula prova que eletricidade e magnetismo geram um ao outro continuamente, criando ondas que viajam pelo vácuo espacial na velocidade máxima da luz (c = 300.000 km/s).',
   },
+  1887: {
+    latex: '\\Delta t_{\\parallel} - \\Delta t_{\\perp} \\approx \\frac{L v^2}{c^3} \\quad \\implies \\quad \\Delta N = \\frac{2 L v^2}{\\lambda c^2} \\xrightarrow{\\text{Experimento}} 0',
+    label: 'Experimento de Michelson-Morley & Resultado Nulo do Éter',
+    laymanLabel: 'O Mistério do Vento do Éter Inexistente',
+    laymanMeaning: 'Michelson e Morley tentaram medir a velocidade da Terra através do suposto "éter" cósmico. O resultado foi rigorosamente ZERO: a luz não precisa de meio mecânico e viaja na mesma velocidade em qualquer direção, estabelecendo a base para a Relatividade Especial.',
+  },
   1905: {
     latex: 'ds^2 = -c^2 dt^2 + d\\mathbf{x}^2, \\qquad E = \\gamma m_0 c^2 = \\frac{m_0 c^2}{\\sqrt{1 - v^2/c^2}}',
     label: 'Métrica de Minkowski & Equivalência Massa-Energia',

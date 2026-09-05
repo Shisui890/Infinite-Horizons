@@ -78,4 +78,30 @@ describe('MinkowskiCalculus (Relatividade Especial & Teoria do Caos)', () => {
     expect(MinkowskiCalculus.calculateGravitationalDilation(rsKm, 10)).toBe(0);
     expect(MinkowskiCalculus.calculateGravitationalDilation(rsKm, 5)).toBe(0);
   });
+
+  it('calculates Michelson-Morley ether drift and demonstrates null result resolution', () => {
+    // Earth orbital speed around Sun ~29.8 km/s, arm = 11 m, lambda = 590 nm
+    const res = MinkowskiCalculus.calculateMichelsonMorleyEtherDrift(29.8, 11.0, 590.0);
+
+    expect(res.beta).toBeCloseTo(29.8 / 299792.458, 6);
+    expect(res.timeParallelSec).toBeGreaterThan(0);
+    expect(res.timePerpendicularSec).toBeGreaterThan(0);
+    expect(res.classicalDeltaTSec).toBeGreaterThan(0);
+    // Classical expected fringe shift for 11m at 29.8 km/s is ~0.37 fringes (detectable by 1887 apparatus capable of 0.01)
+    expect(res.classicalFringeShift).toBeGreaterThan(0.3);
+    expect(res.classicalFringeShift).toBeLessThan(0.45);
+    // Real experimental and relativistic observation is null
+    expect(res.observedFringeShift).toBe(0.0);
+    expect(res.etherStatus).toBe('refuted_by_null_result');
+    expect(res.einsteinResolution).toContain('Albert Einstein');
+  });
+
+  it('handles zero velocity in Michelson-Morley correctly', () => {
+    const resZero = MinkowskiCalculus.calculateMichelsonMorleyEtherDrift(0, 11.0, 590.0);
+    expect(resZero.beta).toBe(0);
+    expect(resZero.classicalDeltaTSec).toBe(0);
+    expect(resZero.classicalFringeShift).toBe(0);
+    expect(resZero.lorentzContractionFactor).toBe(1);
+  });
 });
+

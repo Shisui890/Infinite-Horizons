@@ -192,4 +192,65 @@ export class MinkowskiCalculus {
       informationStatus: massSolar > 1e-4 ? 'unitary_preserved' : 'page_curve_turnover',
     };
   }
+
+  /**
+   * Calcula o modelo clássico do Vento do Éter vs. Experimento de Michelson-Morley (1887)
+   * e a Resolução da Relatividade Especial de Einstein (1905).
+   *
+   * @param vKmS Velocidade relativa da Terra/aparato através do suposto éter (km/s)
+   * @param armLengthM Comprimento efetivo do braço óptico (m) - original ~11m
+   * @param wavelengthNm Comprimento de onda da fonte de luz (nm) - original ~590nm
+   */
+  public static calculateMichelsonMorleyEtherDrift(
+    vKmS: number = 29.8,
+    armLengthM: number = 11.0,
+    wavelengthNm: number = 590.0
+  ): import('../types/temporal').MichelsonMorleyResult {
+    const cKmS = 299792.458; // km/s
+    const cM = 299792458; // m/s
+    const vMS = vKmS * 1000;
+    const beta = Math.min(Math.max(vKmS / cKmS, 0), 0.99999);
+    const wavelengthM = wavelengthNm * 1e-9;
+
+    // Tempo clássico no braço longitudinal (paralelo ao vento do éter):
+    // t_parallel = L / (c - v) + L / (c + v) = 2 * L * c / (c^2 - v^2) = (2L / c) * 1 / (1 - beta^2)
+    const timeParallelSec = (2 * armLengthM * cM) / (cM * cM - vMS * vMS);
+
+    // Tempo clássico no braço transversal (perpendicular ao vento do éter):
+    // t_perpendicular = 2 * L / sqrt(c^2 - v^2) = (2L / c) * 1 / sqrt(1 - beta^2)
+    const timePerpendicularSec = (2 * armLengthM) / Math.sqrt(Math.max(cM * cM - vMS * vMS, 1e-10));
+
+    // Diferença temporal clássica:
+    // Delta t = t_parallel - t_perpendicular ≈ (L / c) * beta^2
+    const classicalDeltaTSec = timeParallelSec - timePerpendicularSec;
+
+    // Deslocamento de franjas ao girar o interferômetro em 90 graus:
+    // Delta N ≈ 2 * L * (v^2 / c^2) / lambda
+    const classicalFringeShift = (2 * armLengthM * Math.pow(beta, 2)) / wavelengthM;
+
+    // Fator de contração de FitzGerald-Lorentz: sqrt(1 - beta^2)
+    const lorentzContractionFactor = Math.sqrt(Math.max(1 - beta * beta, 0));
+
+    // O resultado experimental medido em 1887 por Michelson e Morley foi NULO (Delta N < 0.01)
+    const observedFringeShift = 0.0;
+
+    const einsteinResolution =
+      'O resultado nulo de Michelson-Morley provou a inexistência do éter luminífero. Em 1905, Albert Einstein postulou que a velocidade da luz c é idêntica e constante em todas as direções para todos os referenciais inerciais, unificando espaço e tempo na métrica de Minkowski ds² = -c²dt² + dx² + dy² + dz².';
+
+    return {
+      vKmS,
+      beta: Number(beta.toFixed(7)),
+      armLengthM,
+      wavelengthNm,
+      timeParallelSec,
+      timePerpendicularSec,
+      classicalDeltaTSec,
+      classicalFringeShift: Number(classicalFringeShift.toFixed(4)),
+      observedFringeShift,
+      lorentzContractionFactor: Number(lorentzContractionFactor.toFixed(8)),
+      etherStatus: 'refuted_by_null_result',
+      einsteinResolution,
+    };
+  }
 }
+

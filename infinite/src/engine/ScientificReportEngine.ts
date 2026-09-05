@@ -42,13 +42,12 @@ Sob imposição estrita do Princípio de Autoconsistência de Novikov, o continu
 Apresentam-se as equações métricas de propagação e as ramificações sob a ótica da relatividade e supercordas.
 \\end{abstract}
 
-\\section{Estrutura Métrica e Cones de Luz}
+\\section{Estrutura Métrica, Crise do Éter e Invariância de Lorentz}
 A geometria local do espaço-tempo é regida pelo intervalo invariante pseudo-riemanniano de Minkowski:
 \\begin{equation}
 ds^2 = -c^2 dt^2 + dx^2 + dy^2 + dz^2
 \\end{equation}
-onde a velocidade de propagação de perturbações gravitacionais e eletromagnéticas é delimitada rigorosamente por $c \\approx 2.998 \\times 10^8\\,\\text{m/s}$. 
-As conexões entre eventos satisfazem a condição de separação causal:
+Historicamente fundamentada na refutação da hipótese mecânica do éter luminífero pelo experimento de Michelson-Morley (1887), a velocidade de propagação de perturbações gravitacionais e eletromagnéticas é delimitada com exatidão invariante por $c \\approx 2.998 \\times 10^8\\,\\text{m/s}$. As conexões entre eventos satisfazem a condição de separação causal:
 \\begin{equation}
 \\Delta s^2 \\le 0 \\quad \\implies \\quad c^2 \\Delta t^2 \\ge \\Delta r^2
 \\end{equation}
@@ -260,7 +259,7 @@ A simulação comprova a estabilidade do continuum sob perturbações não-linea
 
   <div class="section-title">1. Formulação Métrica & Princípios de Relatividade</div>
   <p>
-    A velocidade invariante da luz ($c = 299.792\\,\\text{km/s}$) atua como limite assintótico para todas as transmissões de informação no grafo acíclico direcionado (DAG). O tensor métrico obedece às equações de campo de Einstein com perturbações atenuadas pelo princípio de Novikov:
+    A velocidade invariante da luz ($c = 299.792\\,\\text{km/s}$) atua como limite assintótico para todas as transmissões de informação no grafo acíclico direcionado (DAG). Com base na superação da hipótese do éter luminífero demonstrada pelo experimento de Michelson-Morley (1887) e formalizada por Einstein (1905), o tensor métrico obedece às equações de campo relativísticas com perturbações atenuadas pelo princípio de Novikov:
   </p>
   <div class="formula-box">
     ds² = -c² dt² + dx² + dy² + dz² &nbsp;&nbsp;|&nbsp;&nbsp; ΔS_total ≥ 0

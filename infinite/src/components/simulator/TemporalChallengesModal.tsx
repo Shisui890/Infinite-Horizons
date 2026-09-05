@@ -201,6 +201,120 @@ const CHALLENGES: Challenge[] = [
       };
     },
   },
+  {
+    id: 'chal-ether',
+    title: 'A Crise do Éter Luminífero de 1887',
+    badge: 'COLAPSO RELATIVÍSTICO',
+    difficulty: 'MÉDIO',
+    description: 'Restaure o resultado nulo de Michelson-Morley para permitir a formulação da Relatividade Especial de 1905 e salvar o continuum.',
+    lore: 'Uma perturbação anômala no interferômetro óptico de Michelson e Morley simulou um vento do éter positivo em 1887. Essa falsa confirmação do éter clássico impediu Einstein de postular a invariância de c em 1905, desencadeando a anulação da Relatividade Especial e Geral.',
+    targetIntegrity: 88,
+    maxParadoxes: 0,
+    setupUniverse: () => {
+      const dimId = 'dim-chal-ether';
+      const events: TemporalEvent[] = [
+        {
+          id: 'ev-ce-1',
+          dimensionId: dimId,
+          title: 'Equações de Maxwell (Eletrodinâmica)',
+          year: 1865,
+          category: 'ELETROMAGNETISMO',
+          importance: 95,
+          position: { x: 80, y: 150 },
+          status: EventStatus.STABLE,
+          parents: [],
+          children: ['ev-ce-2'],
+          causes: [],
+          consequences: ['ev-ce-2'],
+        },
+        {
+          id: 'ev-ce-2',
+          dimensionId: dimId,
+          title: 'Experimento de Michelson-Morley (1887)',
+          year: 1887,
+          category: 'FÍSICA EXPERIMENTAL',
+          importance: 97,
+          position: { x: 260, y: 150 },
+          status: EventStatus.UNSTABLE, // Falso positivo do éter!
+          parents: ['ev-ce-1'],
+          children: ['ev-ce-3'],
+          causes: ['ev-ce-1'],
+          consequences: ['ev-ce-3'],
+        },
+        {
+          id: 'ev-ce-3',
+          dimensionId: dimId,
+          title: 'Relatividade Especial de Einstein (1905)',
+          year: 1905,
+          category: 'FÍSICA TEÓRICA',
+          importance: 100,
+          position: { x: 440, y: 150 },
+          status: EventStatus.ERASED, // Bloqueada pela anomalia do éter!
+          parents: ['ev-ce-2'],
+          children: ['ev-ce-4'],
+          causes: ['ev-ce-2'],
+          consequences: ['ev-ce-4'],
+        },
+        {
+          id: 'ev-ce-4',
+          dimensionId: dimId,
+          title: 'Relatividade Geral & Curvatura (1915)',
+          year: 1915,
+          category: 'FÍSICA TEÓRICA',
+          importance: 99,
+          position: { x: 620, y: 150 },
+          status: EventStatus.UNSTABLE,
+          parents: ['ev-ce-3'],
+          children: [],
+          causes: ['ev-ce-3'],
+          consequences: [],
+        },
+      ];
+
+      const edges: CausalEdge[] = [
+        { id: 'edg-ce-1', source: 'ev-ce-1', target: 'ev-ce-2', type: CausalRelation.CAUSES, active: true },
+        { id: 'edg-ce-2', source: 'ev-ce-2', target: 'ev-ce-3', type: CausalRelation.CAUSES, active: false },
+        { id: 'edg-ce-3', source: 'ev-ce-3', target: 'ev-ce-4', type: CausalRelation.CAUSES, active: false },
+      ];
+
+      const travelers: Traveler[] = [
+        {
+          id: 'trv-chal-ether',
+          name: 'Sonda Inercial Lorentz',
+          originDimensionId: dimId,
+          originYear: 1905,
+          currentDimensionId: dimId,
+          currentYear: 1887,
+          originEventId: 'ev-ce-2',
+          status: TravelerStatus.NORMAL,
+          travelHistory: [],
+        },
+      ];
+
+      return {
+        id: 'univ-chal-ether',
+        name: 'Desafio: A Crise do Éter Luminífero de 1887',
+        description: 'Colapso na transição da Física Clássica para a Relatividade Especial.',
+        temporalIntegrity: 42,
+        dimensions: [
+          {
+            id: dimId,
+            universeId: 'univ-chal-ether',
+            name: 'Continuum sob Hipótese do Éter',
+            designation: 'Ω-ÉTER',
+            color: '#f43f5e',
+            events,
+            integrity: 42,
+          },
+        ],
+        travelers,
+        edges,
+        paradoxes: [],
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      };
+    },
+  },
 ];
 
 interface Props {
@@ -284,7 +398,12 @@ export default function TemporalChallengesModal({ currentUniverse, onLoadChallen
             {/* Victory Badge Card */}
             {isCompleted ? (
               <div className="challenge-victory-card">
-                <div className="victory-medal-icon">🏅</div>
+                <div className="victory-medal-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="8" r="7" />
+                    <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
+                  </svg>
+                </div>
                 <div>
                   <h4 style={{ color: '#10b981', margin: '0 0 4px' }}>PARABÉNS! DESAFIO CONCLUÍDO</h4>
                   <p style={{ margin: 0, fontSize: '0.8rem', color: '#cbd5e1' }}>
@@ -294,7 +413,12 @@ export default function TemporalChallengesModal({ currentUniverse, onLoadChallen
               </div>
             ) : (
               <div className="challenge-pending-card">
-                <span>⚠️ Condições de contorno ainda não satisfeitas. Execute as intervenções causais necessárias.</span>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginRight: 6 }}>
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                  <line x1="12" y1="9" x2="12" y2="13" />
+                  <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg>
+                <span>Condições de contorno ainda não satisfeitas. Execute as intervenções causais necessárias.</span>
               </div>
             )}
 
@@ -309,7 +433,10 @@ export default function TemporalChallengesModal({ currentUniverse, onLoadChallen
                   onClose();
                 }}
               >
-                ⚡ CARREGAR ESTE CENÁRIO DE CRISE
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 6 }}>
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                </svg>
+                CARREGAR ESTE CENÁRIO DE CRISE
               </button>
             </div>
           </div>

@@ -358,6 +358,17 @@ export class AITemporalService {
         causes: [],
       },
       {
+        title: `Experimento de Michelson-Morley & Crise do Éter`,
+        description: `Medição interferométrica com resultado nulo para o vento do éter luminoso, refutando o meio estacionário da física clássica e abrindo caminho direto para a Relatividade Especial.`,
+        year: 1887,
+        category: 'FÍSICA EXPERIMENTAL',
+        importance: 97,
+        sourceUrl: 'https://www.aip.org/history/exhibits/gap/Michelson/01_Michelson.html',
+        evidenceKind: 'documented_fact',
+        evidenceConfidence: 100,
+        causes: ['generated-0'],
+      },
+      {
         title: `Relatividade Especial & Invariância de Lorentz: ${topic}`,
         description: `Formulação da invariância das leis físicas em referenciais inerciais, introdução do continuum espaço-tempo de Minkowski e equivalência massa-energia (E = mc²).`,
         year: 1905,
@@ -366,7 +377,7 @@ export class AITemporalService {
         sourceUrl: 'https://einsteinpapers.press.princeton.edu/vol2-doc/311',
         evidenceKind: 'scientific_theory',
         evidenceConfidence: 100,
-        causes: ['generated-0'],
+        causes: ['generated-1'],
       },
       {
         title: `Relatividade Geral & Curvatura do Espaço-Tempo`,
@@ -377,7 +388,7 @@ export class AITemporalService {
         sourceUrl: 'https://einsteinpapers.press.princeton.edu/vol6-doc/225',
         evidenceKind: 'scientific_theory',
         evidenceConfidence: 99,
-        causes: ['generated-1'],
+        causes: ['generated-2'],
       },
       {
         title: `Correspondência Holográfica & Teoria de Cordas: ${topic}`,
@@ -388,7 +399,7 @@ export class AITemporalService {
         sourceUrl: 'https://arxiv.org/abs/hep-th/9711200',
         evidenceKind: 'scientific_theory',
         evidenceConfidence: 90,
-        causes: ['generated-2'],
+        causes: ['generated-3'],
       },
       {
         title: `Confirmação Observacional Contemporânea`,
@@ -399,7 +410,7 @@ export class AITemporalService {
         sourceUrl: 'https://iopscience.iop.org/article/10.3847/2041-8213/ab0ec7',
         evidenceKind: 'documented_fact',
         evidenceConfidence: 98,
-        causes: ['generated-3'],
+        causes: ['generated-4'],
       },
     ];
 

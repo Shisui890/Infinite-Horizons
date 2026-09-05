@@ -17,13 +17,43 @@ export default function ConceptSection() {
           </h2>
           <p className="section-subtitle">
             {isLaymanMode
-              ? 'Quatro princípios fundamentais que regem a realidade, desde a menor partícula até os limites do universo observável.'
-              : 'Pilares matemáticos e físicos que sustentam a conservação de causalidade, entropia e topologia dimensional no simulador.'}
+              ? 'Seis princípios fundamentais que regem a realidade, desde o fim do éter e a elasticidade do tempo até os limites do cosmos.'
+              : 'Pilares matemáticos e físicos que sustentam a conservação de causalidade, invariância de Lorentz e topologia dimensional no simulador.'}
           </p>
         </div>
 
         <div className="concept-grid">
-          {/* Card 1: Relatividade */}
+          {/* Card 1: Éter & Relatividade Especial */}
+          <div className="concept-card">
+            <div className="concept-card-top">
+              <span className="concept-card-pill pill-rose">
+                {isLaymanMode ? 'A QUEDA DO ÉTER' : 'ÉTER & RELATIVIDADE ESPECIAL'}
+              </span>
+              <span className="concept-card-year">1887 → 1905</span>
+            </div>
+            <h3 className="concept-card-heading">
+              {isLaymanMode
+                ? 'O Fim do Éter: A Luz é Invariante'
+                : 'Michelson-Morley & Invariância da Luz'}
+            </h3>
+            <p className="concept-card-text">
+              {isLaymanMode ? (
+                <>
+                  Cientistas acreditavam que a luz viajava num meio invisível ("éter"). O teste de 1887 deu{' '}
+                  <strong>resultado nulo</strong>: não há vento do éter. Einstein resolveu a crise eliminando o éter e provando que{' '}
+                  <strong>a velocidade da luz é a mesma para todos</strong>, tornando o tempo elástico.
+                </>
+              ) : (
+                <>
+                  O resultado nulo de Michelson-Morley (1887) refutou o éter estacionário. Einstein postulou a{' '}
+                  <strong>invariância universal da velocidade da luz (<em>c</em>)</strong>{' '}
+                  em todos os referenciais inerciais, formulando a métrica 4D de Minkowski (<em>ds² = -c²dt² + dx² + dy² + dz²</em>).
+                </>
+              )}
+            </p>
+          </div>
+
+          {/* Card 2: Relatividade Geral */}
           <div className="concept-card">
             <div className="concept-card-top">
               <span className="concept-card-pill pill-cyan">
@@ -37,17 +67,48 @@ export default function ConceptSection() {
             <p className="concept-card-text">
               {isLaymanMode ? (
                 <>
-                  A matéria pesada <strong>afunda o tecido do espaço</strong>. Perto de estrelas ou buracos negros, caminhos de luz se curvam e <strong>o tempo passa mais devagar</strong>.
+                  A matéria pesada <strong>afunda o tecido do espaço</strong>. Perto de estrelas ou buracos negros, caminhos de luz se curvam e{' '}
+                  <strong>o tempo passa mais devagar</strong>.
                 </>
               ) : (
                 <>
-                  O tensor de energia-momento <em>T<sub>μν</sub></em> dita a curvatura do tensor de Ricci <em>R<sub>μν</sub></em>. A velocidade da luz <em>c</em> estabelece os <strong>cones causais de Minkowski</strong>.
+                  O tensor de energia-momento <em>T</em><sub>μν</sub>{' '}
+                  dita a curvatura do tensor de Ricci <em>R</em><sub>μν</sub>.{' '}
+                  A velocidade da luz <em>c</em>{' '}
+                  estabelece os <strong>cones causais de Minkowski</strong>.
                 </>
               )}
             </p>
           </div>
 
-          {/* Card 2: Supercordas */}
+          {/* Card 3: Pontes ER=EPR */}
+          <div className="concept-card">
+            <div className="concept-card-top">
+              <span className="concept-card-pill pill-blue">
+                {isLaymanMode ? 'ATALHOS CÓSMICOS' : 'PONTES ER = EPR'}
+              </span>
+              <span className="concept-card-year">1935 → 2013</span>
+            </div>
+            <h3 className="concept-card-heading">
+              {isLaymanMode ? 'Buracos de Minhoca & Emaranhamento' : 'Micro-Túneis Quânticos do Espaço-Tempo'}
+            </h3>
+            <p className="concept-card-text">
+              {isLaymanMode ? (
+                <>
+                  A conexão instantânea entre partículas quânticas (EPR) é idêntica a{' '}
+                  <strong>micro-túneis no espaço</strong> (buracos de minhoca ER), costurando o tecido cósmico através de atalhos invisíveis.
+                </>
+              ) : (
+                <>
+                  A conjectura holográfica de Maldacena e Susskind propõe que a entropia de emaranhamento{' '}
+                  <em>S</em><sub>vN</sub>{' '}
+                  corresponde à área de superfícies mínimas geodésicas de Einstein-Rosen no continuum gravitacional.
+                </>
+              )}
+            </p>
+          </div>
+
+          {/* Card 4: Supercordas */}
           <div className="concept-card">
             <div className="concept-card-top">
               <span className="concept-card-pill pill-violet">
@@ -71,7 +132,7 @@ export default function ConceptSection() {
             </p>
           </div>
 
-          {/* Card 3: Multiverso Quântico */}
+          {/* Card 5: Multiverso Quântico */}
           <div className="concept-card">
             <div className="concept-card-top">
               <span className="concept-card-pill pill-emerald">
@@ -95,7 +156,7 @@ export default function ConceptSection() {
             </p>
           </div>
 
-          {/* Card 4: Novikov & Autoconsistência */}
+          {/* Card 6: Novikov & Autoconsistência */}
           <div className="concept-card">
             <div className="concept-card-top">
               <span className="concept-card-pill pill-amber">

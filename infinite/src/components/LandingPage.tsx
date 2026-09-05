@@ -7,9 +7,10 @@ import DemoSection from './DemoSection';
 interface Props {
   onStartSimulator: () => void;
   onOpenGuide: () => void;
+  onOpenOurUniverse?: () => void;
 }
 
-export default function LandingPage({ onStartSimulator, onOpenGuide }: Props) {
+export default function LandingPage({ onStartSimulator, onOpenGuide, onOpenOurUniverse }: Props) {
   const { isLaymanMode, toggleLaymanMode } = useLaymanMode();
 
   return (
@@ -41,6 +42,34 @@ export default function LandingPage({ onStartSimulator, onOpenGuide }: Props) {
             <a href="#features-section" className="nav-link">
               {isLaymanMode ? 'Recursos' : 'Capacidades'}
             </a>
+            {onOpenOurUniverse && (
+              <button
+                type="button"
+                className="nav-link nav-link-special"
+                onClick={onOpenOurUniverse}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  background: 'rgba(255, 150, 0, 0.08)',
+                  border: '1px solid rgba(255, 150, 0, 0.35)',
+                  borderRadius: '20px',
+                  padding: '5px 14px',
+                  color: '#ffaa00',
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                  fontSize: '0.8rem',
+                  fontFamily: 'var(--font-mono)',
+                  letterSpacing: '0.04em',
+                }}
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+                </svg>
+                <span>Exploração Cósmica</span>
+              </button>
+            )}
             <a href="#demo-section" className="nav-link">
               {isLaymanMode ? 'Demonstração' : 'Simulador'}
             </a>

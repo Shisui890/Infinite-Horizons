@@ -6,8 +6,18 @@ import { MinkowskiCalculus } from '../../engine/MinkowskiCalculus';
 export default function PhysicsCalculatorWidget() {
   const { isLaymanMode } = useLaymanMode();
   const [activeCalc, setActiveCalc] = useState<
-    'special_relativity' | 'general_relativity' | 'kerr' | 'hawking' | 'lyapunov' | 'maxwell'
+    'special_relativity' | 'general_relativity' | 'kerr' | 'hawking' | 'lyapunov' | 'maxwell' | 'ether'
   >('special_relativity');
+
+  // --- Michelson-Morley / Ether Drift Parameters (1887) ---
+  const [etherVelocityKmS, setEtherVelocityKmS] = useState<number>(29.8); // velocidade orbital da Terra ~29.8 km/s
+  const [etherArmLengthM, setEtherArmLengthM] = useState<number>(11.0); // braço óptico efetivo original ~11m
+  const [etherWavelengthNm, setEtherWavelengthNm] = useState<number>(590.0); // luz amarela de sódio
+  const etherResult = MinkowskiCalculus.calculateMichelsonMorleyEtherDrift(
+    etherVelocityKmS,
+    etherArmLengthM,
+    etherWavelengthNm
+  );
 
   // --- Maxwell Parameters (1865) ---
   const [electricFieldE, setElectricFieldE] = useState<number>(1000); // V/m
@@ -119,6 +129,13 @@ export default function PhysicsCalculatorWidget() {
           onClick={() => setActiveCalc('maxwell')}
         >
           {isLaymanMode ? 'Luz & Ondas' : 'Maxwell'}
+        </button>
+        <button
+          type="button"
+          className={`calc-tab-btn ${activeCalc === 'ether' ? 'active' : ''}`}
+          onClick={() => setActiveCalc('ether')}
+        >
+          {isLaymanMode ? 'Vento do Éter' : 'Éter & Michelson'}
         </button>
       </div>
 
@@ -512,6 +529,103 @@ export default function PhysicsCalculatorWidget() {
                 {isLaymanMode
                   ? 'Em 1865, James Clerk Maxwell uniu a eletricidade e o magnetismo e descobriu que a luz é uma onda eletromagnética que viaja com velocidade constante fixa de quase 300.000 km/s no vácuo.'
                   : 'A unificação de Maxwell (1865) demonstrou que a velocidade das ondas eletromagnéticas emerge diretamente das constantes fundamentais do vácuo ε₀ e μ₀.'}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================= */}
+        {/* TAB 7: O PROBLEMA DO ÉTER & MICHELSON-MORLEY (1887) */}
+        {/* ========================================================= */}
+        {activeCalc === 'ether' && (
+          <div className="calc-pane">
+            <MathFormula
+              math="\Delta t \approx \frac{L v^2}{c^3}, \qquad \Delta N_{\text{clássico}} = \frac{2 L v^2}{\lambda c^2}, \qquad \Delta N_{\text{medido}} = 0.00 \pm 0.01"
+              block
+            />
+
+            <div className="calc-inputs-group">
+              <label>
+                <span>
+                  {isLaymanMode ? 'Velocidade do Vento do Éter (Órbita da Terra):' : 'Velocidade Relativa ao Éter (v):'}{' '}
+                  <strong>{etherVelocityKmS.toFixed(1)} km/s</strong>{' '}
+                  {Math.abs(etherVelocityKmS - 29.8) < 0.1 ? '(Órbita Terrestre Padrão)' : `(${(etherResult.beta * 100).toFixed(3)}% c)`}
+                </span>
+                <input
+                  type="range"
+                  min="0"
+                  max="120"
+                  step="0.5"
+                  value={etherVelocityKmS}
+                  onChange={e => setEtherVelocityKmS(parseFloat(e.target.value))}
+                />
+              </label>
+
+              <label>
+                <span>
+                  {isLaymanMode ? 'Comprimento dos Braços de Luz do Interferômetro:' : 'Braço Óptico Efetivo (L):'}{' '}
+                  <strong>{etherArmLengthM.toFixed(1)} metros</strong>
+                </span>
+                <input
+                  type="range"
+                  min="1"
+                  max="30"
+                  step="0.5"
+                  value={etherArmLengthM}
+                  onChange={e => setEtherArmLengthM(parseFloat(e.target.value))}
+                />
+              </label>
+
+              <label>
+                <span>
+                  {isLaymanMode ? 'Cor da Luz Utilizada:' : 'Comprimento de Onda da Luz (λ):'}{' '}
+                  <strong>{etherWavelengthNm.toFixed(0)} nm</strong>{' '}
+                  {etherWavelengthNm === 590 ? '(Luz Amarela de Sódio - 1887)' : ''}
+                </span>
+                <input
+                  type="range"
+                  min="400"
+                  max="700"
+                  step="10"
+                  value={etherWavelengthNm}
+                  onChange={e => setEtherWavelengthNm(parseFloat(e.target.value))}
+                />
+              </label>
+            </div>
+
+            <div className="calc-result-box">
+              <div className="result-metric">
+                <span className="result-label">
+                  {isLaymanMode ? 'DESLOCAMENTO DE FRANJAS REAL (RESULTADO NULO)' : 'DESLOCAMENTO MEDIDO EXPERIMENTALMENTE (1887)'}
+                </span>
+                <strong className="result-value" style={{ color: '#10b981' }}>
+                  ΔN = {etherResult.observedFringeShift.toFixed(2)} franjas (RESULTADO NULO)
+                </strong>
+              </div>
+
+              <div className="result-submetrics-grid">
+                <div className="submetric-item">
+                  <span>Deslocamento Clássico Previsto (Éter):</span>
+                  <strong style={{ color: '#f59e0b' }}>ΔN = {etherResult.classicalFringeShift.toFixed(3)} franjas</strong>
+                </div>
+                <div className="submetric-item">
+                  <span>Diferença Temporal Clássica (Δt):</span>
+                  <strong>{(etherResult.classicalDeltaTSec * 1e15).toFixed(2)} fs (10⁻¹⁵ s)</strong>
+                </div>
+                <div className="submetric-item">
+                  <span>Contração de FitzGerald-Lorentz (γ⁻¹):</span>
+                  <strong>{etherResult.lorentzContractionFactor.toFixed(8)}</strong>
+                </div>
+                <div className="submetric-item">
+                  <span>Veredito da Relatividade Especial:</span>
+                  <strong style={{ color: '#00e5ff' }}>Éter Inexistente (c universal)</strong>
+                </div>
+              </div>
+
+              <p className="result-explanation">
+                {isLaymanMode
+                  ? 'A física do século XIX acreditava que a luz necessitava de um "éter" mecânico para viajar pelo vácuo. O experimento de Michelson-Morley provou que não existe vento do éter algum: a velocidade da luz é invariante para todos os observadores! Isso serviu de base direta para Albert Einstein formular a Relatividade Especial em 1905.'
+                  : etherResult.einsteinResolution}
               </p>
             </div>
           </div>

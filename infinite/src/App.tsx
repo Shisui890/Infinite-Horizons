@@ -3,6 +3,7 @@ import InteractiveBackground from './components/InteractiveBackground';
 import LandingPage from './components/LandingPage';
 import SimulatorView from './components/simulator/SimulatorView';
 import HowItWorksPage from './components/HowItWorksPage';
+import OurUniversePage from './components/OurUniversePage';
 import CreateUniverseModal from './components/CreateUniverseModal';
 import { LaymanModeProvider } from './context/LaymanModeContext';
 import type { SimulationLog, Universe } from './types/temporal';
@@ -31,7 +32,9 @@ function getInitialSharedState(): { universe: Universe; logs: SimulationLog[] } 
 
 function App() {
   const [initialShared] = useState(getInitialSharedState);
-  const [view, setView] = useState<'landing' | 'simulator' | 'guide'>(initialShared ? 'simulator' : 'landing');
+  const [view, setView] = useState<'landing' | 'simulator' | 'guide' | 'our-universe'>(
+    initialShared ? 'simulator' : 'landing'
+  );
   const [showCreateUniverse, setShowCreateUniverse] = useState(false);
   const [generatedState, setGeneratedState] = useState<{ universe: Universe; logs: SimulationLog[] } | null>(initialShared);
 
@@ -43,6 +46,7 @@ function App() {
         <LandingPage
           onStartSimulator={() => setShowCreateUniverse(true)}
           onOpenGuide={() => setView('guide')}
+          onOpenOurUniverse={() => setView('our-universe')}
         />
       )}
 
@@ -50,6 +54,15 @@ function App() {
         <HowItWorksPage
           onBack={() => setView('landing')}
           onStartSimulator={() => setShowCreateUniverse(true)}
+        />
+      )}
+
+      {view === 'our-universe' && (
+        <OurUniversePage
+          onBack={() => setView('landing')}
+          onStartSimulator={() => {
+            setView('simulator');
+          }}
         />
       )}
 

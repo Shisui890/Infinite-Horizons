@@ -53,6 +53,7 @@ export default function SimulatorHeader({
   const [lang, setLang] = useState<Language>(getStoredLanguage());
   const [copiedToast, setCopiedToast] = useState(false);
   const [isAudioMuted, setIsAudioMuted] = useState(CosmicAudio.isMuted());
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   function toggleAudio() {
     const nextMuted = CosmicAudio.toggleMute();
@@ -177,6 +178,8 @@ export default function SimulatorHeader({
           >
             {isLaymanMode ? 'Slides' : t.presentation}
           </button>
+
+
 
           <button
             type="button"
@@ -351,7 +354,234 @@ export default function SimulatorHeader({
             <option value="png">Poster 4K</option>
           </select>
         </div>
+
+        {/* Mobile Header Actions Trigger */}
+        <button
+          type="button"
+          className="sim-btn-mobile-menu-trigger"
+          onClick={() => setShowMobileMenu(!showMobileMenu)}
+          aria-label="Abrir menu de ferramentas móvel"
+        >
+          {showMobileMenu ? (
+            <>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+              <span>Fechar</span>
+            </>
+          ) : (
+            <>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <line x1="3" y1="18" x2="21" y2="18" />
+              </svg>
+              <span>Menu</span>
+            </>
+          )}
+        </button>
       </div>
+
+      {/* Mobile Actions Drawer (Overlay for Small Devices) */}
+      {showMobileMenu && (
+        <div className="sim-mobile-drawer-backdrop" onClick={() => setShowMobileMenu(false)}>
+          <div className="sim-mobile-drawer-card" onClick={e => e.stopPropagation()}>
+            <div className="mobile-drawer-header">
+              <span className="drawer-kicker">FERRAMENTAS & MODOS</span>
+              <button
+                type="button"
+                className="btn-close-drawer"
+                onClick={() => setShowMobileMenu(false)}
+                aria-label="Fechar gaveta"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="mobile-drawer-grid">
+              <button
+                type="button"
+                className="mobile-drawer-item"
+                onClick={() => {
+                  setShowMobileMenu(false);
+                  onOpenConferenceMode();
+                }}
+              >
+                <span className="drawer-icon-wrap">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+                    <line x1="8" y1="21" x2="16" y2="21" />
+                    <line x1="12" y1="17" x2="12" y2="21" />
+                  </svg>
+                </span>
+                <div className="drawer-item-text">
+                  <strong>Apresentação</strong>
+                  <small>Fórmulas e modo palestra</small>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                className="mobile-drawer-item"
+                onClick={() => {
+                  setShowMobileMenu(false);
+                  onOpenMinkowski3D();
+                }}
+              >
+                <span className="drawer-icon-wrap">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                    <line x1="12" y1="22.08" x2="12" y2="12" />
+                  </svg>
+                </span>
+                <div className="drawer-item-text">
+                  <strong>Visualizador 3D</strong>
+                  <small>Cones de luz & Calabi-Yau</small>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                className="mobile-drawer-item"
+                onClick={() => {
+                  setShowMobileMenu(false);
+                  onOpenMonteCarlo();
+                }}
+              >
+                <span className="drawer-icon-wrap">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                    <path d="M16 8h.01" />
+                    <path d="M8 8h.01" />
+                    <path d="M8 16h.01" />
+                    <path d="M16 16h.01" />
+                    <path d="M12 12h.01" />
+                  </svg>
+                </span>
+                <div className="drawer-item-text">
+                  <strong>Monte Carlo</strong>
+                  <small>1.000 iterações estocásticas</small>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                className="mobile-drawer-item"
+                onClick={() => {
+                  setShowMobileMenu(false);
+                  onOpenComparator();
+                }}
+              >
+                <span className="drawer-icon-wrap">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                    <line x1="12" y1="3" x2="12" y2="21" />
+                  </svg>
+                </span>
+                <div className="drawer-item-text">
+                  <strong>Comparador</strong>
+                  <small>Comparar linhas temporais</small>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                className="mobile-drawer-item"
+                onClick={() => {
+                  setShowMobileMenu(false);
+                  onToggleAIDrawer();
+                }}
+              >
+                <span className="drawer-icon-wrap">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="4" y="4" width="16" height="16" rx="2" />
+                    <rect x="9" y="9" width="6" height="6" />
+                    <line x1="9" y1="1" x2="9" y2="4" />
+                    <line x1="15" y1="1" x2="15" y2="4" />
+                    <line x1="9" y1="20" x2="9" y2="23" />
+                    <line x1="15" y1="20" x2="15" y2="23" />
+                  </svg>
+                </span>
+                <div className="drawer-item-text">
+                  <strong>Oráculo IA</strong>
+                  <small>Pesquisa & física relativística</small>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                className="mobile-drawer-item"
+                onClick={() => {
+                  setShowMobileMenu(false);
+                  onOpenAddEvent();
+                }}
+              >
+                <span className="drawer-icon-wrap">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                  </svg>
+                </span>
+                <div className="drawer-item-text">
+                  <strong>Adicionar Nó</strong>
+                  <small>Novo marco na geodésica</small>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                className="mobile-drawer-item"
+                onClick={() => {
+                  setShowMobileMenu(false);
+                  onOpenTimeTravel();
+                }}
+              >
+                <span className="drawer-icon-wrap">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12 6 12 12 16 14" />
+                  </svg>
+                </span>
+                <div className="drawer-item-text">
+                  <strong>Salto Temporal</strong>
+                  <small>Intervenção relativística</small>
+                </div>
+              </button>
+            </div>
+
+            <div className="mobile-drawer-footer">
+              <button type="button" className="btn-drawer-action" onClick={toggleLaymanMode}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="16" x2="12" y2="12" />
+                  <line x1="12" y1="8" x2="12.01" y2="8" />
+                </svg>
+                <span>{isLaymanMode ? 'Modo Técnico' : 'Modo Didático'}</span>
+              </button>
+              <button type="button" className="btn-drawer-action" onClick={handleShare}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                </svg>
+                <span>{copiedToast ? 'Copiado' : 'Compartilhar'}</span>
+              </button>
+              <button type="button" className="btn-drawer-action" onClick={onExit}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                  <polyline points="16 17 21 12 16 7" />
+                  <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>
+                <span>Sair</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 }
