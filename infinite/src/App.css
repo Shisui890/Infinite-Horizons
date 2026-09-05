@@ -12792,9 +12792,12 @@
 /* ====================================================================
    EPOCHS TIMELINE VIEW
    ==================================================================== */
+/* ====================================================================
+   EPOCHS TIMELINE VIEW
+   ==================================================================== */
 .nasa-epochs-grid {
   display: grid;
-  grid-template-columns: 320px 1fr;
+  grid-template-columns: 380px 1fr;
   gap: 24px;
   align-items: start;
 }
@@ -12803,23 +12806,24 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  background: rgba(5, 10, 24, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 10px;
-  padding: 14px;
+  background: rgba(5, 10, 24, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 }
 
 .nasa-rail-header {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding-bottom: 8px;
+  gap: 3px;
+  padding-bottom: 10px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .rail-title {
   font-family: var(--font-mono);
-  font-size: 0.74rem;
+  font-size: 0.76rem;
   font-weight: 800;
   letter-spacing: 0.08em;
   color: #38bdf8;
@@ -12827,28 +12831,47 @@
 
 .rail-subtitle {
   font-family: var(--font-mono);
-  font-size: 0.62rem;
+  font-size: 0.64rem;
   color: #64748b;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
 }
 
 .nasa-rail-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  max-height: 520px;
+  gap: 10px;
+  max-height: calc(100vh - 260px);
+  min-height: 600px;
   overflow-y: auto;
-  padding-right: 4px;
+  padding-right: 6px;
+}
+
+.nasa-rail-list::-webkit-scrollbar {
+  width: 5px;
+}
+
+.nasa-rail-list::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 4px;
+}
+
+.nasa-rail-list::-webkit-scrollbar-thumb {
+  background: rgba(0, 229, 255, 0.25);
+  border-radius: 4px;
+}
+
+.nasa-rail-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 229, 255, 0.5);
 }
 
 .nasa-rail-card {
   display: flex;
   align-items: stretch;
   gap: 12px;
-  padding: 10px 14px;
-  background: rgba(10, 16, 32, 0.7);
+  padding: 12px 14px;
+  background: rgba(10, 16, 32, 0.75);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   text-align: left;
@@ -12857,15 +12880,16 @@
 }
 
 .nasa-rail-card:hover {
-  background: rgba(18, 28, 54, 0.8);
-  border-color: rgba(0, 150, 255, 0.4);
+  background: rgba(18, 30, 60, 0.85);
+  border-color: rgba(0, 150, 255, 0.45);
   transform: translateX(4px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
 .nasa-rail-card.active {
-  background: rgba(16, 30, 64, 0.95);
+  background: rgba(16, 32, 70, 0.95);
   border-color: var(--epoch-accent, #00e5ff);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 15px rgba(0, 150, 255, 0.2);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 150, 255, 0.25), inset 0 0 15px rgba(0, 150, 255, 0.08);
 }
 
 .rail-card-indicator {
@@ -12877,44 +12901,67 @@
 .rail-card-body {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 5px;
   min-width: 0;
   flex: 1;
 }
 
-.rail-card-meta {
+.rail-card-top-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 6px;
+  gap: 8px;
 }
 
-.rail-card-era {
+.rail-card-era-badge {
   font-family: var(--font-mono);
-  font-size: 0.65rem;
+  font-size: 0.64rem;
   font-weight: 800;
   color: var(--epoch-accent, #00e5ff);
-  letter-spacing: 0.06em;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--epoch-accent, #00e5ff);
+  border-radius: 4px;
+  padding: 2px 7px;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
-.rail-card-time {
+.rail-card-redshift-pill {
   font-family: var(--font-mono);
   font-size: 0.65rem;
   color: #94a3b8;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .rail-card-name {
   font-family: var(--font-body);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   font-weight: 700;
   color: #ffffff;
-  line-height: 1.25;
+  line-height: 1.3;
+  margin: 1px 0;
+  white-space: normal;
+  word-break: normal;
 }
 
-.rail-card-redshift {
+.rail-card-time-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-family: var(--font-mono);
-  font-size: 0.66rem;
-  color: #64748b;
+  font-size: 0.68rem;
+  color: #94a3b8;
+  line-height: 1.35;
+}
+
+.rail-card-time-row svg {
+  flex-shrink: 0;
+  color: var(--epoch-accent, #00e5ff);
 }
 
 /* Right Column: Master Dossier Card */
@@ -13137,7 +13184,7 @@
    ==================================================================== */
 .nasa-observatories-layout {
   display: grid;
-  grid-template-columns: 320px 1fr;
+  grid-template-columns: 380px 1fr;
   gap: 24px;
   align-items: start;
 }
@@ -13145,74 +13192,115 @@
 .nasa-observatories-selector {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  background: rgba(5, 10, 24, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 10px;
-  padding: 14px;
+  gap: 12px;
+  background: rgba(5, 10, 24, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.nasa-selector-header {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.selector-title {
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #38bdf8;
+}
+
+.selector-subtitle {
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  color: #64748b;
+  letter-spacing: 0.06em;
+}
+
+.nasa-obs-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .nasa-obs-pill {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   gap: 12px;
-  padding: 10px 12px;
-  background: rgba(10, 16, 32, 0.7);
+  padding: 12px 14px;
+  background: rgba(10, 16, 32, 0.75);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   text-align: left;
+  position: relative;
+  overflow: hidden;
 }
 
 .nasa-obs-pill:hover {
-  background: rgba(18, 28, 54, 0.8);
+  background: rgba(18, 30, 60, 0.85);
   border-color: var(--obs-accent, #0066ff);
   transform: translateX(4px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
 .nasa-obs-pill.active {
-  background: rgba(16, 30, 64, 0.95);
+  background: rgba(16, 32, 70, 0.95);
   border-color: var(--obs-accent, #0066ff);
-  box-shadow: 0 0 16px rgba(0, 102, 255, 0.3);
+  box-shadow: 0 0 20px rgba(0, 102, 255, 0.3), inset 0 0 15px rgba(0, 102, 255, 0.08);
 }
 
-.obs-pill-badge {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  font-weight: 800;
-  border: 1.5px solid currentColor;
-  padding: 4px 6px;
-  border-radius: 6px;
+.obs-pill-indicator {
+  width: 4px;
+  border-radius: 2px;
   flex-shrink: 0;
-  min-width: 48px;
-  text-align: center;
 }
 
-.obs-pill-info {
+.obs-pill-body {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 6px;
   min-width: 0;
   flex: 1;
 }
 
-.obs-pill-name {
-  font-size: 0.84rem;
-  font-weight: 700;
-  color: #ffffff;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.obs-pill-header-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: space-between;
 }
 
-.obs-pill-orbit {
+.obs-pill-badge {
   font-family: var(--font-mono);
-  font-size: 0.65rem;
-  color: #94a3b8;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 0.68rem;
+  font-weight: 800;
+  border: 1.5px solid currentColor;
+  padding: 3px 6px;
+  border-radius: 5px;
+  flex-shrink: 0;
+  min-width: 44px;
+  text-align: center;
+  letter-spacing: 0.05em;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.obs-pill-name {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.3;
+  white-space: normal;
+  word-break: normal;
+  flex: 1;
+  min-width: 0;
 }
 
 .obs-pill-status {
@@ -13242,6 +13330,30 @@
   background: rgba(234, 179, 8, 0.15);
   color: #facc15;
   border: 1px solid rgba(234, 179, 8, 0.35);
+}
+
+.obs-pill-orbit-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  color: #94a3b8;
+  line-height: 1.35;
+}
+
+.obs-pill-orbit-row svg {
+  flex-shrink: 0;
+  color: #38bdf8;
+}
+
+.obs-pill-orbit {
+  white-space: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 .nasa-obs-console {
@@ -13287,21 +13399,43 @@
   margin: 0;
 }
 
-.obs-console-meta {
-  font-family: var(--font-mono);
-  font-size: 0.74rem;
-  color: #94a3b8;
+.obs-console-meta-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
 }
 
-.obs-console-meta strong {
+.meta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 4px 10px;
+}
+
+.meta-chip-label {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  color: #64748b;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.meta-chip-val {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
   color: #e2e8f0;
+  font-weight: 600;
 }
 
 .obs-status-tag-active {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 12px;
+  padding: 6px 14px;
   background: rgba(0, 102, 255, 0.15);
   border: 1px solid rgba(0, 102, 255, 0.35);
   border-radius: 6px;
@@ -13309,6 +13443,7 @@
   font-size: 0.74rem;
   color: #38bdf8;
   font-weight: 700;
+  box-shadow: 0 0 15px rgba(0, 102, 255, 0.2);
 }
 
 .status-beacon {
@@ -13329,11 +13464,19 @@
 .obs-matrix-box {
   background: rgba(0, 0, 0, 0.45);
   border: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 3px solid var(--obs-accent, #0066ff);
   border-radius: 8px;
-  padding: 12px 14px;
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
   gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.obs-matrix-box:hover {
+  background: rgba(0, 20, 50, 0.4);
+  border-color: rgba(0, 150, 255, 0.3);
+  border-left-color: var(--obs-accent, #0066ff);
 }
 
 .matrix-lbl {

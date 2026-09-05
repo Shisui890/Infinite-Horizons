@@ -111,14 +111,20 @@ export default function NasaCosmologyObservatory({ isLaymanMode }: Props) {
                   >
                     <div className="rail-card-indicator" style={{ backgroundColor: epoch.color }} />
                     <div className="rail-card-body">
-                      <div className="rail-card-meta">
-                        <span className="rail-card-era">ERA {String(idx + 1).padStart(2, '0')}</span>
-                        <span className="rail-card-time">{epoch.timeRange}</span>
+                      <div className="rail-card-top-row">
+                        <span className="rail-card-era-badge">ERA {String(idx + 1).padStart(2, '0')}</span>
+                        <span className="rail-card-redshift-pill">{epoch.redshiftRange}</span>
                       </div>
                       <strong className="rail-card-name">
                         {epoch.name.replace(/^\d+\s*\/\/\s*/, '')}
                       </strong>
-                      <span className="rail-card-redshift">{epoch.redshiftRange}</span>
+                      <div className="rail-card-time-row">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                          <circle cx="12" cy="12" r="10" />
+                          <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                        <span>{epoch.timeRange}</span>
+                      </div>
                     </div>
                   </button>
                 );
@@ -232,45 +238,61 @@ export default function NasaCosmologyObservatory({ isLaymanMode }: Props) {
       {/* ========================================================================= */}
       {activeView === 'observatories' && (
         <main className="nasa-observatories-layout">
-          {/* Telescope selector pills grid */}
+          {/* Telescope selector cards */}
           <div className="nasa-observatories-selector">
-            {NASA_OBSERVATORIES.map(obs => {
-              const isSelected = obs.id === selectedObsId;
-              const isFinished = obs.missionStatus.includes('CONCLUÍDA');
-              const isExtended = obs.missionStatus.includes('EXTENSÃO');
-              const statusClass = isFinished
-                ? 'status-concluida'
-                : isExtended
-                ? 'status-extensao'
-                : 'status-operacional';
-              const statusLabel = isFinished ? 'CONCLUÍDA' : isExtended ? 'EXTENSÃO' : 'OPERACIONAL';
-              const badgeAcronym = obs.acronym.includes('/')
-                ? 'PLANCK'
-                : obs.acronym.includes('VOYAGER')
-                ? 'VOYAGER'
-                : obs.acronym;
+            <div className="nasa-selector-header">
+              <span className="selector-title">FROTA DE OBSERVATÓRIOS DA NASA</span>
+              <span className="selector-subtitle">ESPELHOS ESPACIAIS & SENSORES ORBITAIS</span>
+            </div>
 
-              return (
-                <button
-                  key={obs.id}
-                  type="button"
-                  className={`nasa-obs-pill ${isSelected ? 'active' : ''}`}
-                  onClick={() => setSelectedObsId(obs.id)}
-                  style={{
-                    '--obs-accent': obs.color,
-                  } as React.CSSProperties}
-                >
-                  <div className="obs-pill-badge" style={{ color: obs.color, borderColor: obs.color }}>
-                    {badgeAcronym}
-                  </div>
-                  <div className="obs-pill-info">
-                    <strong className="obs-pill-name">{obs.name}</strong>
-                    <span className="obs-pill-orbit">{obs.orbitType}</span>
-                  </div>
-                  <span className={`obs-pill-status ${statusClass}`}>{statusLabel}</span>
-                </button>
-              );
-            })}
+            <div className="nasa-obs-cards-list">
+              {NASA_OBSERVATORIES.map(obs => {
+                const isSelected = obs.id === selectedObsId;
+                const isFinished = obs.missionStatus.includes('CONCLUÍDA');
+                const isExtended = obs.missionStatus.includes('EXTENSÃO');
+                const statusClass = isFinished
+                  ? 'status-concluida'
+                  : isExtended
+                  ? 'status-extensao'
+                  : 'status-operacional';
+                const statusLabel = isFinished ? 'CONCLUÍDA' : isExtended ? 'EXTENSÃO' : 'OPERACIONAL';
+                const badgeAcronym = obs.acronym.includes('/')
+                  ? 'PLANCK'
+                  : obs.acronym.includes('VOYAGER')
+                  ? 'VOYAGER'
+                  : obs.acronym;
+
+                return (
+                  <button
+                    key={obs.id}
+                    type="button"
+                    className={`nasa-obs-pill ${isSelected ? 'active' : ''}`}
+                    onClick={() => setSelectedObsId(obs.id)}
+                    style={{
+                      '--obs-accent': obs.color,
+                    } as React.CSSProperties}
+                  >
+                    <div className="obs-pill-indicator" style={{ backgroundColor: obs.color }} />
+                    <div className="obs-pill-body">
+                      <div className="obs-pill-header-row">
+                        <div className="obs-pill-badge" style={{ color: obs.color, borderColor: obs.color }}>
+                          {badgeAcronym}
+                        </div>
+                        <strong className="obs-pill-name">{obs.name}</strong>
+                        <span className={`obs-pill-status ${statusClass}`}>{statusLabel}</span>
+                      </div>
+                      <div className="obs-pill-orbit-row">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <circle cx="12" cy="12" r="3" />
+                          <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-30 12 12)" />
+                        </svg>
+                        <span className="obs-pill-orbit">{obs.orbitType}</span>
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {/* Active Telescope Master Console */}
@@ -288,9 +310,16 @@ export default function NasaCosmologyObservatory({ isLaymanMode }: Props) {
                 <h3 className="obs-console-title">
                   {activeObs.name} ({activeObs.acronym})
                 </h3>
-                <span className="obs-console-meta">
-                  Lançamento: <strong>{activeObs.launchDate}</strong> | Órbita: <strong>{activeObs.orbitType}</strong>
-                </span>
+                <div className="obs-console-meta-chips">
+                  <div className="meta-chip">
+                    <span className="meta-chip-label">LANÇAMENTO</span>
+                    <strong className="meta-chip-val">{activeObs.launchDate}</strong>
+                  </div>
+                  <div className="meta-chip">
+                    <span className="meta-chip-label">ÓRBITA</span>
+                    <strong className="meta-chip-val">{activeObs.orbitType}</strong>
+                  </div>
+                </div>
               </div>
               <div className="obs-status-tag-active">
                 <span className="status-beacon" />
