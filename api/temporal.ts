@@ -1,3 +1,7 @@
+declare const process: {
+  env: Record<string, string | undefined>;
+};
+
 type Task = 'historical_event_research' | 'create_temporal_universe';
 
 interface RequestBody {
@@ -9,6 +13,15 @@ interface RequestBody {
   language?: string;
 }
 
+interface ModelConfig {
+  provider: 'openrouter' | 'azure' | 'openai';
+  url: string;
+  key?: string;
+  header: string;
+  model: string;
+  extraHeaders: Record<string, string>;
+}
+
 function json(data: unknown, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
@@ -16,7 +29,7 @@ function json(data: unknown, status = 200) {
   });
 }
 
-function getModelConfig(customModel?: string) {
+function getModelConfig(customModel?: string): ModelConfig {
   // 1. OpenRouter (prioridade quando configurado ou chave sk-or- detectada)
   const openRouterKey = process.env.OPENROUTER_API_KEY || (process.env.OPENAI_API_KEY?.startsWith('sk-or-') ? process.env.OPENAI_API_KEY : undefined);
   if (openRouterKey) {

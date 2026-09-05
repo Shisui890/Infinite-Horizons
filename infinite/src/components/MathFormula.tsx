@@ -48,7 +48,7 @@ export function MathText({ text, className = '' }: { text: string; className?: s
 
     const result: Array<{ type: 'text' | 'inline-math' | 'block-math'; content: string }> = [];
     // Match $$...$$, $...$, \[...\], \(...\)
-    const regex = /(\$\$[\s\S]*?\$\$|\$[^\$\n]+?\$|\\\[[\s\S]*?\\\]|\\\([\s\S]*?\\\))/g;
+    const regex = /(\$\$[\s\S]*?\$\$|\$[^$\n]+?\$|\\\[[\s\S]*?\\\]|\\\([\s\S]*?\\\))/g;
     let lastIndex = 0;
     let match: RegExpExecArray | null;
 
