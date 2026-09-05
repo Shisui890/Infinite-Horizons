@@ -158,7 +158,7 @@ export default function SimulatorHeader({
             onClick={onOpenComparator}
             title={isLaymanMode ? 'Comparar duas versões da história lado a lado' : 'Abrir Comparador de Dimensões em Split-View'}
           >
-            {isLaymanMode ? 'Comparar Histórias' : t.splitView}
+            {isLaymanMode ? 'Comparar' : t.splitView}
           </button>
 
           <button
@@ -167,7 +167,7 @@ export default function SimulatorHeader({
             onClick={onOpenMonteCarlo}
             title={isLaymanMode ? 'Testar milhares de futuros possíveis com o computador' : 'Executar Simulação Estocástica de Monte Carlo'}
           >
-            {isLaymanMode ? 'Testar Futuros' : t.monteCarlo}
+            {isLaymanMode ? 'Monte Carlo' : t.monteCarlo}
           </button>
 
           <button
@@ -179,15 +179,13 @@ export default function SimulatorHeader({
             {isLaymanMode ? 'Slides' : t.presentation}
           </button>
 
-
-
           <button
             type="button"
             className="sim-btn-3d"
             onClick={onOpenMinkowski3D}
             title={isLaymanMode ? 'Ver em 3D como o tempo e o espaço se conectam' : 'Visualizar Cones de Luz 3D de Minkowski'}
           >
-            {isLaymanMode ? 'Visualizador 3D' : t.cones3D}
+            {isLaymanMode ? '3D' : t.cones3D}
           </button>
 
           <button
@@ -196,7 +194,7 @@ export default function SimulatorHeader({
             onClick={onToggleAIDrawer}
             title={isLaymanMode ? 'Conversar com a Inteligência Artificial sobre a história' : 'Abrir Oráculo de IA com Pesquisa Científica Primária'}
           >
-            {isLaymanMode ? 'Assistente IA' : t.aiOracle}
+            {isLaymanMode ? 'Oráculo IA' : t.aiOracle}
           </button>
         </div>
 
@@ -224,7 +222,7 @@ export default function SimulatorHeader({
             onClick={onOpenTimeTravel}
             title={isLaymanMode ? 'Fazer uma viagem no tempo para o passado ou futuro' : 'Realizar Salto Temporal Relativístico'}
           >
-            {isLaymanMode ? 'Mudar Passado' : t.intervention}
+            {isLaymanMode ? 'Salto' : t.intervention}
           </button>
         </div>
 
@@ -312,7 +310,9 @@ export default function SimulatorHeader({
               onClick={onStartTour}
               title="Iniciar Tour Guiado Interativo na Tela"
             >
-              Tour
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+              </svg>
             </button>
           )}
 
@@ -323,7 +323,10 @@ export default function SimulatorHeader({
               onClick={onOpenGuide}
               title="Abrir Manual de Como Funciona o Simulador"
             >
-              Guia
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+              </svg>
             </button>
           )}
 
@@ -333,7 +336,10 @@ export default function SimulatorHeader({
             onClick={onReset}
             title="Resetar Modelo Padrão"
           >
-            Reset
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+              <path d="M3 3v5h5" />
+            </svg>
           </button>
 
           <select

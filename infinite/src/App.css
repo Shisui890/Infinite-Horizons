@@ -1004,45 +1004,48 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
+  padding: 0 14px;
   border-bottom: 1px solid var(--border-subtle);
-  background: rgba(11, 15, 26, 0.85);
+  background: rgba(8, 12, 24, 0.92);
   -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
-  gap: 16px;
+  gap: 10px;
   z-index: 20;
+  position: relative;
 }
 
 .sim-header-left {
   display: flex;
   align-items: center;
-  gap: 14px;
-  min-width: 0;
+  gap: 10px;
+  flex-shrink: 0;
+  min-width: max-content;
 }
 
 .sim-btn-exit {
   font-family: var(--font-mono);
-  font-size: 0.75rem;
-  font-weight: 500;
+  font-size: 0.74rem;
+  font-weight: 600;
   color: var(--text-secondary);
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--border-subtle);
-  padding: 7px 14px;
+  padding: 6px 12px;
   border-radius: var(--radius-full);
   cursor: pointer;
   white-space: nowrap;
+  flex-shrink: 0;
   transition: all var(--transition-fast);
 }
 
 .sim-btn-exit:hover {
   color: var(--color-cyan);
   border-color: rgba(0, 229, 255, 0.35);
-  background: rgba(0, 229, 255, 0.06);
+  background: rgba(0, 229, 255, 0.08);
 }
 
 .sim-brand-logo-wrap {
-  width: 34px;
-  height: 34px;
+  width: 30px;
+  height: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1067,7 +1070,7 @@
 }
 
 .sim-universe-title {
-  font-size: 0.95rem;
+  font-size: 0.88rem;
   font-family: var(--font-display);
   font-weight: 700;
   letter-spacing: -0.01em;
@@ -1075,12 +1078,12 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 240px;
+  max-width: 180px;
 }
 
 .sim-universe-tag {
   font-family: var(--font-mono);
-  font-size: 0.6rem;
+  font-size: 0.56rem;
   font-weight: 600;
   letter-spacing: 0.12em;
   color: var(--color-cyan);
@@ -1094,29 +1097,31 @@
 .sim-header-center {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 10px;
+  flex-shrink: 0;
 }
 
 .sim-integrity-widget {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  width: 160px;
+  gap: 3px;
+  width: 120px;
+  flex-shrink: 0;
 }
 
 .sim-integrity-label {
   display: flex;
   justify-content: space-between;
   font-family: var(--font-mono);
-  font-size: 0.65rem;
-  font-weight: 500;
+  font-size: 0.63rem;
+  font-weight: 600;
   letter-spacing: 0.06em;
   color: var(--text-muted);
 }
 
 .sim-integrity-label strong {
   font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-size: 0.72rem;
 }
 
 .sim-integrity-bar-track {
@@ -1135,14 +1140,15 @@
 .sim-paradox-badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-size: 0.65rem;
   font-weight: 600;
   letter-spacing: 0.06em;
-  padding: 5px 12px;
+  padding: 4px 10px;
   border-radius: var(--radius-full);
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .sim-paradox-badge-active {
@@ -1170,30 +1176,41 @@
 .sim-header-right {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+  justify-content: flex-end;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.sim-header-right::-webkit-scrollbar {
+  display: none;
 }
 
 .header-btn-group {
   display: flex;
   align-items: center;
-  gap: 3px;
-  padding: 3px;
+  gap: 2px;
+  padding: 2px 4px;
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-full);
+  flex-shrink: 0;
 }
 
 .sim-btn-layman {
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 600;
-  padding: 6px 12px;
+  padding: 5px 10px;
   border-radius: var(--radius-full);
   border: none;
   background: transparent;
   color: var(--text-secondary);
   cursor: pointer;
   transition: all var(--transition-fast);
+  white-space: nowrap;
 }
 
 .sim-btn-layman:hover {
@@ -1206,16 +1223,17 @@
   color: #c084fc;
 }
 
+.sim-btn-splitview,
 .sim-btn-monte-carlo,
 .sim-btn-conference,
 .sim-btn-3d {
   font-family: var(--font-body);
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 500;
   color: var(--text-secondary);
   background: transparent;
   border: none;
-  padding: 6px 11px;
+  padding: 5px 9px;
   border-radius: var(--radius-full);
   cursor: pointer;
   transition: all var(--transition-fast);
@@ -1231,12 +1249,12 @@
 
 .sim-btn-ai {
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 600;
   color: #e9d5ff;
   background: rgba(168, 85, 247, 0.12);
   border: 1px solid rgba(168, 85, 247, 0.3);
-  padding: 6px 12px;
+  padding: 5px 10px;
   border-radius: var(--radius-full);
   cursor: pointer;
   transition: all var(--transition-fast);
@@ -1251,12 +1269,12 @@
 
 .sim-btn-action {
   font-family: var(--font-body);
-  font-size: 0.75rem;
-  font-weight: 500;
+  font-size: 0.72rem;
+  font-weight: 600;
   color: var(--text-primary);
   background: transparent;
   border: none;
-  padding: 6px 11px;
+  padding: 5px 10px;
   border-radius: var(--radius-full);
   cursor: pointer;
   transition: all var(--transition-fast);
