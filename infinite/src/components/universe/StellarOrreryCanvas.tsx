@@ -160,7 +160,7 @@ export default function StellarOrreryCanvas({
 
       // 2. Holographic Sector Grid & Coordinate Rays
       ctx.save();
-      ctx.strokeStyle = 'rgba(255, 145, 0, 0.05)';
+      ctx.strokeStyle = 'rgba(0, 229, 255, 0.04)';
       ctx.lineWidth = 1;
 
       const gridSize = 60 * zoom;
@@ -181,7 +181,7 @@ export default function StellarOrreryCanvas({
       }
 
       // Compass Crosshairs through Origin
-      ctx.strokeStyle = 'rgba(0, 229, 255, 0.12)';
+      ctx.strokeStyle = 'rgba(0, 229, 255, 0.16)';
       ctx.beginPath();
       ctx.moveTo(cx, 0);
       ctx.lineTo(cx, h);
@@ -198,10 +198,10 @@ export default function StellarOrreryCanvas({
             const orbitR = body.orbitalRadius * scale * 2.1;
             ctx.beginPath();
             ctx.ellipse(cx, cy, orbitR, orbitR * 0.65, 0, 0, Math.PI * 2);
-            ctx.strokeStyle = body.id === selectedBody.id ? 'rgba(255, 145, 0, 0.45)' : 'rgba(255, 255, 255, 0.08)';
-            ctx.lineWidth = body.id === selectedBody.id ? 1.5 : 0.8;
+            ctx.strokeStyle = body.id === selectedBody.id ? 'rgba(0, 229, 255, 0.55)' : 'rgba(255, 255, 255, 0.09)';
+            ctx.lineWidth = body.id === selectedBody.id ? 1.6 : 0.8;
             if (body.id === selectedBody.id) {
-              ctx.setLineDash([4, 4]);
+              ctx.setLineDash([5, 4]);
             } else {
               ctx.setLineDash([2, 6]);
             }
@@ -213,7 +213,7 @@ export default function StellarOrreryCanvas({
         // Distance Concentric Rings in Light Years
         ctx.save();
         ctx.setLineDash([3, 8]);
-        ctx.strokeStyle = 'rgba(0, 229, 255, 0.1)';
+        ctx.strokeStyle = 'rgba(0, 229, 255, 0.12)';
         ctx.lineWidth = 1;
         for (let r = 1; r <= 3; r++) {
           const ringRadius = (scale * r) / 1.5;
@@ -234,7 +234,7 @@ export default function StellarOrreryCanvas({
         // Draw Target Reticle if selected
         if (isSelected) {
           ctx.save();
-          ctx.strokeStyle = '#ff9900';
+          ctx.strokeStyle = '#00e5ff';
           ctx.lineWidth = 1.5;
           const reticleSize = body.id === 'sol' ? 26 : 18;
           const bracketLen = 6;
@@ -242,11 +242,11 @@ export default function StellarOrreryCanvas({
           // Animated pulsing ring
           ctx.beginPath();
           ctx.arc(bx, by, reticleSize + Math.sin(time * 4) * 2, 0, Math.PI * 2);
-          ctx.strokeStyle = 'rgba(255, 153, 0, 0.35)';
+          ctx.strokeStyle = 'rgba(0, 229, 255, 0.35)';
           ctx.stroke();
 
-          // Elite Dangerous Bracket Corners
-          ctx.strokeStyle = '#ff9900';
+          // High-tech Bracket Corners
+          ctx.strokeStyle = '#00e5ff';
           // Top Left
           ctx.beginPath();
           ctx.moveTo(bx - reticleSize, by - reticleSize + bracketLen);
@@ -322,25 +322,25 @@ export default function StellarOrreryCanvas({
         const labelY = isAbove ? by - bodyRadius - 8 : by + bodyRadius + 14;
 
         // High contrast semi-transparent tactical backdrop
-        ctx.fillStyle = isSelected ? 'rgba(255, 170, 0, 0.22)' : 'rgba(2, 6, 23, 0.82)';
-        ctx.strokeStyle = isSelected ? '#ffaa00' : 'rgba(148, 163, 184, 0.25)';
-        ctx.lineWidth = 0.8;
+        ctx.fillStyle = isSelected ? 'rgba(0, 229, 255, 0.16)' : 'rgba(4, 8, 20, 0.85)';
+        ctx.strokeStyle = isSelected ? '#00e5ff' : 'rgba(148, 163, 184, 0.25)';
+        ctx.lineWidth = isSelected ? 1.2 : 0.8;
         ctx.beginPath();
         if ((ctx as any).roundRect) {
-          (ctx as any).roundRect(bx - textWidth / 2 - 4, labelY - 10, textWidth + 8, 14, 3);
+          (ctx as any).roundRect(bx - textWidth / 2 - 5, labelY - 10, textWidth + 10, 15, 4);
         } else {
-          ctx.rect(bx - textWidth / 2 - 4, labelY - 10, textWidth + 8, 14);
+          ctx.rect(bx - textWidth / 2 - 5, labelY - 10, textWidth + 10, 15);
         }
         ctx.fill();
         ctx.stroke();
 
-        ctx.fillStyle = isSelected ? '#ffaa00' : isHovered ? '#ffffff' : '#cbd5e1';
+        ctx.fillStyle = isSelected ? '#00e5ff' : isHovered ? '#ffffff' : '#cbd5e1';
         ctx.textAlign = 'center';
         ctx.fillText(labelText, bx, labelY + 1);
 
         if (isSelected) {
           ctx.font = '700 8px JetBrains Mono, monospace';
-          ctx.fillStyle = '#00e5ff';
+          ctx.fillStyle = '#38bdf8';
           ctx.fillText(`[ ${body.distanceFromEarth.split(' ')[0]} ${body.distanceFromEarth.split(' ')[1] || ''} ]`, bx, labelY + 13);
         }
         ctx.restore();
@@ -361,8 +361,8 @@ export default function StellarOrreryCanvas({
       <div className="ed-orrery-hud-bar">
         <div className="ed-hud-tag-group">
           <span className="ed-hud-status-dot" />
-          <span className="ed-hud-label">SISTEMA ORRERY VETORIAL 2D</span>
-          <span className="ed-hud-coord">ZOOM: {(zoom * 100).toFixed(0)}%</span>
+          <span className="ed-hud-label">Carta Estelar Vetorial 2D</span>
+          <span className="ed-hud-coord">Zoom: {(zoom * 100).toFixed(0)}%</span>
         </div>
 
         <div className="ed-orrery-controls">
@@ -391,7 +391,7 @@ export default function StellarOrreryCanvas({
             }}
             title="Centralizar Visualização"
           >
-            Reset
+            Centralizar
           </button>
         </div>
       </div>

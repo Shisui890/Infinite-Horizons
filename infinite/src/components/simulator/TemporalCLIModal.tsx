@@ -166,7 +166,7 @@ export default function TemporalCLIModal() {
           {history.map(item => (
             <div key={item.id} className={`cli-log-entry ${item.type}`}>
               <div className="cli-log-prompt">
-                <span className="cli-prompt-symbol">▶</span>
+                <span className="cli-prompt-symbol">&gt;</span>
                 <span className="cli-log-cmd">{item.command}</span>
                 <span className="cli-log-time">{item.timestamp}</span>
               </div>

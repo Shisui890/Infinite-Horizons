@@ -61,9 +61,17 @@ export default function HeroSection({ onStartSimulator, onOpenGuide, onOpenOurUn
           </button>
           
           {onOpenOurUniverse && (
-            <button type="button" className="btn-nasa-hero" onClick={onOpenOurUniverse} title="Acessar o portal The Universe da NASA">
-              <span className="nasa-hero-meatball">NASA</span>
-              <span>The Universe // 8 Pilares</span>
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={onOpenOurUniverse}
+              title="Explorar corpos celestes e astrofísica do nosso universo"
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+              </svg>
+              <span>{isLaymanMode ? 'Explorar Nosso Universo' : 'Nosso Universo'}</span>
             </button>
           )}
 

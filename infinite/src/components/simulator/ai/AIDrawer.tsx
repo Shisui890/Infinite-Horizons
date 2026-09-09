@@ -8,7 +8,7 @@ import type {
 import { AITemporalService } from '../../../engine/AITemporalService';
 import { MultiAgentDebateService } from '../../../engine/MultiAgentDebateService';
 import type { DebateReport } from '../../../engine/MultiAgentDebateService';
-import MathFormula, { MathText } from '../../MathFormula';
+import MathFormula, { MathText, MarkdownText } from '../../MathFormula';
 import {
   searchKnowledgeBank,
   getKnowledgeBankSeed,
@@ -92,7 +92,7 @@ export default function AIDrawer({ universe, lastAIResult, onClose, onApplyResol
     // 1. Verificação Primária na Base Sub-Escondida Local (Economia de 100% de Tokens!)
     const localMatch = searchKnowledgeBank(text);
     if (localMatch) {
-      const formattedAnswer = `⚡ **[BASE CIENTÍFICA LOCAL // 0 TOKENS CONSUMIDOS]**\n\n### ${localMatch.title}\n\n${
+      const formattedAnswer = `**[BASE CIENTÍFICA LOCAL // 0 TOKENS CONSUMIDOS]**\n\n### ${localMatch.title}\n\n${
         localMatch.didacticAnswer
       }\n\n**Formulação Matemática Fundamental:**\n$$${localMatch.formula || ''}$$\n*(${localMatch.formulaLabel || localMatch.topic})*\n\n**Aprofundamento Físico e Teórico:**\n${
         localMatch.technicalAnswer
@@ -339,7 +339,7 @@ ${seed ? `Semente Factual Compacta: ${seed}\n` : ''}Responda de forma rigorosa, 
               <div className="copilot-quick-header">
                 <span className="copilot-quick-label">BASE LOCAL (0 TOKENS):</span>
                 <span className="token-saver-pill" title="Perguntas locais não consomem tokens de API">
-                  ⚡ 0 TOKENS // INSTANTÂNEO
+                  0 TOKENS // INSTANTÂNEO
                 </span>
               </div>
               <div className="copilot-chips-wrap">
@@ -370,14 +370,12 @@ ${seed ? `Semente Factual Compacta: ${seed}\n` : ''}Responda de forma rigorosa, 
                   </div>
                   <div className="copilot-msg-content">
                     {msg.content ? (
-                      msg.content.split('\n\n').map((para, pIdx) => (
-                        <p key={pIdx}>
-                          <MathText text={para} />
-                        </p>
-                      ))
+                      <MarkdownText text={msg.content} />
                     ) : (
                       <span className="copilot-typing-dots">
-                        <span className="t-dot" /><span className="t-dot" /><span className="t-dot" />
+                        <span className="t-dot" />
+                        <span className="t-dot" />
+                        <span className="t-dot" />
                       </span>
                     )}
                   </div>

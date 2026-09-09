@@ -50,11 +50,11 @@ export default function TargetScannerPanel({ body, onOpenAerospaceSim }: Props) 
       {/* 1. HUD Header with Target Lock & Distance */}
       <div className="ed-scanner-header">
         <div className="ed-target-badge-group">
-          <span className="ed-target-status-tag">TARGET LOCK // ACTIVE</span>
+          <span className="ed-target-status-tag">ALVO SELECIONADO</span>
           <span className="ed-target-designation">{body.designation}</span>
         </div>
         <div className="ed-scanner-coords">
-          <span>DISTÂNCIA:</span>
+          <span>Distância da Terra:</span>
           <strong>{body.distanceFromEarth}</strong>
         </div>
       </div>
@@ -72,7 +72,7 @@ export default function TargetScannerPanel({ body, onOpenAerospaceSim }: Props) 
           onClick={toggleLaymanMode}
           title="Clique para alternar entre Modo Didático e Modo Técnico"
         >
-          {isLaymanMode ? 'MODO DIDÁTICO ATIVO' : 'MODO TÉCNICO FORMAL'}
+          {isLaymanMode ? 'Modo Didático' : 'Modo Técnico Formal'}
         </button>
       </div>
 
@@ -83,21 +83,21 @@ export default function TargetScannerPanel({ body, onOpenAerospaceSim }: Props) 
           className={`scanner-tab-btn ${activeTab === 'visualizer' ? 'active' : ''}`}
           onClick={() => setActiveTab('visualizer')}
         >
-          01 // VISOR
+          Visor 3D & Foto
         </button>
         <button
           type="button"
           className={`scanner-tab-btn ${activeTab === 'telemetry' ? 'active' : ''}`}
           onClick={() => setActiveTab('telemetry')}
         >
-          02 // TELEMETRIA
+          Telemetria
         </button>
         <button
           type="button"
           className={`scanner-tab-btn ${activeTab === 'geology' ? 'active' : ''}`}
           onClick={() => setActiveTab('geology')}
         >
-          03 // GEOLOGIA
+          Geologia
         </button>
         {body.atmosphere && body.atmosphere.length > 0 && (
           <button
@@ -105,7 +105,7 @@ export default function TargetScannerPanel({ body, onOpenAerospaceSim }: Props) 
             className={`scanner-tab-btn ${activeTab === 'atmosphere' ? 'active' : ''}`}
             onClick={() => setActiveTab('atmosphere')}
           >
-            04 // ATMOSFERA
+            Atmosfera
           </button>
         )}
         <button
@@ -113,14 +113,14 @@ export default function TargetScannerPanel({ body, onOpenAerospaceSim }: Props) 
           className={`scanner-tab-btn ${activeTab === 'missions' ? 'active' : ''}`}
           onClick={() => setActiveTab('missions')}
         >
-          05 // MISSÕES
+          Missões
         </button>
         <button
           type="button"
           className={`scanner-tab-btn ${activeTab === 'aerospace' ? 'active' : ''}`}
           onClick={() => setActiveTab('aerospace')}
         >
-          06 // AEROESPACIAL
+          Voo Orbital
         </button>
       </div>
 

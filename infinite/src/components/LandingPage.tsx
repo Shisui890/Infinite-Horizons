@@ -47,26 +47,11 @@ export default function LandingPage({ onStartSimulator, onOpenGuide, onOpenOurUn
             {onOpenOurUniverse && (
               <button
                 type="button"
-                className="nav-link nav-link-special"
+                className="nav-link"
                 onClick={onOpenOurUniverse}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  background: 'rgba(235, 59, 71, 0.12)',
-                  border: '1px solid rgba(235, 59, 71, 0.45)',
-                  borderRadius: '20px',
-                  padding: '5px 14px',
-                  color: '#ff6b76',
-                  cursor: 'pointer',
-                  fontWeight: 600,
-                  fontSize: '0.8rem',
-                  fontFamily: 'var(--font-mono)',
-                  letterSpacing: '0.04em',
-                }}
+                style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}
               >
-                <span className="nasa-nav-meatball">NASA</span>
-                <span>The Universe // Cosmos</span>
+                Nosso Universo
               </button>
             )}
             <a href="#demo-section" className="nav-link">
@@ -157,7 +142,7 @@ export default function LandingPage({ onStartSimulator, onOpenGuide, onOpenOurUn
               {onOpenOurUniverse && (
                 <button
                   type="button"
-                  className="mobile-drawer-link highlight"
+                  className="mobile-drawer-link"
                   onClick={() => {
                     setIsMobileMenuOpen(false);
                     onOpenOurUniverse();
@@ -167,7 +152,7 @@ export default function LandingPage({ onStartSimulator, onOpenGuide, onOpenOurUn
                     <circle cx="12" cy="12" r="10" />
                     <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
                   </svg>
-                  <span>Exploração Cósmica // Nosso Universo</span>
+                  <span>Nosso Universo</span>
                 </button>
               )}
 

@@ -1,58 +1,52 @@
-# Infinite-Horizons
+# Infinite-Horizons 🌌⏳
 
-Infinite-Horizons e um laboratorio visual para experimentar causalidade, viagens temporais e realidades paralelas.
+Infinite-Horizons é um laboratório visual avançado e observatório interativo para experimentar causalidade, viagens temporais, mecânica quântica, relatividade geral e cosmologia observacional da NASA.
 
-O fluxo principal começa pelo tema: descreva algo como `Segunda Guerra Mundial`, e o sistema cria uma linha temporal específica para esse assunto. Depois, cada evento pode ser modificado, apagado ou usado como ponto de uma viagem temporal para observar o efeito borboleta.
+O fluxo principal permite explorar temas históricos e conceituais (como `Segunda Guerra Mundial`, `Paradoxos de Fermi`, `Origem do Universo`), gerando grafos causais com nós dinâmicos. Cada evento pode ser modificado, bifurcado ou inspecionado para analisar o efeito borboleta e o colapso de coerência temporal.
 
-## Rigor científico
+## 🔬 Rigor Científico e Módulos Principais
 
-As explicações exibidas nos eventos distinguem relatividade geral, teoria do caos e teoria das cordas. A relatividade geral é tratada como teoria consolidada; o efeito borboleta é relacionado à sensibilidade a condições iniciais em sistemas caóticos; e a teoria das cordas é apresentada como proposta teórica sem confirmação experimental. Resultados do grafo são consequências das premissas inseridas, não previsões do mundo real.
+1. **Simulador Causal e Linhas Temporais Paralelas**: Grafos dinâmicos em Canvas 2D, cálculo de integridade temporal e detecção em tempo real de paradoxos lógicos (*Grandfather*, *Bootstrap* e *Predestination Paradoxes*).
+2. **NASA Cosmology Observatory ("Nosso Universo")**: Portal com 8 pilares cosmológicos oficiais da NASA (Big Bang, CMB, Expansão com Hubble, Matéria Escura, Energia Escura, Buracos Negros, Estruturas Cósmicas e Destino Final), orrery estelar 3D e scanner espectroscópico de alvos cósmicos.
+3. **Cone de Luz de Minkowski 3D**: Visualizador em Three.js demonstrando relações causais tipo-tempo, tipo-espaço e tipo-luz.
+4. **Simulação Monte Carlo com Web Workers**: Execução estocástica em background para previsão de estabilidade temporal e diretrizes prescritivas.
+5. **Formulação Matemática de Alta Precisão (KaTeX)**: Visualização de equações fundamentais da física relativística, atratores de Lorenz e mecânica quântica.
+6. **Assistente IA e Zero-Token Knowledge Bank**: Base de conhecimento heurística integrada offline e suporte a API temporal serverless.
 
-O projeto combina uma interface de exploracao com um motor de simulacao que propaga alteracoes pela cadeia causal, mede a integridade temporal e detecta paradoxos emergentes.
-
-## Executar localmente
+## 🚀 Executar Localmente
 
 ```bash
+# Dentro do diretório infinite/
 npm install
 npm run dev
 ```
 
-## Publicar na Vercel
+Acesse em `http://localhost:5173`.
 
-O repositorio ja possui `vercel.json` na raiz. Na criacao do projeto Vercel, mantenha a raiz do repositorio como `Root Directory`; o build sera executado dentro de `infinite` e o resultado publicado sera `infinite/dist`.
+## 🌐 Publicar na Vercel
+
+O repositório já possui `vercel.json` na raiz configurado para monorepo com Vite e Serverless Functions:
+- Raiz do repositório como `Root Directory`.
+- Build automático em `infinite` gerando `infinite/dist`.
+- Serverless API `/api/temporal` para integração segura com OpenAI / Azure OpenAI.
 
 Para publicar pela CLI:
-
 ```bash
-npx vercel
 npx vercel --prod
 ```
 
-O endpoint `/api/temporal` protege as credenciais e aceita OpenAI ou Azure OpenAI. Configure `OPENAI_API_KEY` e `OPENAI_MODEL`, ou `AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_API_KEY` e `AZURE_OPENAI_DEPLOYMENT`, em Project Settings > Environment Variables. As chaves nunca devem usar o prefixo `VITE_`.
-
-Para validar a build de producao:
-
+Para validar a build de produção:
 ```bash
 npm run build
 ```
 
-## IA e pesquisa historica
+## 🛠️ Stack Tecnológica
 
-Copie `.env.example` para `.env.local` para configurar um endpoint proprio:
+- **React 19** + **TypeScript**
+- **Vite 8** + **Rolldown** + **Babel React Compiler**
+- **Three.js** (Renderização 3D de cones de luz e astros)
+- **KaTeX** (Fórmulas matemáticas)
+- **Zustand** (Estado global reativo)
+- **Web Workers** (Monte Carlo multithreaded)
+- **Oxlint** & **Vitest**
 
-```env
-VITE_AI_ENDPOINT=https://seu-backend.example/api/temporal
-VITE_AI_PROVIDER=custom_api
-```
-
-O frontend pesquisa fontes publicas como fallback. Chaves de provedores de IA devem permanecer no backend e nunca em variaveis `VITE_`.
-
-As sessoes do simulador sao salvas automaticamente no armazenamento local do navegador e podem ser reiniciadas pelo botao `Resetar`.
-
-## Stack
-
-- React 19
-- TypeScript
-- Vite
-- Canvas API para a visualizacao temporal
-- Oxlint

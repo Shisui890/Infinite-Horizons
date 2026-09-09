@@ -133,10 +133,9 @@ export default function SimulatorHeader({
         <div className="header-btn-group">
           <button
             type="button"
-            className="sim-btn-icon-util"
+            className="sim-btn-lang-toggle"
             onClick={toggleLanguage}
             title="Alternar Idioma (Português / English)"
-            style={{ fontWeight: 700, fontSize: '0.72rem' }}
           >
             {lang.toUpperCase()}
           </button>
@@ -158,7 +157,8 @@ export default function SimulatorHeader({
             onClick={onOpenComparator}
             title={isLaymanMode ? 'Comparar duas versões da história lado a lado' : 'Abrir Comparador de Dimensões em Split-View'}
           >
-            {isLaymanMode ? 'Comparar' : t.splitView}
+            <span className="btn-text-full">{isLaymanMode ? 'Comparar' : t.splitView}</span>
+            <span className="btn-text-compact">Split</span>
           </button>
 
           <button
@@ -176,7 +176,8 @@ export default function SimulatorHeader({
             onClick={onOpenConferenceMode}
             title={isLaymanMode ? 'Abrir Apresentação Fácil de Slides' : 'Abrir Modo Apresentação de Slides Acadêmico'}
           >
-            {isLaymanMode ? 'Slides' : t.presentation}
+            <span className="btn-text-full">{isLaymanMode ? 'Slides' : t.presentation}</span>
+            <span className="btn-text-compact">Slides</span>
           </button>
 
           <button
@@ -185,7 +186,8 @@ export default function SimulatorHeader({
             onClick={onOpenMinkowski3D}
             title={isLaymanMode ? 'Ver em 3D como o tempo e o espaço se conectam' : 'Visualizar Cones de Luz 3D de Minkowski'}
           >
-            {isLaymanMode ? '3D' : t.cones3D}
+            <span className="btn-text-full">{isLaymanMode ? '3D' : t.cones3D}</span>
+            <span className="btn-text-compact">3D</span>
           </button>
 
           <button
@@ -289,7 +291,7 @@ export default function SimulatorHeader({
           {onOpenShortcuts && (
             <button
               type="button"
-              className="sim-btn-icon-util"
+              className="sim-btn-icon-util btn-util-secondary"
               onClick={onOpenShortcuts}
               title="Guia de Atalhos de Teclado (Pressione ?)"
               aria-label="Atalhos de Teclado"
@@ -306,7 +308,7 @@ export default function SimulatorHeader({
           {onStartTour && (
             <button
               type="button"
-              className="sim-btn-icon-util btn-tour-trigger"
+              className="sim-btn-icon-util btn-util-secondary btn-tour-trigger"
               onClick={onStartTour}
               title="Iniciar Tour Guiado Interativo na Tela"
             >
@@ -319,7 +321,7 @@ export default function SimulatorHeader({
           {onOpenGuide && (
             <button
               type="button"
-              className="sim-btn-icon-util"
+              className="sim-btn-icon-util btn-util-secondary"
               onClick={onOpenGuide}
               title="Abrir Manual de Como Funciona o Simulador"
             >
@@ -332,7 +334,7 @@ export default function SimulatorHeader({
 
           <button
             type="button"
-            className="sim-btn-icon-util"
+            className="sim-btn-icon-util btn-util-secondary"
             onClick={onReset}
             title="Resetar Modelo Padrão"
           >

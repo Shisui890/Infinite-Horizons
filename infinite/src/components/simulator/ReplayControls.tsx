@@ -76,14 +76,32 @@ export default function ReplayControls() {
             disabled={replayCurrentIndex <= 0}
             onClick={() => stepReplay(replayCurrentIndex - 1)}
           >
-            ◀ Anterior
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+            Anterior
           </button>
           <button
             type="button"
             className={`btn-replay-play ${isPlaying ? 'active' : ''}`}
             onClick={() => setIsPlaying(!isPlaying)}
           >
-            {isPlaying ? '⏸ PAUSAR' : '▶ CONTINUAR'}
+            {isPlaying ? (
+              <>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <rect x="6" y="4" width="4" height="16" />
+                  <rect x="14" y="4" width="4" height="16" />
+                </svg>
+                PAUSAR
+              </>
+            ) : (
+              <>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <polygon points="5 3 19 12 5 21 5 3" />
+                </svg>
+                CONTINUAR
+              </>
+            )}
           </button>
           <button
             type="button"
@@ -91,7 +109,10 @@ export default function ReplayControls() {
             disabled={replayCurrentIndex >= totalFrames - 1}
             onClick={() => stepReplay(replayCurrentIndex + 1)}
           >
-            Próximo ▶
+            Próximo
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
           </button>
         </div>
       </div>
