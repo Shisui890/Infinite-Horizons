@@ -147,6 +147,53 @@ class CosmicAudioEngineService {
   }
 
   /**
+   * 2.1 Pulso de Nó Quântico com Áudio Espacial Estéreo (Pan: -1.0 a +1.0)
+   */
+  public playSpatialNodeSelect(importance: number = 50, panX: number = 0): void {
+    if (this.muted) return;
+    const ctx = this.initContext();
+    if (!ctx || !this.masterGain) return;
+
+    const baseFreq = 380 + (importance / 100) * 320;
+    const now = ctx.currentTime;
+    const clampedPan = Math.max(-1, Math.min(1, panX));
+
+    let panner: StereoPannerNode | null = null;
+    try {
+      if (typeof ctx.createStereoPanner === 'function') {
+        panner = ctx.createStereoPanner();
+        panner.pan.setValueAtTime(clampedPan, now);
+        panner.connect(this.masterGain);
+      }
+    } catch {
+      // Fallback se StereoPanner não suportado
+    }
+
+    [1, 1.5, 2.02].forEach((ratio, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = idx === 0 ? 'sine' : 'triangle';
+      osc.frequency.setValueAtTime(baseFreq * ratio, now);
+
+      const amp = idx === 0 ? 0.2 : 0.08 / idx;
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(amp, now + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35 + idx * 0.1);
+
+      osc.connect(gain);
+      if (panner) {
+        gain.connect(panner);
+      } else {
+        gain.connect(this.masterGain!);
+      }
+
+      osc.start(now);
+      osc.stop(now + 0.5);
+    });
+  }
+
+  /**
    * 3. Impacto Causal / Alerta de Paradoxo
    * Ressonância sub-grave que denota alteração na curvatura ou paradoxo
    */

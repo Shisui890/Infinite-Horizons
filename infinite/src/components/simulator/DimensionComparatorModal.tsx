@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import type { Universe, Dimension, TemporalEvent } from '../../types/temporal';
 import { LigoAudio } from '../../engine/LigoAudioService';
-import { useLaymanMode } from '../../context/LaymanModeContext';
+import { useLaymanMode } from '../../context/useLaymanMode';
 import { getLaymanExplanation } from '../../utils/laymanContent';
 
 interface Props {

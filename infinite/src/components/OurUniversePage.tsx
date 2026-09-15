@@ -9,7 +9,7 @@ import StellarOrreryCanvas from './universe/StellarOrreryCanvas';
 import TargetScannerPanel from './universe/TargetScannerPanel';
 import AerospaceFlightSimulator from './aerospace/AerospaceFlightSimulator';
 import NasaCosmologyObservatory from './universe/NasaCosmologyObservatory';
-import { useLaymanMode } from '../context/LaymanModeContext';
+import { useLaymanMode } from '../context/useLaymanMode';
 
 interface Props {
   onBack: () => void;

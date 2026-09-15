@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { ParadoxEngine } from '../ParadoxEngine';
 import type { TemporalEvent, Traveler, CausalEdge } from '../../types/temporal';
-import { EventStatus, TravelerStatus, ParadoxType, CausalRelation } from '../../types/temporal';
+import { EventStatus, TravelerStatus, ParadoxType, ParadoxSeverity, CausalRelation } from '../../types/temporal';
 
 describe('ParadoxEngine (Inconsistências Temporais & Novikov)', () => {
   it('detects Grandfather paradox when origin event is erased or collapsed', () => {
@@ -112,5 +112,24 @@ describe('ParadoxEngine (Inconsistências Temporais & Novikov)', () => {
     const paradoxes = ParadoxEngine.detectParadoxes([], travelers, []);
     expect(paradoxes.length).toBe(1);
     expect(paradoxes[0].type).toBe(ParadoxType.TEMPORAL_CONTRADICTION);
+  });
+
+  it('provides scientific resolution strategies for paradoxes (Novikov, Everett, Decoherence)', () => {
+    const mockParadox = {
+      id: 'pdx-test',
+      type: ParadoxType.GRANDFATHER_PARADOX,
+      severity: ParadoxSeverity.CRITICAL,
+      title: 'Teste de Paradoxo',
+      description: 'Desc',
+      dimensionId: 'dim-1',
+      causalChain: ['evt-1', 'evt-2'],
+    };
+
+    const resolutions = ParadoxEngine.getParadoxResolutions(mockParadox);
+    expect(resolutions.length).toBe(3);
+    expect(resolutions.map(r => r.strategy)).toContain('novikov_self_consistency');
+    expect(resolutions.map(r => r.strategy)).toContain('everett_multiverse_branching');
+    expect(resolutions.map(r => r.strategy)).toContain('quantum_decoherence_prune');
+    expect(resolutions[0].actionLabel).toBeTruthy();
   });
 });

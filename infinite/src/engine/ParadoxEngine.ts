@@ -96,5 +96,48 @@ export class ParadoxEngine {
 
     return paradoxes;
   }
+
+  /**
+   * Fornece soluções físicas e prescrições topológicas para mitigar ou resolver o paradoxo.
+   */
+  public static getParadoxResolutions(paradox: Paradox): {
+    strategy: 'novikov_self_consistency' | 'everett_multiverse_branching' | 'quantum_decoherence_prune';
+    name: string;
+    scientificBasis: string;
+    description: string;
+    actionLabel: string;
+  }[] {
+    const isGrandfather = paradox.type === ParadoxType.GRANDFATHER_PARADOX;
+    const isBootstrap = paradox.type === ParadoxType.BOOTSTRAP_PARADOX;
+
+    return [
+      {
+        strategy: 'novikov_self_consistency',
+        name: 'Princípio de Autoconsistência de Novikov',
+        scientificBasis: 'Física Clássica em Variedades com Curvas Tipo-Tempo Fechadas (Igor Novikov, 1990)',
+        description: isGrandfather
+          ? `Impõe probabilidade global nula para a inconsistência de ${paradox.title}. Ajusta a geodésica para que a intervenção passada garanta a causa original.`
+          : 'A probabilidade global de qualquer trajetória contraditória em curvas tipo-tempo fechadas é zero, forçando topologia causal consistente.',
+        actionLabel: 'Impor Geodésica Autoconsistente',
+      },
+      {
+        strategy: 'everett_multiverse_branching',
+        name: 'Bifurcação de Muitos Mundos de Everett',
+        scientificBasis: 'Interpretação de Muitos Mundos da Mecânica Quântica (Hugh Everett III, 1957)',
+        description: isBootstrap
+          ? 'Desacopla o loop ontológico ramificando o manuscrito/informação para uma dimensão paralela ortogonal sem ancestral cíclico.'
+          : 'A perturbação temporal ramifica a função de onda universal em um novo ramo ortogonal, eliminando a contradição local.',
+        actionLabel: 'Ramificar em Nova Linha Temporal Paralela',
+      },
+      {
+        strategy: 'quantum_decoherence_prune',
+        name: 'Colapso por Decoerência Quântica (Zurek)',
+        scientificBasis: 'Teoria da Decoerência e Seleção de Estados Estáveis (Wojciech Zurek, 1981)',
+        description:
+          'A interferência entre ramos incompatíveis decai exponencialmente para o ambiente. O nó paradoxal instável sofre decoerência e é podado do grafo ativo para restaurar a integridade.',
+        actionLabel: 'Executar Poda por Decoerência',
+      },
+    ];
+  }
 }
 

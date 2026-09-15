@@ -13,9 +13,23 @@ import { SimulationService } from '../engine/SimulationService';
 import { GraphEngine } from '../engine/GraphEngine';
 import { ParadoxEngine } from '../engine/ParadoxEngine';
 import { IntegrityEngine } from '../engine/IntegrityEngine';
+import type { Language } from '../utils/i18n';
+import { getStoredLanguage, setStoredLanguage } from '../utils/i18n';
 
 const SIMULATION_STORAGE_KEY = 'infinite-horizons:simulation';
 const THEME_STORAGE_KEY = 'infinite-horizons:theme';
+
+let saveTimer: ReturnType<typeof setTimeout> | null = null;
+function scheduleSaveSimulation(state: { universe: Universe; logs: SimulationLog[] }) {
+  if (saveTimer) clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    try {
+      localStorage.setItem(SIMULATION_STORAGE_KEY, JSON.stringify(state));
+    } catch {
+      // Ignore quota error
+    }
+  }, 350);
+}
 
 function loadInitialState(): { universe: Universe; logs: SimulationLog[] } {
   try {
@@ -74,6 +88,7 @@ export interface SimulationStore {
   replayFrames: ReplayFrame[];
   replayCurrentIndex: number;
   theme: 'cyberpunk' | 'academic' | 'high-contrast';
+  language: Language;
 
   // Actions
   setUniverseState: (
@@ -99,8 +114,9 @@ export interface SimulationStore {
   setShowTimeTravel: (show: boolean) => void;
   setShowAddDimension: (show: boolean) => void;
 
-  // Theme
+  // Theme & Language
   setTheme: (theme: 'cyberpunk' | 'academic' | 'high-contrast') => void;
+  setLanguage: (lang: Language) => void;
 
   // Undo / Redo
   undo: () => void;
@@ -160,17 +176,14 @@ export const useSimulationStore = create<SimulationStore>((set, get) => {
     replayFrames: [],
     replayCurrentIndex: 0,
     theme: initialTheme,
+    language: getStoredLanguage(),
 
     setUniverseState: stateOrUpdater => {
       set(current => {
         const next =
           typeof stateOrUpdater === 'function' ? stateOrUpdater(current.universeState) : stateOrUpdater;
         
-        try {
-          localStorage.setItem(SIMULATION_STORAGE_KEY, JSON.stringify(next));
-        } catch {
-          // Storage quota handling
-        }
+        scheduleSaveSimulation(next);
 
         return {
           history: [...current.history.slice(-29), current.universeState],
@@ -205,6 +218,11 @@ export const useSimulationStore = create<SimulationStore>((set, get) => {
       }
       document.body.dataset.theme = theme;
       set({ theme });
+    },
+
+    setLanguage: lang => {
+      setStoredLanguage(lang);
+      set({ language: lang });
     },
 
     undo: () => {

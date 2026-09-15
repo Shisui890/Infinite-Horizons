@@ -171,7 +171,7 @@ export const AI_KNOWLEDGE_BANK: KnowledgeEntry[] = [
     didacticAnswer:
       'Exoplanetas são mundos que orbitam outras estrelas além do nosso Sol. A NASA já confirmou mais de 5.700 exoplanetas, incluindo gigantes gasosos incandescentes, mundos cobertos de oceanos e planetas rochosos de tamanho similar à Terra localizados na Zona Habitável, onde pode haver água líquida.',
     technicalAnswer:
-      'Detecção primária por Fotometria de Trânsito ($\Delta F/F = R_p^2/R_*^2$), Velocidade Radial espectroscópica e Microlenteamento Gravitacional. A missão Kepler e o satélite TESS demonstraram que a ocorrência de planetas terrestres em zonas de habitabilidade circunstelar $(\\eta_\\oplus)$ varia de 0,1 a 0,3 ao redor de estrelas do tipo solar e anãs M.',
+      'Detecção primária por Fotometria de Trânsito ($\\Delta F/F = R_p^2/R_*^2$), Velocidade Radial espectroscópica e Microlenteamento Gravitacional. A missão Kepler e o satélite TESS demonstraram que a ocorrência de planetas terrestres em zonas de habitabilidade circunstelar $(\\eta_\\oplus)$ varia de 0,1 a 0,3 ao redor de estrelas do tipo solar e anãs M.',
     formula: '\\frac{\\Delta F}{F} \\approx \\left(\\frac{R_p}{R_*}\\right)^2, \\quad T_{eq} = T_* \\left(\\frac{R_*}{2a}\\right)^{1/2} (1 - A_B)^{1/4}',
     formulaLabel: 'Trânsito Fotométrico e Temperatura de Equilíbrio Planetária',
     sources: ['NASA Exoplanet Archive (science.nasa.gov)', 'Borucki et al., Science (2010)'],

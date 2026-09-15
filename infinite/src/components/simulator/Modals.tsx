@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Dimension, Traveler, TemporalEvent } from '../../types/temporal';
 import type { HistoricalResearch } from '../../types/temporal';
-import { useLaymanMode } from '../../context/LaymanModeContext';
+import { useLaymanMode } from '../../context/useLaymanMode';
 
 interface AddEventModalProps {
   dimensions: Dimension[];

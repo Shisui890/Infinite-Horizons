@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { useLaymanMode } from '../../context/LaymanModeContext';
+import { useLaymanMode } from '../../context/useLaymanMode';
 import { getLaymanExplanation } from '../../utils/laymanContent';
 import type { Universe, TemporalEvent } from '../../types/temporal';
 import MathFormula from '../MathFormula';

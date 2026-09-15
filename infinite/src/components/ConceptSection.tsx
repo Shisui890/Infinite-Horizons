@@ -1,4 +1,4 @@
-import { useLaymanMode } from '../context/LaymanModeContext';
+import { useLaymanMode } from '../context/useLaymanMode';
 
 export default function ConceptSection() {
   const { isLaymanMode } = useLaymanMode();

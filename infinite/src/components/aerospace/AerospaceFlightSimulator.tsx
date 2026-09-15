@@ -74,9 +74,9 @@ export default function AerospaceFlightSimulator({ isLaymanMode = false }: Props
   };
 
   // Trigger stage jettison (SPACEBAR / Staging button)
-  const handleStageTrigger = () => {
+  const handleStageTrigger = useCallback(() => {
     setFlightState(prev => AerospacePhysicsEngine.triggerStageJettison(prev, selectedRocket));
-  };
+  }, [selectedRocket]);
 
   // Keyboard controls listener (Space = stage, Z = full throttle, X = cut-off)
   useEffect(() => {
@@ -96,7 +96,7 @@ export default function AerospaceFlightSimulator({ isLaymanMode = false }: Props
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedRocket]);
+  }, [handleStageTrigger]);
 
   // Main Simulation Loop
   useEffect(() => {
@@ -112,26 +112,23 @@ export default function AerospaceFlightSimulator({ isLaymanMode = false }: Props
           autoGravityTurn
         );
 
+        // Amostrar pontos de trajetória para o canvas diretamente no passo
+        const curAltKm = updated.altitudeMeters / 1000;
+        const curDownrangeKm = updated.downrangeMeters / 1000;
+        setTrajectoryHistory(hist => {
+          const last = hist[hist.length - 1];
+          if (!last || Math.abs(curDownrangeKm - last.downrangeKm) > 5 || Math.abs(curAltKm - last.altKm) > 5) {
+            return [...hist.slice(-300), { altKm: curAltKm, downrangeKm: curDownrangeKm }];
+          }
+          return hist;
+        });
+
         return updated;
       });
     }, 50);
 
     return () => clearInterval(interval);
   }, [isRunning, timeWarp, throttleInput, autoGravityTurn, manualPitch, selectedRocket]);
-
-  // Sample trajectory points for canvas
-  useEffect(() => {
-    if (!isRunning) return;
-    setTrajectoryHistory(prev => {
-      const last = prev[prev.length - 1];
-      const curAltKm = flightState.altitudeMeters / 1000;
-      const curDownrangeKm = flightState.downrangeMeters / 1000;
-      if (!last || Math.abs(curDownrangeKm - last.downrangeKm) > 5 || Math.abs(curAltKm - last.altKm) > 5) {
-        return [...prev.slice(-300), { altKm: curAltKm, downrangeKm: curDownrangeKm }];
-      }
-      return prev;
-    });
-  }, [isRunning, flightState.altitudeMeters, flightState.downrangeMeters]);
 
   // Render Orbital Trajectory Map
   useEffect(() => {

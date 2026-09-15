@@ -1,4 +1,4 @@
-import { useLaymanMode } from '../context/LaymanModeContext';
+import { useLaymanMode } from '../context/useLaymanMode';
 import { MathText } from './MathFormula';
 
 export default function FeaturesSection() {

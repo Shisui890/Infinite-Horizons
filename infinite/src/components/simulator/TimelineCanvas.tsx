@@ -1,10 +1,12 @@
-import { useRef, useEffect, useState, useCallback } from 'react';
+import { useRef, useEffect, useState, useCallback, useMemo } from 'react';
 import type { TemporalEvent, CausalEdge } from '../../types/temporal';
 import { EventStatus } from '../../types/temporal';
 import { LigoAudio } from '../../engine/LigoAudioService';
 import { CosmicAudio } from '../../engine/CosmicAudioEngine';
-import { useLaymanMode } from '../../context/LaymanModeContext';
+import { useLaymanMode } from '../../context/useLaymanMode';
 import { getLaymanExplanation } from '../../utils/laymanContent';
+import { useSimulationStore } from '../../store/useSimulationStore';
+import { DICTIONARY, getLocalizedEventTitle } from '../../utils/i18n';
 
 interface Props {
   events: TemporalEvent[];
@@ -41,12 +43,19 @@ function splitTitle(title: string): [string, string] {
   const words = clean.split(' ');
   let line1 = '';
   let line2 = '';
+  let onLine2 = false;
 
   for (const word of words) {
-    if ((line1 + ' ' + word).trim().length <= 20) {
-      line1 = (line1 + ' ' + word).trim();
+    if (!onLine2) {
+      const candidate = line1 ? line1 + ' ' + word : word;
+      if (candidate.length <= 22) {
+        line1 = candidate;
+      } else {
+        onLine2 = true;
+        line2 = word;
+      }
     } else {
-      line2 = (line2 + ' ' + word).trim();
+      line2 = line2 ? line2 + ' ' + word : word;
     }
   }
 
@@ -63,6 +72,8 @@ export default function TimelineCanvas({
   onSelectEvent,
 }: Props) {
   const { isLaymanMode } = useLaymanMode();
+  const { language } = useSimulationStore();
+  const t = DICTIONARY[language];
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animRef = useRef(0);
@@ -81,10 +92,24 @@ export default function TimelineCanvas({
   const draggedNodeIdRef = useRef<string | null>(null);
   const nodeDragStartPosRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
 
-  const sortedEvents = [...events].sort((a, b) => a.year - b.year);
+  const sortedEvents = useMemo(() => [...events].sort((a, b) => a.year - b.year), [events]);
   const nodePositionsRef = useRef<Map<string, { x: number; y: number; labelY: number; labelAbove: boolean }>>(
     new Map()
   );
+
+  // Layout positions cache to eliminate object allocations at 60 FPS
+  const layoutCacheRef = useRef<{
+    w: number;
+    h: number;
+    zoom: number;
+    panX: number;
+    panY: number;
+    offsets: Record<string, { dx: number; dy: number }>;
+    eventsLen: number;
+    firstId: string;
+    lastId: string;
+    positions: Map<string, { x: number; y: number; labelY: number; labelAbove: boolean }>;
+  } | null>(null);
 
   // Gravitational Wave Ripples on Spacetime Grid
   const ripplesRef = useRef<GravitationalRipple[]>([]);
@@ -111,10 +136,26 @@ export default function TimelineCanvas({
   }, [selectedEventId, emitRippleAt]);
 
   const calculateLayout = useCallback((w: number, h: number) => {
-    const positions = new Map<string, { x: number; y: number; labelY: number; labelAbove: boolean }>();
     const n = sortedEvents.length;
-    if (n === 0) return positions;
+    if (n === 0) return new Map();
 
+    const cache = layoutCacheRef.current;
+    if (
+      cache &&
+      cache.w === w &&
+      cache.h === h &&
+      cache.zoom === zoom &&
+      cache.panX === pan.x &&
+      cache.panY === pan.y &&
+      cache.offsets === nodeCustomOffsets &&
+      cache.eventsLen === n &&
+      cache.firstId === sortedEvents[0]?.id &&
+      cache.lastId === sortedEvents[n - 1]?.id
+    ) {
+      return cache.positions;
+    }
+
+    const positions = new Map<string, { x: number; y: number; labelY: number; labelAbove: boolean }>();
     const paddingX = 110;
     const availableW = (w - paddingX * 2) * zoom;
 
@@ -159,6 +200,19 @@ export default function TimelineCanvas({
       const labelY = labelAbove ? y - 56 : y + 26;
       positions.set(ev.id, { x, y, labelY, labelAbove });
     });
+
+    layoutCacheRef.current = {
+      w,
+      h,
+      zoom,
+      panX: pan.x,
+      panY: pan.y,
+      offsets: nodeCustomOffsets,
+      eventsLen: n,
+      firstId: sortedEvents[0]?.id || '',
+      lastId: sortedEvents[n - 1]?.id || '',
+      positions,
+    };
 
     return positions;
   }, [sortedEvents, zoom, pan, nodeCustomOffsets]);
@@ -254,7 +308,7 @@ export default function TimelineCanvas({
 
         ctx!.font = '600 8px Orbitron, sans-serif';
         ctx!.fillStyle = 'rgba(0, 212, 255, 0.75)';
-        ctx!.fillText('CONE DE LUZ', lastPos.x + 45, 18);
+        ctx!.fillText(t.lightCone, lastPos.x + 45, 18);
       }
 
       // 3. Draw Causal Edges
@@ -361,9 +415,10 @@ export default function TimelineCanvas({
         ctx!.fill();
 
         // High-Legibility Card
+        const localizedTitle = getLocalizedEventTitle(event, language);
         const titleToDisplay = isLaymanMode
-          ? getLaymanExplanation(event.year, event.title).simpleTitle
-          : event.title;
+          ? getLaymanExplanation(event.year, localizedTitle).simpleTitle
+          : localizedTitle;
         const [line1, line2] = splitTitle(titleToDisplay);
 
         ctx!.font = '600 11px Inter, sans-serif';
@@ -425,16 +480,30 @@ export default function TimelineCanvas({
         ctx!.globalAlpha = 1;
       }
 
-      animRef.current = requestAnimationFrame(draw);
+      if (!document.hidden) {
+        animRef.current = requestAnimationFrame(draw);
+      }
     }
 
     draw();
 
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        cancelAnimationFrame(animRef.current);
+        animRef.current = requestAnimationFrame(draw);
+      } else {
+        cancelAnimationFrame(animRef.current);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
     return () => {
       cancelAnimationFrame(animRef.current);
       window.removeEventListener('resize', resize);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [events, edges, selectedEventId, highlightChain, visibleUntilYear, sortedEvents, zoom, pan, showHeatmap, calculateLayout, isLaymanMode]);
+  }, [events, edges, selectedEventId, highlightChain, visibleUntilYear, sortedEvents, zoom, pan, showHeatmap, calculateLayout, isLaymanMode, language, t]);
 
   function findNodeAt(clientX: number, clientY: number): string | null {
     const canvas = canvasRef.current;
@@ -599,7 +668,8 @@ export default function TimelineCanvas({
           if (dist <= 26) {
             onSelectEvent(id);
             const ev = sortedEvents.find(e => e.id === id);
-            CosmicAudio.playNodeSelect(ev ? ev.importance : 70);
+            const panX = rect.width > 0 ? (pos.x - rect.width / 2) / (rect.width / 2) : 0;
+            CosmicAudio.playSpatialNodeSelect(ev ? ev.importance : 70, panX);
             emitRippleAt(pos.x, pos.y, ev?.status === EventStatus.PARADOXICAL ? '#ef4444' : '#00d4ff');
             LigoAudio.playSubtleTick();
             break;
@@ -623,7 +693,8 @@ export default function TimelineCanvas({
       if (dist <= 26) {
         onSelectEvent(id);
         const ev = sortedEvents.find(e => e.id === id);
-        CosmicAudio.playNodeSelect(ev ? ev.importance : 70);
+        const panX = rect.width > 0 ? (pos.x - rect.width / 2) / (rect.width / 2) : 0;
+        CosmicAudio.playSpatialNodeSelect(ev ? ev.importance : 70, panX);
         emitRippleAt(pos.x, pos.y, ev?.status === EventStatus.PARADOXICAL ? '#ef4444' : '#00d4ff');
         LigoAudio.playSubtleTick();
         break;
@@ -650,27 +721,27 @@ export default function TimelineCanvas({
               if (count >= 5) break;
             }
           }}
-          title={isLaymanMode ? 'Disparar ondas de choque pelo espaço-tempo' : 'Emitir Perturbação de Ondas Gravitacionais na Métrica'}
+          title={isLaymanMode ? (language === 'en' ? 'Trigger shockwaves across spacetime' : 'Disparar ondas de choque pelo espaço-tempo') : (language === 'en' ? 'Emit Gravitational Wave Perturbation in Metric' : 'Emitir Perturbação de Ondas Gravitacionais na Métrica')}
         >
-          {isLaymanMode ? 'Ondas no Espaço' : 'Ondas Gravitacionais'}
+          {isLaymanMode ? t.laymanGravitationalWaves : t.gravitationalWaves}
         </button>
 
         <button
           type="button"
           className={`btn-canvas-hud ${showHeatmap ? 'active-heat' : ''}`}
           onClick={() => setShowHeatmap(!showHeatmap)}
-          title={isLaymanMode ? 'Destacar acontecimentos com maior impacto' : 'Alternar Mapa de Gravidade & Calor Causal'}
+          title={isLaymanMode ? (language === 'en' ? 'Highlight events with highest causal impact' : 'Destacar acontecimentos com maior impacto') : (language === 'en' ? 'Toggle Metric Gravity & Causal Heatmap' : 'Alternar Mapa de Gravidade & Calor Causal')}
         >
           {showHeatmap
-            ? (isLaymanMode ? 'Destaque Ativo' : 'Calor Ativo')
-            : (isLaymanMode ? 'Destacar Impacto' : 'Gravidade Causal')}
+            ? (isLaymanMode ? t.laymanHeatActive : t.heatActive)
+            : (isLaymanMode ? t.laymanCausalGravity : t.causalGravity)}
         </button>
 
         <button
           type="button"
           className="btn-canvas-hud"
           onClick={() => setZoom(prev => Math.min(prev * 1.2, 2.5))}
-          title="Aproximar Zoom (+)"
+          title={language === 'en' ? 'Zoom In (+)' : 'Aproximar Zoom (+)'}
         >
           +
         </button>
@@ -678,7 +749,7 @@ export default function TimelineCanvas({
           type="button"
           className="btn-canvas-hud"
           onClick={() => setZoom(prev => Math.max(prev * 0.8, 0.6))}
-          title="Afastar Zoom (-)"
+          title={language === 'en' ? 'Zoom Out (-)' : 'Afastar Zoom (-)'}
         >
           -
         </button>
@@ -690,9 +761,9 @@ export default function TimelineCanvas({
             setPan({ x: 0, y: 0 });
             setNodeCustomOffsets({});
           }}
-          title={isLaymanMode ? 'Centralizar visualização da linha do tempo' : 'Redefinir Visão & Posições'}
+          title={isLaymanMode ? (language === 'en' ? 'Center timeline view' : 'Centralizar visualização da linha do tempo') : (language === 'en' ? 'Reset View & Positions' : 'Redefinir Visão & Posições')}
         >
-          {isLaymanMode ? 'Centralizar' : '⟲ Reset'}
+          {isLaymanMode ? t.laymanResetView : t.resetView}
         </button>
       </div>
 

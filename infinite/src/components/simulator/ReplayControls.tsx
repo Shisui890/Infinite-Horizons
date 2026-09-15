@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSimulationStore } from '../../store/useSimulationStore';
+import { DICTIONARY } from '../../utils/i18n';
 
 export default function ReplayControls() {
-  const { isReplayActive, replayFrames, replayCurrentIndex, stepReplay, stopReplay } = useSimulationStore();
+  const { isReplayActive, replayFrames, replayCurrentIndex, stepReplay, stopReplay, language } = useSimulationStore();
+  const t = DICTIONARY[language];
   const [isPlaying, setIsPlaying] = useState(true);
   const timerRef = useRef<number | null>(null);
 
@@ -36,12 +38,12 @@ export default function ReplayControls() {
         <div className="replay-hud-header">
           <div className="replay-badge-tag">
             <span className="replay-pulse" />
-            <span>REPLAY CAUSAL EM ANDAMENTO</span>
+            <span>{t.replayInProgress}</span>
           </div>
           <div className="replay-step-counter">
-            PASSO <strong>{replayCurrentIndex + 1}</strong> / {totalFrames}
+            {t.replayStep} <strong>{replayCurrentIndex + 1}</strong> / {totalFrames}
           </div>
-          <button type="button" className="btn-close-replay" onClick={stopReplay} title="Encerrar Replay">
+          <button type="button" className="btn-close-replay" onClick={stopReplay} title={language === 'en' ? 'Close Replay' : 'Encerrar Replay'}>
             ✕
           </button>
         </div>
@@ -50,7 +52,7 @@ export default function ReplayControls() {
           <p className="replay-description">{currentFrame.description}</p>
 
           <div className="replay-integrity-bar-wrap">
-            <span className="replay-bar-label">Integridade no Passo:</span>
+            <span className="replay-bar-label">{t.replayIntegrityStep}</span>
             <div className="replay-bar-track">
               <div
                 className="replay-bar-fill"
@@ -79,7 +81,7 @@ export default function ReplayControls() {
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <polyline points="15 18 9 12 15 6" />
             </svg>
-            Anterior
+            {t.replayPrevious}
           </button>
           <button
             type="button"
@@ -92,14 +94,14 @@ export default function ReplayControls() {
                   <rect x="6" y="4" width="4" height="16" />
                   <rect x="14" y="4" width="4" height="16" />
                 </svg>
-                PAUSAR
+                {t.pause}
               </>
             ) : (
               <>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                   <polygon points="5 3 19 12 5 21 5 3" />
                 </svg>
-                CONTINUAR
+                {t.replayResume}
               </>
             )}
           </button>
@@ -109,7 +111,7 @@ export default function ReplayControls() {
             disabled={replayCurrentIndex >= totalFrames - 1}
             onClick={() => stepReplay(replayCurrentIndex + 1)}
           >
-            Próximo
+            {t.replayNext}
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <polyline points="9 18 15 12 9 6" />
             </svg>
@@ -119,3 +121,4 @@ export default function ReplayControls() {
     </div>
   );
 }
+

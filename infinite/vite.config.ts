@@ -23,6 +23,12 @@ export default defineConfig({
           if (id.includes('node_modules/react') || id.includes('node_modules/react-dom') || id.includes('node_modules/scheduler')) {
             return 'vendor-react';
           }
+          if (id.includes('celestialBodyDetails') || id.includes('celestialRealMedia') || id.includes('celestialBodies')) {
+            return 'celestial-data';
+          }
+          if (id.includes('nasaCosmologyData') || id.includes('nasaUniversePillarsData') || id.includes('aiKnowledgeBank')) {
+            return 'science-data';
+          }
         },
       },
     },

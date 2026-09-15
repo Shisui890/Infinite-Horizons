@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { useLaymanMode } from '../context/LaymanModeContext';
+import { useLaymanMode } from '../context/useLaymanMode';
 
 interface Props {
   onStartSimulator?: () => void;

@@ -1,7 +1,7 @@
 import { useState, useTransition, useId, useMemo } from 'react';
 import type { Universe, MonteCarloResult } from '../../types/temporal';
 import { MonteCarloService } from '../../engine/MonteCarloService';
-import { useLaymanMode } from '../../context/LaymanModeContext';
+import { useLaymanMode } from '../../context/useLaymanMode';
 import MathFormula from '../MathFormula';
 
 interface Props {

@@ -33,12 +33,15 @@ export default function CelestialRenderer3D({ body, isLaymanMode = false }: Prop
   const [showAtmosphere, setShowAtmosphere] = useState<boolean>(true);
 
   // Reset or adjust params when body changes
-  useEffect(() => {
+  const [prevBodyId, setPrevBodyId] = useState(body.id);
+  if (prevBodyId !== body.id) {
+    setPrevBodyId(body.id);
     if (body.id === 'm87') setSpinA(0.94);
     else if (body.id === 'ton618') setSpinA(0.99);
     else if (body.id === 'cygnus_x1' || body.id === 'cygnus-x1') setSpinA(0.97);
     else if (body.id === 'sgra') setSpinA(0.90);
-  }, [body.id]);
+    else setSpinA(0.9);
+  }
 
   useEffect(() => {
     const canvas = canvasRef.current;

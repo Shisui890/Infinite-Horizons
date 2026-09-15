@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useLaymanMode } from '../context/LaymanModeContext';
+import { useLaymanMode } from '../context/useLaymanMode';
 import MathFormula from './MathFormula';
 
 interface Props {

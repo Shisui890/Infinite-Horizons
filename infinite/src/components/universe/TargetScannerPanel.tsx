@@ -18,7 +18,7 @@ import { getBodyDetails } from '../../data/celestialBodyDetails';
 import CelestialRenderer3D from './CelestialRenderer3D';
 import RealPhotographicViewer from './RealPhotographicViewer';
 import MathFormula, { MathText } from '../MathFormula';
-import { useLaymanMode } from '../../context/LaymanModeContext';
+import { useLaymanMode } from '../../context/useLaymanMode';
 import { CosmicAudio } from '../../engine/CosmicAudioEngine';
 
 interface Props {

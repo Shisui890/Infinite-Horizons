@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { useLaymanMode } from '../../context/LaymanModeContext';
+import { useLaymanMode } from '../../context/useLaymanMode';
 import { Universe } from '../../types/temporal';
-import { getStoredLanguage, setStoredLanguage, DICTIONARY } from '../../utils/i18n';
+import { DICTIONARY, getLocalizedUniverseName } from '../../utils/i18n';
 import type { Language } from '../../utils/i18n';
+import { useSimulationStore } from '../../store/useSimulationStore';
 import { URLCompression } from '../../utils/urlCompression';
 import { CosmicAudio } from '../../engine/CosmicAudioEngine';
 
@@ -50,7 +51,7 @@ export default function SimulatorHeader({
   onExport,
 }: Props) {
   const { isLaymanMode, toggleLaymanMode } = useLaymanMode();
-  const [lang, setLang] = useState<Language>(getStoredLanguage());
+  const { language: lang, setLanguage } = useSimulationStore();
   const [copiedToast, setCopiedToast] = useState(false);
   const [isAudioMuted, setIsAudioMuted] = useState(CosmicAudio.isMuted());
   const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -70,8 +71,7 @@ export default function SimulatorHeader({
 
   function toggleLanguage() {
     const nextLang: Language = lang === 'pt' ? 'en' : 'pt';
-    setLang(nextLang);
-    setStoredLanguage(nextLang);
+    setLanguage(nextLang);
   }
 
   function handleShare() {
@@ -81,6 +81,8 @@ export default function SimulatorHeader({
     setCopiedToast(true);
     setTimeout(() => setCopiedToast(false), 3000);
   }
+
+  const localizedUniverseName = getLocalizedUniverseName(universe, lang);
 
   return (
     <header className="sim-header">
@@ -93,7 +95,7 @@ export default function SimulatorHeader({
           <img src="/logo-emblem.png" alt="Infinite Horizons Logo" className="sim-header-emblem-logo" />
         </div>
         <div className="sim-title-group">
-          <h1 className="sim-universe-title" title={universe.name}>{universe.name}</h1>
+          <h1 className="sim-universe-title" title={localizedUniverseName}>{localizedUniverseName}</h1>
           <span className="sim-universe-tag">
             {isLaymanMode ? t.laymanTagline : t.tagline}
           </span>

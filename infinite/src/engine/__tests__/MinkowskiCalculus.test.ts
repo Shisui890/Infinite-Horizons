@@ -103,5 +103,23 @@ describe('MinkowskiCalculus (Relatividade Especial & Teoria do Caos)', () => {
     expect(resZero.classicalFringeShift).toBe(0);
     expect(resZero.lorentzContractionFactor).toBe(1);
   });
+
+  it('calculates relativistic kinematics (Lorentz factor, time dilation and length contraction) accurately', () => {
+    // At v = 0.6c, gamma = 1 / sqrt(1 - 0.36) = 1 / 0.8 = 1.25
+    const k06 = MinkowskiCalculus.calculateRelativisticKinematics(0.6, 10.0, 100.0, 1000.0);
+    expect(k06.beta).toBe(0.6);
+    expect(k06.gamma).toBe(1.25);
+    expect(k06.dilatedTimeYears).toBe(12.5);
+    expect(k06.contractedLengthM).toBe(80.0);
+    expect(k06.lengthContractionPercent).toBe(20.0);
+    expect(k06.totalEnergyJoules).toBeGreaterThan(0);
+    expect(k06.kineticEnergyJoules).toBeCloseTo(0.25 * 1000.0 * Math.pow(299792458, 2), -5);
+
+    // At v = 0.8c, gamma = 1 / sqrt(1 - 0.64) = 1 / 0.6 ≈ 1.6667
+    const k08 = MinkowskiCalculus.calculateRelativisticKinematics(0.8, 1.0, 100.0);
+    expect(k08.gamma).toBeCloseTo(1.6667, 3);
+    expect(k08.dilatedTimeYears).toBeCloseTo(1.6667, 3);
+    expect(k08.contractedLengthM).toBeCloseTo(60.0, 1);
+  });
 });
 

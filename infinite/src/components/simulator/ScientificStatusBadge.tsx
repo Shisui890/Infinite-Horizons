@@ -1,5 +1,7 @@
 import type { ScientificStatus } from '../../types/temporal';
-import { useLaymanMode } from '../../context/LaymanModeContext';
+import { useLaymanMode } from '../../context/useLaymanMode';
+import { useSimulationStore } from '../../store/useSimulationStore';
+import { DICTIONARY } from '../../utils/i18n';
 
 interface Props {
   status?: ScientificStatus;
@@ -17,6 +19,9 @@ export default function ScientificStatusBadge({
   academicCitation,
 }: Props) {
   const { isLaymanMode } = useLaymanMode();
+  const { language } = useSimulationStore();
+  const t = DICTIONARY[language];
+
   const isProven = status === 'proven' || evidenceKind === 'documented_fact';
   const isTheoretical = status === 'theoretical_untested' || evidenceKind === 'scientific_theory';
 
@@ -25,23 +30,23 @@ export default function ScientificStatusBadge({
         color: '#10b981',
         bg: 'rgba(16, 185, 129, 0.12)',
         border: 'rgba(16, 185, 129, 0.35)',
-        title: isLaymanMode ? 'COMPROVADO PELA CIÊNCIA' : 'COMPROVADO EXPERIMENTALMENTE',
-        subtitle: isLaymanMode ? 'Descoberta testada e comprovada no mundo real' : 'Física / Astronomia Observacional Confirmada',
+        title: isLaymanMode ? t.laymanProvenTitle : t.provenTitle,
+        subtitle: isLaymanMode ? t.laymanProvenSubtitle : t.provenSubtitle,
       }
     : isTheoretical
     ? {
         color: '#f59e0b',
         bg: 'rgba(245, 158, 11, 0.12)',
         border: 'rgba(245, 158, 11, 0.35)',
-        title: isLaymanMode ? 'TEORIA MATEMÁTICA REAL' : 'TEORIA REAL (FÍSICA TEÓRICA)',
-        subtitle: isLaymanMode ? 'Cálculo real de físicos famosos aguardando testes' : 'Modelo Matemático Formal (Sem Prova Empírica)',
+        title: isLaymanMode ? t.laymanTheoreticalTitle : t.theoreticalTitle,
+        subtitle: isLaymanMode ? t.laymanTheoreticalSubtitle : t.theoreticalSubtitle,
       }
     : {
         color: '#38bdf8',
         bg: 'rgba(56, 189, 248, 0.12)',
         border: 'rgba(56, 189, 248, 0.35)',
-        title: isLaymanMode ? 'SIMULAÇÃO DO COMPUTADOR' : 'MÉTODO NUMÉRICO / GRAFOS',
-        subtitle: isLaymanMode ? 'Calculado matematicamente pelo simulador' : 'Cálculo Computacional & Algorítmico',
+        title: isLaymanMode ? t.laymanNumericalTitle : t.numericalTitle,
+        subtitle: isLaymanMode ? t.laymanNumericalSubtitle : t.numericalSubtitle,
       };
 
   const finalUrl = sourceUrl || (doi ? `https://doi.org/${doi}` : null);
@@ -75,7 +80,7 @@ export default function ScientificStatusBadge({
           target="_blank"
           rel="noopener noreferrer"
           className="pill-source-link"
-          title={`Fonte: ${academicCitation || finalUrl}`}
+          title={`${language === 'en' ? 'Source' : 'Fonte'}: ${academicCitation || finalUrl}`}
         >
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
             <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
@@ -87,3 +92,4 @@ export default function ScientificStatusBadge({
     </div>
   );
 }
+

@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { useSimulationStore } from '../../store/useSimulationStore';
-import { useLaymanMode } from '../../context/LaymanModeContext';
+import { useLaymanMode } from '../../context/useLaymanMode';
 import { CosmicAudio } from '../../engine/CosmicAudioEngine';
+import { DICTIONARY } from '../../utils/i18n';
 
 export default function TimeScrubber() {
   const { isLaymanMode } = useLaymanMode();
@@ -13,7 +14,10 @@ export default function TimeScrubber() {
     setIsTimelinePlaying,
     playbackSpeed,
     setPlaybackSpeed,
+    language,
   } = useSimulationStore();
+
+  const t = DICTIONARY[language];
 
   const allEvents = universeState.universe.dimensions.flatMap(d => d.events);
   const years = allEvents.map(e => e.year);
@@ -47,7 +51,7 @@ export default function TimeScrubber() {
         <div className="scrubber-badge">
           <span className="scrubber-dot" />
           <span className="scrubber-label">
-            {isLaymanMode ? 'ANO DA LINHA DO TEMPO:' : 'MÁQUINA DO TEMPO:'}
+            {isLaymanMode ? t.laymanTimeScrubber : t.timeScrubber}
           </span>
           <strong className="scrubber-year">{timelineYear} AD</strong>
         </div>
@@ -55,11 +59,11 @@ export default function TimeScrubber() {
         <div className="scrubber-stats">
           <span className="scrubber-stat-chip">
             <strong>{activeEventsCount}</strong> / {allEvents.length}{' '}
-            {isLaymanMode ? 'acontecimentos até este ano' : 'eventos manifestos'}
+            {isLaymanMode ? t.laymanManifestEvents : t.manifestEvents}
           </span>
           <span className="scrubber-stat-chip">
             <strong>{activeTravelers.length}</strong>{' '}
-            {isLaymanMode ? 'viajantes presentes' : 'observadores presentes'}
+            {isLaymanMode ? t.laymanTravelersPresent : t.observersPresent}
           </span>
         </div>
       </div>
@@ -78,7 +82,7 @@ export default function TimeScrubber() {
             CosmicAudio.playTemporalWarp(prog);
           }}
           className="time-scrubber-slider"
-          aria-label="Controle deslizante de navegação temporal"
+          aria-label={language === 'en' ? 'Temporal navigation slider' : 'Controle deslizante de navegação temporal'}
         />
         <span className="scrubber-edge-year">{maxYear}</span>
       </div>
@@ -92,7 +96,7 @@ export default function TimeScrubber() {
               setTimelineYear(minYear);
               CosmicAudio.playTemporalWarp(0);
             }}
-            title="Início dos Tempos"
+            title={t.beginningOfTime}
           >
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <polygon points="19 20 9 12 19 4 19 20" />
@@ -107,7 +111,7 @@ export default function TimeScrubber() {
               setTimelineYear(ny);
               CosmicAudio.playTemporalWarp((ny - minYear) / Math.max(1, maxYear - minYear));
             }}
-            title="-5 Anos"
+            title={language === 'en' ? '-5 Years' : '-5 Anos'}
           >
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <polygon points="11 19 2 12 11 5 11 19" />
@@ -123,7 +127,7 @@ export default function TimeScrubber() {
               if (next) CosmicAudio.playNodeSelect(70);
               else CosmicAudio.playTemporalWarp(0.5);
             }}
-            title={isTimelinePlaying ? 'Pausar' : 'Reproduzir Tempo'}
+            title={isTimelinePlaying ? t.pause : t.play}
           >
             {isTimelinePlaying ? (
               <>
@@ -131,14 +135,14 @@ export default function TimeScrubber() {
                   <rect x="6" y="4" width="4" height="16" />
                   <rect x="14" y="4" width="4" height="16" />
                 </svg>
-                <span>PAUSAR</span>
+                <span>{t.pause}</span>
               </>
             ) : (
               <>
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
                   <polygon points="5 3 19 12 5 21 5 3" />
                 </svg>
-                <span>REPRODUZIR</span>
+                <span>{t.play}</span>
               </>
             )}
           </button>
@@ -150,7 +154,7 @@ export default function TimeScrubber() {
               setTimelineYear(ny);
               CosmicAudio.playTemporalWarp((ny - minYear) / Math.max(1, maxYear - minYear));
             }}
-            title="+5 Anos"
+            title={language === 'en' ? '+5 Years' : '+5 Anos'}
           >
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <polygon points="13 19 22 12 13 5 13 19" />
@@ -164,14 +168,14 @@ export default function TimeScrubber() {
               setTimelineYear(maxYear);
               CosmicAudio.playTemporalWarp(1);
             }}
-            title="Presente / Futuro Máximo"
+            title={t.endOfTime}
           >
-            PRESENTE
+            {t.present}
           </button>
         </div>
 
         <div className="scrubber-speed-group">
-          <span className="speed-label">Velocidade:</span>
+          <span className="speed-label">{t.speed}</span>
           {[0.5, 1, 2, 5].map(speed => (
             <button
               key={speed}

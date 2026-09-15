@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import type { TemporalEvent } from '../../types/temporal';
 import { MinkowskiCalculus } from '../../engine/MinkowskiCalculus';
-import { useLaymanMode } from '../../context/LaymanModeContext';
+import { useLaymanMode } from '../../context/useLaymanMode';
+import { useSimulationStore } from '../../store/useSimulationStore';
+import { DICTIONARY, getLocalizedEventTitle } from '../../utils/i18n';
 import MathFormula from '../MathFormula';
 
 interface Props {
@@ -11,6 +13,9 @@ interface Props {
 
 export default function SpacetimeIntervalCard({ currentEvent, allEvents }: Props) {
   const { isLaymanMode } = useLaymanMode();
+  const { language } = useSimulationStore();
+  const t = DICTIONARY[language];
+
   const otherEvents = allEvents.filter(e => e.id !== currentEvent.id);
   const defaultTargetId =
     currentEvent.consequences[0] ||
@@ -30,28 +35,56 @@ export default function SpacetimeIntervalCard({ currentEvent, allEvents }: Props
 
   const typeColor = isTimelike ? '#10b981' : isLightlike ? '#38bdf8' : '#f59e0b';
 
+  const causalStatusLabel = isLaymanMode
+    ? isTimelike
+      ? t.laymanTimelikeLabel
+      : isLightlike
+      ? t.laymanLightlikeLabel
+      : t.laymanSpacelikeLabel
+    : isTimelike
+    ? t.timelikeLabel
+    : isLightlike
+    ? t.lightlikeLabel
+    : t.spacelikeLabel;
+
+  const scientificExplanation = isLaymanMode
+    ? isTimelike
+      ? t.laymanTimelikeDesc
+      : isLightlike
+      ? t.laymanLightlikeDesc
+      : t.laymanSpacelikeDesc
+    : isTimelike
+    ? t.timelikeDesc
+    : isLightlike
+    ? t.lightlikeDesc
+    : t.spacelikeDesc;
+
   return (
     <div className="spacetime-interval-card">
       <div className="st-card-header">
         <div className="st-title-group">
           <span className="st-kicker">
-            {isLaymanMode ? 'CONEXÃO DE CAUSA E EFEITO' : 'GEOMETRIA DE MINKOWSKI 4D'}
+            {isLaymanMode ? t.laymanMinkowskiGeometry : t.minkowskiGeometry}
           </span>
           <h4 className="st-title">
-            {isLaymanMode ? 'Um evento consegue influenciar o outro?' : 'Intervalo Relativístico (ds²)'}
+            {isLaymanMode ? t.laymanIntervalTitle : t.intervalTitle}
           </h4>
         </div>
         <select
           className="st-target-select"
           value={targetEventId || ''}
           onChange={e => setTargetEventId(e.target.value)}
-          title="Selecionar evento para comparar distância temporal e espacial"
+          title={language === 'en' ? 'Select event to compare temporal and spatial interval' : 'Selecionar evento para comparar distância temporal e espacial'}
         >
-          {otherEvents.map(e => (
-            <option key={e.id} value={e.id}>
-              vs. [{e.year}] {e.title.length > 26 ? e.title.slice(0, 24) + '…' : e.title}
-            </option>
-          ))}
+          {otherEvents.map(e => {
+            const locTitle = getLocalizedEventTitle(e, language);
+            const shortTitle = locTitle.length > 26 ? locTitle.slice(0, 24) + '…' : locTitle;
+            return (
+              <option key={e.id} value={e.id}>
+                vs. [{e.year}] {shortTitle}
+              </option>
+            );
+          })}
         </select>
       </div>
 
@@ -61,63 +94,53 @@ export default function SpacetimeIntervalCard({ currentEvent, allEvents }: Props
         </div>
       ) : (
         <div className="st-formula-box" style={{ fontSize: '0.85rem', color: '#bae6fd' }}>
-          Distância no Tempo: <strong>{result.dtYears} anos</strong> | Distância no Espaço: <strong>{result.dxSpace} unidades</strong>
+          {language === 'en' ? 'Time Distance:' : 'Distância no Tempo:'} <strong>{result.dtYears} {t.years}</strong> |{' '}
+          {language === 'en' ? 'Space Distance:' : 'Distância no Espaço:'} <strong>{result.dxSpace} {language === 'en' ? 'units' : 'unidades'}</strong>
         </div>
       )}
 
       <div className="st-metrics-grid">
         <div className="st-metric-item">
           <span className="st-metric-label">
-            {isLaymanMode ? 'TIPO DE CONEXÃO' : 'INTERVALO (ds²)'}
+            {isLaymanMode ? t.laymanConnectionType : t.connectionType}
           </span>
           <strong className="st-metric-value" style={{ color: typeColor }}>
             {isLaymanMode
-              ? (isTimelike ? 'Permitida' : isLightlike ? 'Limite da Luz' : 'Sem Contato')
+              ? (isTimelike ? t.timelikeAllowed : isLightlike ? t.lightLimit : t.spacelikeNoContact)
               : `${result.s2} al²`}
           </strong>
         </div>
         <div className="st-metric-item">
           <span className="st-metric-label">
-            {isLaymanMode ? 'DIFERENÇA DE ANOS' : 'SEPARAÇÃO TEMPORAL (Δt)'}
+            {isLaymanMode ? t.laymanTemporalSeparation : t.temporalSeparation}
           </span>
-          <strong className="st-metric-value">{result.dtYears} anos</strong>
+          <strong className="st-metric-value">{result.dtYears} {t.years}</strong>
         </div>
         <div className="st-metric-item">
           <span className="st-metric-label">
-            {isLaymanMode ? 'DISTÂNCIA NO ESPAÇO' : 'DISTÂNCIA ESPACIAL (Δx)'}
+            {isLaymanMode ? t.laymanSpatialDistance : t.spatialDistance}
           </span>
-          <strong className="st-metric-value">{result.dxSpace} u</strong>
+          <strong className="st-metric-value">{result.dxSpace} {t.units}</strong>
         </div>
         <div className="st-metric-item">
           <span className="st-metric-label">
-            {isLaymanMode ? 'TEMPO REAL EXPERIMENTADO' : 'TEMPO PRÓPRIO (Δτ)'}
+            {isLaymanMode ? t.laymanProperTime : t.properTime}
           </span>
           <strong className="st-metric-value">
-            {result.properTimeTau !== null ? `${result.properTimeTau} anos` : (isLaymanMode ? 'Inatingível (mais rápido que a luz)' : 'Indefinido (v > c)')}
+            {result.properTimeTau !== null ? `${result.properTimeTau} ${t.years}` : (isLaymanMode ? t.unattainable : t.undefinedSuperluminal)}
           </strong>
         </div>
       </div>
 
       <div className="st-classification-badge" style={{ borderColor: typeColor }}>
         <span className="st-status-badge" style={{ color: typeColor }}>
-          {isLaymanMode
-            ? (isTimelike
-                ? 'Conexão Causal Válida'
-                : isLightlike
-                ? 'No Limite da Velocidade da Luz'
-                : 'Eventos Isolados (Sem Ligação Direta)')
-            : result.causalStatusLabel}
+          {causalStatusLabel}
         </span>
         <p className="st-status-desc">
-          {isLaymanMode
-            ? (isTimelike
-                ? 'Houve tempo suficiente para a informação ou luz viajar de um evento até o outro. Portanto, o primeiro acontecimento pode sim ter causado o segundo com total consistência!'
-                : isLightlike
-                ? 'A influência viajou exatamente na velocidade máxima permitida no universo (300.000 km/s, a velocidade da luz).'
-                : 'Estes dois acontecimentos estão tão distantes no espaço e aconteceram com intervalo tão curto de tempo que nem mesmo um raio de luz conseguiria ligá-los a tempo. Um não pode ter sido a causa do outro.')
-            : result.scientificExplanation}
+          {scientificExplanation}
         </p>
       </div>
     </div>
   );
 }
+

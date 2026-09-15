@@ -53,10 +53,12 @@ export default function StellarOrreryCanvas({
   const panStartRef = useRef({ x: 0, y: 0 });
 
   // Reset view when sector changes
-  useEffect(() => {
+  const [prevSector, setPrevSector] = useState(sector);
+  if (prevSector !== sector) {
+    setPrevSector(sector);
     setZoom(1);
     setPan({ x: 0, y: 0 });
-  }, [sector]);
+  }
 
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
     isDraggingRef.current = true;

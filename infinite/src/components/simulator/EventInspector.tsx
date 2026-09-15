@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import { useLaymanMode } from '../../context/LaymanModeContext';
+import { useLaymanMode } from '../../context/useLaymanMode';
+import { useSimulationStore } from '../../store/useSimulationStore';
 import { getLaymanExplanation } from '../../utils/laymanContent';
+import { DICTIONARY, getLocalizedEventTitle, getLocalizedEventDescription, getLocalizedCategory } from '../../utils/i18n';
 import type { TemporalEvent } from '../../types/temporal';
 import { EventStatus } from '../../types/temporal';
 import { AITemporalService } from '../../engine/AITemporalService';
@@ -18,43 +20,53 @@ interface Props {
   onClose: () => void;
 }
 
-const STATUS_LABELS: Record<EventStatus, { label: string; color: string }> = {
-  [EventStatus.STABLE]: { label: 'ESTÁVEL (MINKOWSKI)', color: 'var(--color-stable)' },
-  [EventStatus.ALTERED]: { label: 'PERTURBAÇÃO MÉTRICA', color: 'var(--color-warning)' },
-  [EventStatus.UNSTABLE]: { label: 'FLUTUAÇÃO QUÂNTICA', color: 'var(--color-warning)' },
-  [EventStatus.COLLAPSED]: { label: 'COLAPSO DE SINGULARIDADE', color: 'var(--text-muted)' },
-  [EventStatus.PARADOXICAL]: { label: 'PARADOXO (CTC / NOVIKOV)', color: 'var(--color-paradox)' },
-  [EventStatus.ERASED]: { label: 'ANIQUILAÇÃO CAUSAL', color: 'var(--text-muted)' },
-  [EventStatus.DIVERGED]: { label: 'RAMIFICAÇÃO EVERETTIANA (11D)', color: 'var(--color-dimensional)' },
-};
-
-function getStatusInfo(status: EventStatus) {
-  return STATUS_LABELS[status] || { label: status, color: '#fff' };
-}
-
 export default function EventInspector({ event, events, onAlterEvent, onSimulateAI, onClose }: Props) {
   const { isLaymanMode } = useLaymanMode();
+  const { language } = useSimulationStore();
+  const t = DICTIONARY[language];
+
   const [showCalculator, setShowCalculator] = useState(false);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+
+  const getStatusInfo = (status: EventStatus): { label: string; color: string } => {
+    switch (status) {
+      case EventStatus.STABLE:
+        return { label: t.statusStableMinkowski, color: 'var(--color-stable)' };
+      case EventStatus.ALTERED:
+        return { label: t.statusAlteredMetric, color: 'var(--color-warning)' };
+      case EventStatus.UNSTABLE:
+        return { label: t.statusUnstableQuantum, color: 'var(--color-warning)' };
+      case EventStatus.COLLAPSED:
+        return { label: t.statusSingularityCollapse, color: 'var(--text-muted)' };
+      case EventStatus.PARADOXICAL:
+        return { label: t.statusNovikovParadox, color: 'var(--color-paradox)' };
+      case EventStatus.ERASED:
+        return { label: t.statusCausalAnnihilation, color: 'var(--text-muted)' };
+      case EventStatus.DIVERGED:
+        return { label: t.statusEverettBranch, color: 'var(--color-dimensional)' };
+      default:
+        return { label: status, color: '#fff' };
+    }
+  };
 
   if (!event) {
     return (
       <aside className="sim-inspector sim-inspector-empty">
         <div className="inspector-placeholder">
           <span className="placeholder-icon">INFO</span>
-          <h3>{isLaymanMode ? 'Nenhum Evento Selecionado' : 'SCAN'}</h3>
+          <h3>{isLaymanMode ? t.laymanNoEventTitle : t.noEventTitle}</h3>
           <p>
-            {isLaymanMode
-              ? 'Clique em qualquer ponto na linha do tempo para descobrir a história, ver referências de filmes e entender a ciência!'
-              : 'Selecione um nó no mapa de geodésicas para inspecionar seus dados de física, métricas e causalidade.'}
+            {isLaymanMode ? t.laymanNoEventPrompt : t.noEventPrompt}
           </p>
         </div>
       </aside>
     );
   }
 
+  const localizedTitle = getLocalizedEventTitle(event, language);
+  const localizedDesc = getLocalizedEventDescription(event, language);
   const statusInfo = getStatusInfo(event.status);
-  const layman = getLaymanExplanation(event.year, event.title);
+  const layman = getLaymanExplanation(event.year, localizedTitle);
   
   const eventsMap = new Map(events.map(e => [e.id, e]));
 
@@ -76,16 +88,16 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
     <aside className="sim-inspector">
       <div className="sim-inspector-header">
         <span className="inspector-tag">
-          {isLaymanMode ? 'GUIA DO VIAJANTE NO TEMPO' : 'DOSSIÊ DO NÓ CAUSAL'}
+          {isLaymanMode ? t.laymanCausalDossier : t.causalDossier}
         </span>
-        <button type="button" className="sim-btn-close" onClick={onClose}>
+        <button type="button" className="sim-btn-close" onClick={onClose} title={language === 'en' ? 'Close Inspector' : 'Fechar Inspetor'}>
           ✕
         </button>
       </div>
 
       <div className="inspector-body">
         <h2 className="inspector-title">
-          {isLaymanMode ? layman.simpleTitle : event.title}
+          {isLaymanMode ? layman.simpleTitle : localizedTitle}
         </h2>
 
         {/* Rigorous Scientific Status Badge */}
@@ -101,21 +113,21 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
 
         <div className="inspector-meta-grid">
           <div className="meta-item">
-            <span className="meta-label">{isLaymanMode ? 'ANO' : 'COORDENADA TEMPORAL'}</span>
-            <span className="meta-value meta-year">Ano {event.year}</span>
+            <span className="meta-label">{isLaymanMode ? t.laymanYearLabel : t.temporalCoord}</span>
+            <span className="meta-value meta-year">{t.yearLabel} {event.year}</span>
           </div>
           <div className="meta-item">
-            <span className="meta-label">{isLaymanMode ? 'STATUS DO TEMPO' : 'ESTADO MÉTRICO'}</span>
+            <span className="meta-label">{isLaymanMode ? t.laymanTimeStatus : t.metricState}</span>
             <span className="meta-value" style={{ color: statusInfo.color }}>
-              {isLaymanMode ? (event.status === EventStatus.STABLE ? 'Salvo e Estável' : 'Linha Alterada') : statusInfo.label}
+              {isLaymanMode ? (event.status === EventStatus.STABLE ? t.laymanSavedAndStable : t.laymanLineAltered) : statusInfo.label}
             </span>
           </div>
           <div className="meta-item">
-            <span className="meta-label">{isLaymanMode ? 'TIPO DE FENÔMENO' : 'DOMÍNIO TEÓRICO'}</span>
-            <span className="meta-value">{isLaymanMode ? layman.laymanCategory : event.category}</span>
+            <span className="meta-label">{isLaymanMode ? t.laymanDomain : t.theoreticalDomain}</span>
+            <span className="meta-value">{getLocalizedCategory(isLaymanMode ? layman.laymanCategory : event.category, language)}</span>
           </div>
           <div className="meta-item">
-            <span className="meta-label">{isLaymanMode ? 'IMPACTO NO UNIVERSO' : 'PESO CAUSAL'}</span>
+            <span className="meta-label">{isLaymanMode ? t.laymanImpact : t.causalWeight}</span>
             <span className="meta-value">{event.importance}/100</span>
           </div>
         </div>
@@ -126,48 +138,52 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
         {isLaymanMode ? (
           <div className="layman-explanation-card">
             <div className="layman-card-header">
-              <span className="layman-badge">COMO FUNCIONA (SEM COMPLICAÇÃO)</span>
+              <span className="layman-badge">{t.howItWorks}</span>
             </div>
             <p className="layman-desc">{layman.simpleDescription}</p>
             <div className="layman-analogy-box">
-              <strong>Analogia do Dia a Dia:</strong>
+              <strong>{t.dailyAnalogy}</strong>
               <p>{layman.analogy}</p>
             </div>
-            <div className="layman-pop-culture">
-              <span>{layman.popCultureRef}</span>
-            </div>
-            <div className="layman-fun-fact">
-              <strong>Curiosidade:</strong>
-              <p>{layman.funFact}</p>
-            </div>
+            {layman.popCultureRef && (
+              <div className="layman-pop-culture">
+                <span>{layman.popCultureRef}</span>
+              </div>
+            )}
+            {layman.funFact && (
+              <div className="layman-fun-fact">
+                <strong>{t.curiosity}</strong>
+                <p>{layman.funFact}</p>
+              </div>
+            )}
           </div>
         ) : (
-          event.description && (
+          localizedDesc && (
             <p className="inspector-desc">
-              <MathText text={event.description} />
+              <MathText text={localizedDesc} />
             </p>
           )
         )}
 
-        {(event.year === 2015 || event.title.toLowerCase().includes('ondas gravitacionais') || event.title.toLowerCase().includes('m87')) && (
+        {(event.year === 2015 || event.title.toLowerCase().includes('ondas gravitacionais') || event.title.toLowerCase().includes('m87') || event.title.toLowerCase().includes('gravitational')) && (
           <div className="ligo-audio-card">
             <div className="ligo-audio-info">
-              <strong>{isLaymanMode ? 'Ouça o Som do Espaço-Tempo' : 'Sinal Acústico Real do Espaço-Tempo'}</strong>
-              <span>{isLaymanMode ? 'O chiado real de dois buracos negros colidindo gravado pelo LIGO!' : 'Chirp de fusão GW150914 captado pelos interferômetros do LIGO'}</span>
+              <strong>{isLaymanMode ? t.laymanLigoHear : t.ligoHearSpacetime}</strong>
+              <span>{isLaymanMode ? t.laymanLigoHearSub : t.ligoHearSub}</span>
             </div>
             <button
               type="button"
               className={`btn-play-ligo ${isPlayingAudio ? 'playing' : ''}`}
               onClick={handlePlayLigoSound}
             >
-              {isPlayingAudio ? 'Reproduzindo...' : 'Ouvir Colisão no Espaço'}
+              {isPlayingAudio ? t.playingAudio : t.hearCollision}
             </button>
           </div>
         )}
 
         {event.sourceUrl && (
           <a className="event-source-link" href={event.sourceUrl} target="_blank" rel="noreferrer">
-            {isLaymanMode ? 'VER ARTIGO CIENTÍFICO ORIGINAL ↗' : 'VER BASE DOCUMENTAL / TEORIA ↗'}
+            {isLaymanMode ? t.laymanViewDocumentation : t.viewDocumentation}
           </a>
         )}
 
@@ -178,8 +194,8 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
             onClick={() => setShowCalculator(!showCalculator)}
           >
             {showCalculator
-              ? (isLaymanMode ? '▲ Fechar Brincadeira do Tempo' : '▲ Ocultar Calculadora de Tensores')
-              : (isLaymanMode ? 'Simular Efeito Interestelar & Dilatação do Tempo ▼' : 'Abrir Calculadora de Física Computacional ▼')}
+              ? (isLaymanMode ? t.laymanCloseCalc : t.closeCalc)
+              : (isLaymanMode ? t.laymanOpenCalc : t.openCalc)}
           </button>
         </div>
 
@@ -187,22 +203,18 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
 
         {event.isAnchor && (
           <div className="anchor-badge">
-            <span>{isLaymanMode ? 'EVENTO FUNDAMENTAL DA HISTÓRIA' : 'ÂNCORA GEODÉSICA DO CONTINUUM'}</span>
+            <span>{isLaymanMode ? t.laymanAnchorBadgeTitle : t.anchorBadgeTitle}</span>
             <p>
-              {isLaymanMode
-                ? 'Este acontecimento é tão importante que serve de base firme para todas as descobertas que vieram depois.'
-                : 'Evento primordial que estabiliza o tensor métrico e preserva a autoconsistência de Novikov.'}
+              {isLaymanMode ? t.laymanAnchorBadgeDesc : t.anchorBadgeDesc}
             </p>
           </div>
         )}
 
         {event.isAIAnomaly && (
           <div className="ai-anomaly-badge">
-            <span>{isLaymanMode ? 'HISTÓRIA ALTERADA POR INTELIGÊNCIA ARTIFICIAL' : 'ANOMALIA QUÂNTICA GERADA POR IA'}</span>
+            <span>{isLaymanMode ? t.laymanAiAnomalyTitle : t.aiAnomalyTitle}</span>
             <p>
-              {isLaymanMode
-                ? 'Uma nova possibilidade gerada para testar o que aconteceria com o universo.'
-                : 'Bifurcação emergente gerada por perturbações no cone de luz.'}
+              {isLaymanMode ? t.laymanAiAnomalyDesc : t.aiAnomalyDesc}
             </p>
           </div>
         )}
@@ -210,10 +222,10 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
         <section className="physics-explanation">
           <div className="physics-heading">
             <span className="section-label">
-              {isLaymanMode ? 'COMO A CIÊNCIA EXPLICA ESTE EVENTO' : 'INTERPRETAÇÃO EM FÍSICA TEÓRICA'}
+              {isLaymanMode ? t.laymanPhysicsSectionTitle : t.physicsSectionTitle}
             </span>
             <span className="physics-note">
-              {isLaymanMode ? '5 LEIS FUNDAMENTAIS' : '5 PILARES DO ESPAÇO-TEMPO'}
+              {isLaymanMode ? t.laymanFivePillars : t.fivePillars}
             </span>
           </div>
           {physics.map(item => (
@@ -233,7 +245,7 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
                 )}
                 {isLaymanMode && item.laymanFormulaMeaning && (
                   <div className="layman-formula-card">
-                    <div className="layman-formula-header">O QUE ESTA FÓRMULA SIGNIFICA</div>
+                    <div className="layman-formula-header">{t.formulaMeaning}</div>
                     <p>{item.laymanFormulaMeaning}</p>
                   </div>
                 )}
@@ -247,40 +259,50 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
 
         <div className="inspector-section">
           <span className="section-label">
-            {isLaymanMode ? `O QUE PROVOCOU ESTE EVENTO (${causesList.length})` : `CONES DE LUZ PASSADO (CAUSAS: ${causesList.length})`}
+            {isLaymanMode
+              ? t.laymanDirectCauses.replace('{count}', String(causesList.length))
+              : t.directCauses.replace('{count}', String(causesList.length))}
           </span>
           {causesList.length === 0 ? (
             <span className="empty-text">
-              {isLaymanMode ? 'Ponto de partida histórico (sem causa anterior cadastrada)' : 'Origem assintótica / Evento primordial independente'}
+              {isLaymanMode ? t.laymanNoAncestors : t.noAncestors}
             </span>
           ) : (
             <ul className="causal-list">
-              {causesList.map(c => (
-                <li key={c!.id}>
-                  <span>{isLaymanMode ? getLaymanExplanation(c!.year, c!.title).simpleTitle : c!.title}</span>
-                  <span className="causal-year">(Ano {c!.year})</span>
-                </li>
-              ))}
+              {causesList.map(c => {
+                const locCausalTitle = getLocalizedEventTitle(c!, language);
+                return (
+                  <li key={c!.id}>
+                    <span>{isLaymanMode ? getLaymanExplanation(c!.year, locCausalTitle).simpleTitle : locCausalTitle}</span>
+                    <span className="causal-year">({t.yearLabel} {c!.year})</span>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>
 
         <div className="inspector-section">
           <span className="section-label">
-            {isLaymanMode ? `O QUE ESTE EVENTO GEROU NO FUTURO (${consequencesList.length})` : `CONES DE LUZ FUTURO (CONSEQUÊNCIAS: ${consequencesList.length})`}
+            {isLaymanMode
+              ? t.laymanDirectConsequences.replace('{count}', String(consequencesList.length))
+              : t.directConsequences.replace('{count}', String(consequencesList.length))}
           </span>
           {consequencesList.length === 0 ? (
             <span className="empty-text">
-              {isLaymanMode ? 'Fim da cadeia atual (ainda sem desdobramentos futuros)' : 'Fronteira aberta da linha temporal'}
+              {isLaymanMode ? t.laymanNoDescendants : t.noDescendants}
             </span>
           ) : (
             <ul className="causal-list">
-              {consequencesList.map(c => (
-                <li key={c!.id}>
-                  <span>{isLaymanMode ? getLaymanExplanation(c!.year, c!.title).simpleTitle : c!.title}</span>
-                  <span className="causal-year">(Ano {c!.year})</span>
-                </li>
-              ))}
+              {consequencesList.map(c => {
+                const locConseqTitle = getLocalizedEventTitle(c!, language);
+                return (
+                  <li key={c!.id}>
+                    <span>{isLaymanMode ? getLaymanExplanation(c!.year, locConseqTitle).simpleTitle : locConseqTitle}</span>
+                    <span className="causal-year">({t.yearLabel} {c!.year})</span>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>
@@ -288,7 +310,7 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
         {/* Action Controls */}
         <div className="inspector-actions">
           <span className="actions-label">
-            {isLaymanMode ? 'MUDAR A HISTÓRIA & SIMULAR COM IA' : 'INTERVENÇÃO MÉTRICA & ORÁCULO DE IA'}
+            {isLaymanMode ? t.laymanActionsTitle : t.actionsTitle}
           </span>
           <div className="action-buttons-grid">
             <button
@@ -296,28 +318,28 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
               className="btn-action-alt btn-ai-action"
               onClick={() => onSimulateAI(event)}
             >
-              Simular Efeito Borboleta com IA
+              {t.simulateButterfly}
             </button>
             <button
               type="button"
               className="btn-action-alt btn-alter"
               onClick={() => onAlterEvent(event.id, EventStatus.ALTERED)}
             >
-              {isLaymanMode ? 'Mudar Rumos do Evento' : 'Modificar Geodésica'}
+              {isLaymanMode ? t.laymanAlterEvent : t.alterEvent}
             </button>
             <button
               type="button"
               className="btn-action-alt btn-erase"
               onClick={() => onAlterEvent(event.id, EventStatus.ERASED)}
             >
-              {isLaymanMode ? 'Apagar da História' : 'Aniquilar Nó Temporal'}
+              {isLaymanMode ? t.laymanEraseEvent : t.eraseEvent}
             </button>
             <button
               type="button"
               className="btn-action-alt btn-restore"
               onClick={() => onAlterEvent(event.id, EventStatus.STABLE)}
             >
-              {isLaymanMode ? 'Restaurar Original' : 'Restaurar Estado Fundamental'}
+              {isLaymanMode ? t.laymanRestoreEvent : t.restoreEvent}
             </button>
           </div>
         </div>
@@ -325,3 +347,4 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
     </aside>
   );
 }
+

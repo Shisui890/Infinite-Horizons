@@ -7,10 +7,126 @@ interface Props {
   className?: string;
 }
 
+/**
+ * Normalizes unicode math characters and common shorthand into valid LaTeX
+ */
+function sanitizeLatex(input: string): string {
+  if (!input) return '';
+  let s = input;
+
+  // Unicode superscripts
+  s = s
+    .replace(/⁻³⁵/g, '^{-35}')
+    .replace(/⁻¹/g, '^{-1}')
+    .replace(/⁻²/g, '^{-2}')
+    .replace(/⁻³/g, '^{-3}')
+    .replace(/⁻/g, '^-')
+    .replace(/⁰/g, '^0')
+    .replace(/¹/g, '^1')
+    .replace(/²/g, '^2')
+    .replace(/³/g, '^3')
+    .replace(/⁴/g, '^4')
+    .replace(/⁵/g, '^5')
+    .replace(/⁶/g, '^6')
+    .replace(/⁷/g, '^7')
+    .replace(/⁸/g, '^8')
+    .replace(/⁹/g, '^9')
+    .replace(/ᵃᵇ/g, '^{ab}')
+    .replace(/ᵃ/g, '^a')
+    .replace(/ᵇ/g, '^b')
+    .replace(/₀/g, '_0')
+    .replace(/₁/g, '_1')
+    .replace(/₂/g, '_2')
+    .replace(/₃/g, '_3')
+    .replace(/₄/g, '_4')
+    .replace(/₅/g, '_5')
+    .replace(/₆/g, '_6')
+    .replace(/₇/g, '_7')
+    .replace(/₈/g, '_8')
+    .replace(/₉/g, '_9')
+    .replace(/ᵢ/g, '_i')
+    .replace(/ⱼ/g, '_j');
+
+  // Subscript combinations like G_μν or g_μν or T_μν
+  s = s
+    .replace(/([A-Za-z])_μν/g, '$1_{\\mu\\nu}')
+    .replace(/([A-Za-z])_μ/g, '$1_\\mu')
+    .replace(/([A-Za-z])_ν/g, '$1_\\nu')
+    .replace(/_μν/g, '_{\\mu\\nu}')
+    .replace(/_μ/g, '_\\mu')
+    .replace(/_ν/g, '_\\nu');
+
+  // Greek letters not already escaped
+  const greeks: [string, string][] = [
+    ['μ', '\\mu'],
+    ['ν', '\\nu'],
+    ['Λ', '\\Lambda'],
+    ['λ', '\\lambda'],
+    ['π', '\\pi'],
+    ['σ', '\\sigma'],
+    ['ρ', '\\rho'],
+    ['β', '\\beta'],
+    ['γ', '\\gamma'],
+    ['α', '\\alpha'],
+    ['ε', '\\varepsilon'],
+    ['Ψ', '\\Psi'],
+    ['ψ', '\\psi'],
+    ['Ω', '\\Omega'],
+    ['ω', '\\omega'],
+    ['θ', '\\theta'],
+    ['ϕ', '\\phi'],
+    ['ℏ', '\\hbar'],
+    ['Ĥ', '\\hat{H}'],
+  ];
+  for (const [char, rep] of greeks) {
+    const re = new RegExp('(?<!\\\\)' + char, 'g');
+    s = s.replace(re, rep + ' ');
+  }
+
+  // Common mathematical operators & notations
+  s = s
+    .replace(/≥/g, '\\ge ')
+    .replace(/≤/g, '\\le ')
+    .replace(/≈/g, '\\approx ')
+    .replace(/≠/g, '\\ne ')
+    .replace(/±/g, '\\pm ')
+    .replace(/×/g, '\\times ')
+    .replace(/·/g, '\\cdot ')
+    .replace(/⊗/g, '\\otimes ')
+    .replace(/∂/g, '\\partial ')
+    .replace(/∑/g, '\\sum ')
+    .replace(/∫/g, '\\int ')
+    .replace(/⟨/g, '\\langle ')
+    .replace(/⟩/g, '\\rangle ')
+    .replace(/\|/g, '\\mid ')
+    .replace(/~/g, '\\sim ')
+    .replace(/√\(([^)]+)\)/g, '\\sqrt{$1}')
+    .replace(/√/g, '\\sqrt ');
+
+  return s.trim();
+}
+
+/**
+ * Detects common formulas in text without explicit $ delimiters
+ */
+function autoDetectFormulasInText(text: string): string {
+  if (!text) return '';
+  return text
+    // E.g. (G_μν + Λg_μν = 8πG/c⁴ T_μν)
+    .replace(/\((G[_\\][^)]*=[^)]*)\)/g, '($$$1$$)')
+    // E.g. (ds² = -c²dt² + dx² + dy² + dz²)
+    .replace(/\((ds[²2][^)]*=[^)]*)\)/g, '($$$1$$)')
+    // E.g. E = mc²
+    .replace(/(?<![$\w])(E\s*=\s*mc[²2])(?![$\w])/g, '$$$1$$')
+    // E.g. c = 1/√(μ₀ε₀)
+    .replace(/(?<![$\w])(c\s*=\s*1\/\s*√\([^)]+\))(?![$\w])/g, '$$$1$$');
+}
+
 export default function MathFormula({ math, block = false, className = '' }: Props) {
   const html = useMemo(() => {
     try {
-      return katex.renderToString(math, {
+      const sanitized = sanitizeLatex(math);
+      return katex.renderToString(sanitized, {
         displayMode: block,
         throwOnError: false,
       });
@@ -53,24 +169,25 @@ export type InlineToken =
 
 function parseInlineTokens(text: string): InlineToken[] {
   if (!text) return [];
+  const processedText = autoDetectFormulasInText(text);
   const tokens: InlineToken[] = [];
   let lastIdx = 0;
   let match: RegExpExecArray | null;
   INLINE_REGEX.lastIndex = 0;
 
-  while ((match = INLINE_REGEX.exec(text)) !== null) {
+  while ((match = INLINE_REGEX.exec(processedText)) !== null) {
     if (match.index > lastIdx) {
-      tokens.push({ type: 'text', content: text.slice(lastIdx, match.index) });
+      tokens.push({ type: 'text', content: processedText.slice(lastIdx, match.index) });
     }
     const raw = match[0];
     if (raw.startsWith('$$') && raw.endsWith('$$')) {
-      tokens.push({ type: 'block-math', content: raw.slice(2, -2).trim() });
+      tokens.push({ type: 'block-math', content: sanitizeLatex(raw.slice(2, -2).trim()) });
     } else if (raw.startsWith('\\[') && raw.endsWith('\\]')) {
-      tokens.push({ type: 'block-math', content: raw.slice(2, -2).trim() });
+      tokens.push({ type: 'block-math', content: sanitizeLatex(raw.slice(2, -2).trim()) });
     } else if (raw.startsWith('$') && raw.endsWith('$')) {
-      tokens.push({ type: 'inline-math', content: raw.slice(1, -1).trim() });
+      tokens.push({ type: 'inline-math', content: sanitizeLatex(raw.slice(1, -1).trim()) });
     } else if (raw.startsWith('\\(') && raw.endsWith('\\)')) {
-      tokens.push({ type: 'inline-math', content: raw.slice(2, -2).trim() });
+      tokens.push({ type: 'inline-math', content: sanitizeLatex(raw.slice(2, -2).trim()) });
     } else if (
       (raw.startsWith('***') && raw.endsWith('***')) ||
       (raw.startsWith('___') && raw.endsWith('___'))

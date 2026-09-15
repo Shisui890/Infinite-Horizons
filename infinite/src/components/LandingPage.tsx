@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useLaymanMode } from '../context/LaymanModeContext';
+import { useLaymanMode } from '../context/useLaymanMode';
 import HeroSection from './HeroSection';
 import ConceptSection from './ConceptSection';
 import FeaturesSection from './FeaturesSection';

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useId } from 'react';
 import { MinkowskiCalculus } from '../../engine/MinkowskiCalculus';
-import { useLaymanMode } from '../../context/LaymanModeContext';
+import { useLaymanMode } from '../../context/useLaymanMode';
 
 interface BlackHolePreset {
   name: string;

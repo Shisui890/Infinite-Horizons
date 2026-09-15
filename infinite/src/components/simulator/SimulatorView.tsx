@@ -29,7 +29,7 @@ import {
 } from './Modals';
 import { CosmicAudio } from '../../engine/CosmicAudioEngine';
 import { ScientificReportEngine } from '../../engine/ScientificReportEngine';
-import { useLaymanMode } from '../../context/LaymanModeContext';
+import { useLaymanMode } from '../../context/useLaymanMode';
 
 // Lazy-loaded Heavy Modals & Drawers (Code Splitting)
 const ConferenceModeModal = lazy(() => import('../presentation/ConferenceModeModal'));

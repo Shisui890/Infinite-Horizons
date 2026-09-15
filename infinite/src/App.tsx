@@ -1,14 +1,16 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import InteractiveBackground from './components/InteractiveBackground';
 import LandingPage from './components/LandingPage';
-import SimulatorView from './components/simulator/SimulatorView';
-import HowItWorksPage from './components/HowItWorksPage';
-import OurUniversePage from './components/OurUniversePage';
-import CreateUniverseModal from './components/CreateUniverseModal';
+import CosmicLoadingFallback from './components/CosmicLoadingFallback';
 import { LaymanModeProvider } from './context/LaymanModeContext';
 import type { SimulationLog, Universe } from './types/temporal';
 import { URLCompression } from './utils/urlCompression';
 import './App.css';
+
+const SimulatorView = lazy(() => import('./components/simulator/SimulatorView'));
+const HowItWorksPage = lazy(() => import('./components/HowItWorksPage'));
+const OurUniversePage = lazy(() => import('./components/OurUniversePage'));
+const CreateUniverseModal = lazy(() => import('./components/CreateUniverseModal'));
 
 function getInitialSharedState(): { universe: Universe; logs: SimulationLog[] } | null {
   if (typeof window !== 'undefined' && window.location.hash) {
@@ -50,40 +52,42 @@ function App() {
         />
       )}
 
-      {view === 'guide' && (
-        <HowItWorksPage
-          onBack={() => setView('landing')}
-          onStartSimulator={() => setShowCreateUniverse(true)}
-        />
-      )}
+      <Suspense fallback={<CosmicLoadingFallback />}>
+        {view === 'guide' && (
+          <HowItWorksPage
+            onBack={() => setView('landing')}
+            onStartSimulator={() => setShowCreateUniverse(true)}
+          />
+        )}
 
-      {view === 'our-universe' && (
-        <OurUniversePage
-          onBack={() => setView('landing')}
-          onStartSimulator={() => {
-            setView('simulator');
-          }}
-        />
-      )}
+        {view === 'our-universe' && (
+          <OurUniversePage
+            onBack={() => setView('landing')}
+            onStartSimulator={() => {
+              setView('simulator');
+            }}
+          />
+        )}
 
-      {view === 'simulator' && (
-        <SimulatorView
-          initialState={generatedState}
-          onExit={() => setView('landing')}
-          onOpenGuide={() => setView('guide')}
-        />
-      )}
+        {view === 'simulator' && (
+          <SimulatorView
+            initialState={generatedState}
+            onExit={() => setView('landing')}
+            onOpenGuide={() => setView('guide')}
+          />
+        )}
 
-      {showCreateUniverse && (
-        <CreateUniverseModal
-          onClose={() => setShowCreateUniverse(false)}
-          onCreated={state => {
-            setGeneratedState(state);
-            setShowCreateUniverse(false);
-            setView('simulator');
-          }}
-        />
-      )}
+        {showCreateUniverse && (
+          <CreateUniverseModal
+            onClose={() => setShowCreateUniverse(false)}
+            onCreated={state => {
+              setGeneratedState(state);
+              setShowCreateUniverse(false);
+              setView('simulator');
+            }}
+          />
+        )}
+      </Suspense>
     </LaymanModeProvider>
   );
 }

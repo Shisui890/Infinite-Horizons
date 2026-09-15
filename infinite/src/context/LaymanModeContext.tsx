@@ -1,16 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-
-interface LaymanModeContextType {
-  isLaymanMode: boolean;
-  toggleLaymanMode: () => void;
-  setLaymanMode: (val: boolean) => void;
-}
-
-const LaymanModeContext = createContext<LaymanModeContextType>({
-  isLaymanMode: false,
-  toggleLaymanMode: () => {},
-  setLaymanMode: () => {},
-});
+import React, { useState, useEffect } from 'react';
+import { LaymanModeContext } from './useLaymanMode';
 
 export function LaymanModeProvider({ children }: { children: React.ReactNode }) {
   const [isLaymanMode, setIsLaymanModeState] = useState<boolean>(() => {
@@ -51,6 +40,3 @@ export function LaymanModeProvider({ children }: { children: React.ReactNode }) 
   );
 }
 
-export function useLaymanMode() {
-  return useContext(LaymanModeContext);
-}

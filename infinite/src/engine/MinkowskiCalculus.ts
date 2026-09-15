@@ -252,5 +252,46 @@ export class MinkowskiCalculus {
       einsteinResolution,
     };
   }
+
+  /**
+   * Calcula parâmetros cinemáticos relativísticos completos de um observador / viajante temporal:
+   * Fator de Lorentz (γ), dilatação de tempo (Δt' = γ Δt), contração de Lorentz (L = L0 / γ)
+   * e momento/energia relativística (E = γ m c²).
+   *
+   * @param vFractionC Velocidade em fração da velocidade da luz (0 <= v/c < 1)
+   * @param properTimeYears Tempo medido no referencial próprio do viajante (anos)
+   * @param properLengthM Comprimento próprio do veículo/espaçonave (metros)
+   * @param restMassKg Massa de repouso (kg)
+   */
+  public static calculateRelativisticKinematics(
+    vFractionC: number,
+    properTimeYears: number = 1.0,
+    properLengthM: number = 100.0,
+    restMassKg: number = 1000.0
+  ) {
+    const beta = Math.min(Math.max(vFractionC, 0), 0.99999999);
+    const gamma = 1 / Math.sqrt(1 - beta * beta);
+    const dilatedTimeYears = properTimeYears * gamma;
+    const contractedLengthM = properLengthM / gamma;
+    const c = 299792458; // m/s
+    const totalEnergyJoules = gamma * restMassKg * c * c;
+    const kineticEnergyJoules = (gamma - 1) * restMassKg * c * c;
+    const relativisticMomentumKgMS = gamma * restMassKg * (beta * c);
+
+    return {
+      beta,
+      gamma: Number(gamma.toFixed(4)),
+      properTimeYears,
+      dilatedTimeYears: Number(dilatedTimeYears.toFixed(4)),
+      timeDilationRatio: Number(gamma.toFixed(4)),
+      properLengthM,
+      contractedLengthM: Number(contractedLengthM.toFixed(4)),
+      lengthContractionPercent: Number(((1 - 1 / gamma) * 100).toFixed(2)),
+      restMassKg,
+      totalEnergyJoules,
+      kineticEnergyJoules,
+      relativisticMomentumKgMS,
+    };
+  }
 }
 
