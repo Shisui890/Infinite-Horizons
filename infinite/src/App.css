@@ -595,7 +595,8 @@
 .concept-card-year {
   font-family: var(--font-mono);
   font-size: 0.75rem;
-  color: var(--text-muted);
+  font-weight: 600;
+  color: #cbd5e1;
 }
 
 .concept-card-heading {
@@ -709,7 +710,7 @@
 
 .step-sub {
   font-size: 0.78rem;
-  color: var(--text-muted);
+  color: #cbd5e1;
 }
 
 .flow-line {
@@ -725,8 +726,10 @@
   position: absolute;
   top: 0;
   bottom: 0;
+  left: 0;
   width: 40%;
   border-radius: var(--radius-full);
+  will-change: transform;
   animation: lineFlow 2.5s ease-in-out infinite;
 }
 
@@ -739,8 +742,8 @@
 }
 
 @keyframes lineFlow {
-  0% { left: -40%; }
-  100% { left: 140%; }
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(350%); }
 }
 
 /* ===== FEATURES SECTION ===== */
@@ -791,10 +794,10 @@
 
 .feature-category {
   font-family: var(--font-mono);
-  font-size: 0.65rem;
-  font-weight: 600;
+  font-size: 0.72rem;
+  font-weight: 700;
   letter-spacing: 0.12em;
-  color: var(--text-muted);
+  color: var(--accent-color, #38bdf8);
   text-transform: uppercase;
 }
 
@@ -911,7 +914,7 @@
 
 .footer-tagline {
   font-size: 0.9rem;
-  color: var(--text-muted);
+  color: #cbd5e1;
   max-width: 45ch;
 }
 
@@ -932,7 +935,7 @@
 
 .footer-copy {
   font-size: 0.8rem;
-  color: var(--text-muted);
+  color: #cbd5e1;
 }
 
 .footer-links {

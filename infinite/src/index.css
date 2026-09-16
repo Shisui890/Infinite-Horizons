@@ -18,10 +18,10 @@
   --border-glow-hover: rgba(0, 229, 255, 0.45);
   --border-dim: rgba(255, 255, 255, 0.04);
 
-  /* Text & Contrast Hierarchy */
+  /* Text & Contrast Hierarchy (Acessibilidade WCAG AA/AAA) */
   --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
   --text-accent: #38bdf8;
 
   /* Curated Scientific Palette */

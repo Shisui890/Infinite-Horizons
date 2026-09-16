@@ -1,0 +1,16 @@
+# Infinite-Horizons
+
+> Infinite-Horizons é um laboratório visual avançado e observatório interativo para experimentação de causalidade relativística, viagens temporais, mecânica quântica, relatividade geral e cosmologia observacional da NASA.
+
+## Módulos e Recursos Principais
+
+- [Simulador Causal e Linhas Temporais](https://infinite-horizons.vercel.app/): Grafo dinâmico em Canvas 2D com nós temporais, bifurcações de linhas de mundo, cálculo de integridade causal e resolução de paradoxos (Grandfather, Bootstrap e Predestinação).
+- [NASA Cosmology Observatory ("Nosso Universo")](https://infinite-horizons.vercel.app/): Portal com os 8 pilares fundamentais da cosmologia da NASA, orrery 3D interativo e scanner espectroscópico de alvos astronômicos.
+- [Cone de Luz de Minkowski 3D](https://infinite-horizons.vercel.app/): Visualizador tridimensional em Three.js demonstrando relações causais tipo-tempo, tipo-espaço e tipo-luz com cálculo analítico métrico.
+- [Simulação Monte Carlo](https://infinite-horizons.vercel.app/): Análise estocástica concorrente via Web Workers para projeção de estabilidade temporal e prescrições métricas.
+- [Formulação Matemática KaTeX](https://infinite-horizons.vercel.app/): Equações fundamentais da relatividade geral, atratores de Lorenz e matrizes de densidade quântica.
+
+## Especificação e APIs
+
+- [Sitemap XML](https://infinite-horizons.vercel.app/sitemap.xml): Índice de páginas para indexação por motores de busca.
+- [API Temporal Serverless](https://infinite-horizons.vercel.app/api/temporal): Endpoint para pesquisa histórica, processamento de causalidade e resolução heurística de eventos.
