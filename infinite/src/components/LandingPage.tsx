@@ -22,7 +22,17 @@ export default function LandingPage({ onStartSimulator, onOpenGuide, onOpenOurUn
         <nav className="landing-nav" aria-label="Navegação principal">
           <a className="brand-lockup" href="#hero-section" aria-label="Infinite-Horizons início">
             <span className="brand-mark brand-mark-emblem">
-              <img src="/logo-emblem.png" alt="Infinite Horizons Logo" className="brand-logo-emblem-img" />
+              <picture>
+                <source srcSet="/logo-emblem-36.webp" type="image/webp" />
+                <img
+                  src="/logo-emblem-36.png"
+                  alt="Infinite Horizons Logo"
+                  width={36}
+                  height={36}
+                  className="brand-logo-emblem-img"
+                  decoding="async"
+                />
+              </picture>
             </span>
             <span className="brand-name">
               INFINITE<span className="brand-accent">HORIZONS</span>
@@ -224,7 +234,18 @@ export default function LandingPage({ onStartSimulator, onOpenGuide, onOpenOurUn
           <div className="footer-top">
             <div className="footer-brand">
               <span className="brand-mark footer-mark brand-mark-emblem">
-                <img src="/logo-emblem.png" alt="Infinite Horizons Logo" className="brand-logo-emblem-img" />
+                <picture>
+                  <source srcSet="/logo-emblem-36.webp" type="image/webp" />
+                  <img
+                    src="/logo-emblem-36.png"
+                    alt="Infinite Horizons Logo"
+                    width={36}
+                    height={36}
+                    className="brand-logo-emblem-img"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </picture>
               </span>
               <span className="footer-title">INFINITE-HORIZONS</span>
             </div>

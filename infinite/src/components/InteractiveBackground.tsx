@@ -94,10 +94,14 @@ export default function InteractiveBackground() {
   const frameRef = useRef(0);
   const animRef = useRef(0);
   const dprRef = useRef(1);
+  const sizeRef = useRef({ w: 1920, h: 1080 });
 
   const init = useCallback((w: number, h: number) => {
-    starsRef.current = Array.from({ length: STAR_COUNT }, () => createStar(w, h));
-    particlesRef.current = Array.from({ length: PARTICLE_COUNT }, () => createParticle(w, h));
+    const isMobile = w < 768;
+    const starCount = isMobile ? 120 : STAR_COUNT;
+    const particleCount = isMobile ? 35 : PARTICLE_COUNT;
+    starsRef.current = Array.from({ length: starCount }, () => createStar(w, h));
+    particlesRef.current = Array.from({ length: particleCount }, () => createParticle(w, h));
     nebulasRef.current = Array.from({ length: NEBULA_COUNT }, () => createNebula(w, h));
     ripplesRef.current = [];
   }, []);
@@ -115,6 +119,7 @@ export default function InteractiveBackground() {
     function resize() {
       const w = window.innerWidth;
       const h = window.innerHeight;
+      sizeRef.current = { w, h };
       canvas!.width = w * dprRef.current;
       canvas!.height = h * dprRef.current;
       canvas!.style.width = `${w}px`;
@@ -156,14 +161,12 @@ export default function InteractiveBackground() {
       }
     }
 
-    function drawStars(ctx: CanvasRenderingContext2D, frame: number, mx: number, my: number) {
+    function drawStars(ctx: CanvasRenderingContext2D, frame: number, mx: number, my: number, w: number, h: number) {
       for (const s of starsRef.current) {
         const twinkle = Math.sin(frame * s.twinkleSpeed + s.twinklePhase) * 0.3 + 0.7;
         const alpha = s.brightness * twinkle;
 
         // Parallax effect based on mouse position
-        const w = window.innerWidth;
-        const h = window.innerHeight;
         const px = (mx - w / 2) * 0.01 * s.z;
         const py = (my - h / 2) * 0.01 * s.z;
         const sx = s.x + px;
@@ -184,10 +187,10 @@ export default function InteractiveBackground() {
       }
     }
 
-    function drawParticles(ctx: CanvasRenderingContext2D, mx: number, my: number) {
+    const CONNECTION_DIST_SQ = CONNECTION_DISTANCE * CONNECTION_DISTANCE;
+
+    function drawParticles(ctx: CanvasRenderingContext2D, mx: number, my: number, w: number, h: number) {
       const particles = particlesRef.current;
-      const w = window.innerWidth;
-      const h = window.innerHeight;
 
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
@@ -195,9 +198,10 @@ export default function InteractiveBackground() {
         // Mouse interaction — gentle repulsion
         const dx = p.x - mx;
         const dy = p.y - my;
-        const dist = Math.sqrt(dx * dx + dy * dy);
+        const distSq = dx * dx + dy * dy;
 
-        if (dist < MOUSE_INFLUENCE_RADIUS && dist > 0) {
+        if (distSq < MOUSE_INFLUENCE_RADIUS * MOUSE_INFLUENCE_RADIUS && distSq > 0) {
+          const dist = Math.sqrt(distSq);
           const force = (1 - dist / MOUSE_INFLUENCE_RADIUS) * 0.8;
           p.vx += (dx / dist) * force;
           p.vy += (dy / dist) * force;
@@ -243,7 +247,7 @@ export default function InteractiveBackground() {
         ctx.fill();
       }
 
-      // Connections
+      // Connections (O(N^2) squared check to avoid unnecessary Math.sqrt)
       ctx.lineWidth = 0.5;
       for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
@@ -251,9 +255,10 @@ export default function InteractiveBackground() {
           const b = particles[j];
           const ddx = a.x - b.x;
           const ddy = a.y - b.y;
-          const d = Math.sqrt(ddx * ddx + ddy * ddy);
+          const distSq = ddx * ddx + ddy * ddy;
 
-          if (d < CONNECTION_DISTANCE) {
+          if (distSq < CONNECTION_DIST_SQ) {
+            const d = Math.sqrt(distSq);
             const alpha = (1 - d / CONNECTION_DISTANCE) * 0.12;
             ctx.beginPath();
             ctx.moveTo(a.x, a.y);
@@ -293,8 +298,12 @@ export default function InteractiveBackground() {
     }
 
     function animate() {
-      const w = window.innerWidth;
-      const h = window.innerHeight;
+      if (document.hidden) {
+        animRef.current = requestAnimationFrame(animate);
+        return;
+      }
+
+      const { w, h } = sizeRef.current;
       const frame = frameRef.current++;
 
       // Clear
@@ -305,8 +314,8 @@ export default function InteractiveBackground() {
       const my = mouseRef.current.y;
 
       drawNebulas(ctx!, frame);
-      drawStars(ctx!, frame, mx, my);
-      drawParticles(ctx!, mx, my);
+      drawStars(ctx!, frame, mx, my, w, h);
+      drawParticles(ctx!, mx, my, w, h);
       drawRipples(ctx!);
 
       // Subtle vignette
@@ -319,9 +328,12 @@ export default function InteractiveBackground() {
       animRef.current = requestAnimationFrame(animate);
     }
 
-    animate();
+    const startTimer = setTimeout(() => {
+      animRef.current = requestAnimationFrame(animate);
+    }, 60);
 
     return () => {
+      clearTimeout(startTimer);
       cancelAnimationFrame(animRef.current);
       window.removeEventListener('resize', resize);
       window.removeEventListener('mousemove', handleMouseMove);
