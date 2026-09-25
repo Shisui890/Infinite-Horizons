@@ -21,17 +21,27 @@ function loadInitialConfig(): AIConfig {
   const envProvider = (import.meta.env.VITE_AI_PROVIDER as 'builtin' | 'openrouter' | 'custom_api') || 'openrouter';
   const envEndpoint = import.meta.env.VITE_AI_ENDPOINT || '/api/temporal';
   const envApiKey = import.meta.env.VITE_OPENROUTER_API_KEY || '';
-  const envModel = import.meta.env.VITE_OPENROUTER_MODEL || 'anthropic/claude-3.5-sonnet';
+  const envModel = import.meta.env.VITE_OPENROUTER_MODEL || 'openai/gpt-4o-mini';
 
   try {
     const saved = localStorage.getItem(AI_STORAGE_KEY);
     if (saved) {
       const parsed = JSON.parse(saved);
+      const activeApiKey = parsed.apiKey || envApiKey;
+      // Auto-migrar modelo caso o salvo seja o antigo 'claude-3.5-sonnet' (sem endpoints ativos no OpenRouter)
+      const activeModel = (!parsed.openRouterModel || parsed.openRouterModel.includes('claude-3.5-sonnet'))
+        ? envModel
+        : parsed.openRouterModel;
+      // Se tiver chave configurada e o provedor estava como custom_api local, migrar para openrouter
+      const activeProvider = (parsed.provider === 'custom_api' && activeApiKey)
+        ? 'openrouter'
+        : (parsed.provider || (activeApiKey ? 'openrouter' : envProvider));
+
       return {
-        provider: parsed.provider || envProvider,
+        provider: activeProvider,
         endpoint: parsed.endpoint || envEndpoint,
-        apiKey: parsed.apiKey || envApiKey,
-        openRouterModel: parsed.openRouterModel || envModel,
+        apiKey: activeApiKey,
+        openRouterModel: activeModel,
         autoButterflyEnabled: parsed.autoButterflyEnabled !== undefined ? parsed.autoButterflyEnabled : true,
       };
     }
@@ -40,7 +50,7 @@ function loadInitialConfig(): AIConfig {
   }
 
   return {
-    provider: envProvider,
+    provider: envApiKey ? 'openrouter' : envProvider,
     endpoint: envEndpoint,
     apiKey: envApiKey,
     openRouterModel: envModel,
@@ -117,8 +127,8 @@ export class AITemporalService {
             'X-Title': 'Infinite Horizons Temporal Simulator',
           },
           body: JSON.stringify({
-            model: this.config.openRouterModel || 'anthropic/claude-3.5-sonnet',
-            max_tokens: 10,
+            model: this.config.openRouterModel || 'openai/gpt-4o-mini',
+            max_tokens: 20,
             messages: [{ role: 'user', content: 'Ping' }],
           }),
         });
@@ -177,13 +187,14 @@ export class AITemporalService {
             'X-Title': 'Infinite Horizons Temporal Simulator',
           },
           body: JSON.stringify({
-            model: this.config.openRouterModel || 'anthropic/claude-3.5-sonnet',
+            model: this.config.openRouterModel || 'openai/gpt-4o-mini',
             temperature: 0.1,
+            max_tokens: 1500,
             messages: [
               {
                 role: 'system',
                 content:
-                  'Você é o Oráculo Científico do Infinite Horizons. Retorne APENAS um objeto JSON com: title, description (detalhando fatos e teorias físicas/históricas reais), year (número), category ("CIENTÍFICO", "OBSERVAÇÃO", "COSMOLOGIA", "FÍSICA TEÓRICA", "HISTÓRICO"), importance (1-100), source (deve citar periódicos acadêmicos reais: arXiv, Physical Review, The Astrophysical Journal, Nature ou Science - NUNCA cite Wikipedia), evidenceKind ("documented_fact" ou "scientific_theory"), confidence (1-100), uncertainty.',
+                  'Você é o Pesquisador Acadêmico do Infinite Horizons. DIRETRIZ MANDATÓRIA: ESTRITAMENTE ACADÊMICO & NÃO-FICÇÃO. É expressamente proibido usar ficção científica, pseudociência ou mitos. Baseie-se exclusivamente em artigos científicos formais e história comprovada. Retorne APENAS um objeto JSON com: title, description (detalhando experimentos, cientistas, dados e formulações matemáticas reais), year (número), category ("CIENTÍFICO", "OBSERVAÇÃO", "COSMOLOGIA", "FÍSICA TEÓRICA", "HISTÓRICO"), importance (1-100), source (deve citar periódicos acadêmicos reais: arXiv, Physical Review, Nature, Science, IOP - NUNCA cite Wikipedia ou blogs), evidenceKind ("documented_fact" para dados observados ou "scientific_theory" para modelos matemáticos), confidence (1-100), uncertainty (limitações experimentais e margem de erro formal).',
               },
               { role: 'user', content: `Pesquise minuciosamente o tema científico ou histórico com fontes primárias: "${query}"` },
             ],
@@ -279,17 +290,18 @@ export class AITemporalService {
             'X-Title': 'Infinite Horizons Temporal Simulator',
           },
           body: JSON.stringify({
-            model: this.config.openRouterModel || 'anthropic/claude-3.5-sonnet',
-            temperature: 0.2,
+            model: this.config.openRouterModel || 'openai/gpt-4o-mini',
+            temperature: 0.15,
+            max_tokens: 2000,
             messages: [
               {
                 role: 'system',
                 content:
-                  'Você é o Motor de Síntese de Realidade do Infinite Horizons. Gere um universo físico-temporal consistente. Retorne APENAS um JSON com: universeName, description, events (array com 4 a 8 eventos ordenados cronologicamente: title, description, year, category, importance, sourceUrl [deve ser link real de arXiv, Physical Review, IOP, Nature ou similar - NUNCA Wikipedia], evidenceKind, evidenceConfidence, uncertainty, causes [array de IDs])',
+                  'Você é o Motor de Síntese de Realidades Físico-Científicas do Infinite Horizons. DIRETRIZ MANDATÓRIA: ESTRITAMENTE ACADÊMICO & NÃO-FICÇÃO. É TERMINANTEMENTE PROIBIDO inventar ficção científica, magia, fantasia ou narrativas ficcionais de entretenimento. Para demonstrar realidades paralelas ou ramificações temporais, fundamente-se EXCLUSIVAMENTE em teorias acadêmicas formais e modelos físicos reconhecidos: Interpretação de Muitos Mundos de Everett (ramificações por descoerência quântica do vetor de estado no espaço de Hilbert), Teoria das Cordas / Paisagem de Vácuos de Calabi-Yau, Relatividade Geral de Einstein (geometria lorentziana e métricas de espaço-tempo), Princípio de Autoconsistência de Novikov, Termodinâmica e Entropia Estatística, ou o Modelo Cosmológico Lambda-CDM. Se o modo for histórico, use eventos e descobertas reais documentadas. Se for teórico, use formulações e papers formais publicados (arXiv, Physical Review, Nature). Retorne APENAS um JSON válido com: universeName (nome científico rigoroso), description (fundamentação física e epistemológica), events (array com 4 a 8 eventos ordenados cronologicamente: title, description [detalhando mecanismos físicos reais, cientistas e experimentos], year [número], category, importance [1-100], sourceUrl [link ou citação formal de arXiv, PhysRev, Nature, IOP - NUNCA Wikipedia], evidenceKind ["documented_fact" ou "scientific_theory"], evidenceConfidence [1-100], uncertainty [margem de incerteza do modelo], causes [array de IDs])',
               },
               {
                 role: 'user',
-                content: `Sintetize uma linha temporal científica para o tema: "${topic}". Modo: ${mode}`,
+                content: `Sintetize uma linha temporal científica rigorosa para o tema: "${topic}". Modo: ${mode}`,
               },
             ],
           }),
@@ -648,13 +660,14 @@ Retorne APENAS um JSON:
             'X-Title': 'Infinite Horizons Temporal Simulator',
           },
           body: JSON.stringify({
-            model: this.config.openRouterModel || 'google/gemini-2.0-flash-001',
-            temperature: 0.2,
+            model: this.config.openRouterModel || 'openai/gpt-4o-mini',
+            temperature: 0.15,
+            max_tokens: 1200,
             messages: [
               {
                 role: 'system',
                 content:
-                  'Você é o Motor de Efeito Borboleta e Dinâmica Causal do Infinite Horizons. Gere resultados instigantes, realistas e fundamentados em física. Retorne APENAS JSON válido.',
+                  'Você é o Motor de Efeito Borboleta e Dinâmica Causal Científica do Infinite Horizons. DIRETRIZ MANDATÓRIA: ESTRITAMENTE ACADÊMICO & NÃO-FICÇÃO. É TERMINANTEMENTE PROIBIDO criar narrativas ficcionais, fantasiosas, apocalipses de cinema ou clichês de ficção científica. Toda a causalidade deve ser deduzida com rigor físico, cosmológico ou histórico-científico real: se for um evento físico, determine as alterações no cone de luz, na entropia e nas leis de conservação; se for um evento tecnológico ou histórico, deduza os impactos objetivos na historiografia da ciência, matriz tecnológica, demografia e evolução do conhecimento humano com base em fontes acadêmicas reais. Retorne APENAS JSON válido.',
               },
               { role: 'user', content: prompt },
             ],
@@ -882,14 +895,24 @@ Retorne APENAS um JSON:
             'X-Title': 'Infinite Horizons AI Co-Pilot',
           },
           body: JSON.stringify({
-            model: this.config.openRouterModel || 'anthropic/claude-3.5-sonnet',
+            model: this.config.openRouterModel || 'openai/gpt-4o-mini',
             temperature: 0.2,
+            max_tokens: 1500,
             stream: true,
             messages,
           }),
         });
 
-        if (response.ok && response.body) {
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          const errMsg = (errData as any)?.error?.message || `Erro HTTP ${response.status}: ${response.statusText}`;
+          console.error('OpenRouter streaming error:', errMsg);
+          const feedback = `⚠️ **Falha no OpenRouter (${response.status})**: ${errMsg}\n\n*Dica: Experimente alternar para GPT-4o Mini ou DeepSeek no topo do painel.*`;
+          onChunk(feedback);
+          return feedback;
+        }
+
+        if (response.body) {
           const reader = response.body.getReader();
           const decoder = new TextDecoder('utf-8');
           let accumulated = '';
@@ -927,8 +950,8 @@ Retorne APENAS um JSON:
 
           if (accumulated.trim()) return accumulated;
         }
-      } catch (err) {
-        console.warn('Streaming do OpenRouter falhou, aplicando fallback acústico:', err);
+      } catch (err: any) {
+        console.warn('Streaming do OpenRouter falhou, aplicando fallback:', err);
       }
     }
 

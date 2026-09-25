@@ -38,7 +38,7 @@ function getModelConfig(customModel?: string): ModelConfig {
       url: 'https://openrouter.ai/api/v1/chat/completions',
       key: openRouterKey,
       header: 'Authorization',
-      model: customModel || process.env.OPENROUTER_MODEL || process.env.OPENAI_MODEL || 'anthropic/claude-3.5-sonnet',
+      model: customModel || process.env.OPENROUTER_MODEL || process.env.OPENAI_MODEL || 'openai/gpt-4o-mini',
       extraHeaders: {
         'HTTP-Referer': 'https://infinite-horizons.app',
         'X-Title': 'Infinite Horizons Temporal Simulator',
@@ -97,8 +97,10 @@ export default async function handler(request: Request) {
   }
 
   const systemPrompt = `Você é o Oráculo Científico e Pesquisador Físico-Temporal do laboratório Infinite Horizons.
-Sua missão é estruturar dados históricos, observações cosmológicas e modelos de física teórica com rigor e realismo (ex.: Relatividade Geral de Einstein, Teoria das Supercordas/Teoria M em 11 dimensões, Mecânica Quântica e Multiverso de Everett, Termodinâmica e Princípio de Novikov).
-SEMPRE separe fatos documentados, teorias científicas estabelecidas e hipóteses matemáticas especulativas.
+DIRETRIZ MANDATÓRIA: ESTRITAMENTE ACADÊMICO & NÃO-FICÇÃO.
+É TERMINANTEMENTE PROIBIDO criar ficção científica fantasiosa, magias, clichês de cinema ou narrativas inventadas.
+Sua missão é estruturar dados com base estrita na literatura científica e física teórica reconhecida (ex.: Relatividade Geral de Einstein, Teoria das Supercordas/Teoria M, Interpretação de Muitos Mundos de Everett via descoerência quântica formal, Termodinâmica e Princípio de Autoconsistência de Novikov, Cosmologia Lambda-CDM).
+SEMPRE separe fatos documentados de teorias matemáticas e explicite margens de incerteza.
 Retorne SEMPRE E APENAS JSON válido, sem texto introdutório ou markdown ao redor.`;
 
   const instruction =
@@ -142,6 +144,7 @@ Retorne APENAS um objeto JSON com:
     const payload: Record<string, unknown> = {
       model: config.model,
       temperature: 0.15,
+      max_tokens: 2000,
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: instruction },

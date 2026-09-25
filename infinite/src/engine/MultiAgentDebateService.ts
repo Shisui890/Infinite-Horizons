@@ -61,7 +61,7 @@ export class MultiAgentDebateService {
   public static async conductDebate(topic: string): Promise<DebateReport> {
     const aiConfig = AITemporalService.getConfig();
     const apiKey = aiConfig.apiKey || import.meta.env.VITE_OPENROUTER_API_KEY || '';
-    const model = aiConfig.openRouterModel || import.meta.env.VITE_OPENROUTER_MODEL || 'anthropic/claude-3.5-sonnet';
+    const model = aiConfig.openRouterModel || import.meta.env.VITE_OPENROUTER_MODEL || 'openai/gpt-4o-mini';
 
     if (apiKey) {
       try {
@@ -76,11 +76,14 @@ export class MultiAgentDebateService {
           body: JSON.stringify({
             model,
             temperature: 0.4,
+            max_tokens: 2000,
             messages: [
               {
                 role: 'system',
                 content: `Você é o mediador de um simpósio de física teórica internacional de alto nível.
-Gere um debate acadêmico rigoroso entre 3 cientistas renomados avaliando o seguinte tema físico:
+DIRETRIZ MANDATÓRIA: ESTRITAMENTE ACADÊMICO & NÃO-FICÇÃO.
+O debate deve ser 100% embasado em formalismos matemáticos, equações em LaTeX, teoremas comprovados e dados observacionais reais (LIGO, Planck, JWST). É expressamente proibida qualquer abordagem ficcional ou pseudocientífica.
+Gere um debate acadêmico de nível de pós-doutorado entre 3 cientistas renomados avaliando o seguinte tema físico:
 1. Dr. Marcus Vance (Relatividade Geral, Geometria Lorentziana)
 2. Dra. Elena Chen (Teoria M, Calabi-Yau, Dualidades)
 3. Dr. Rajesh Patel (Cosmologia Observacional, Dados Observacionais)

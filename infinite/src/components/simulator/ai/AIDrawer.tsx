@@ -23,13 +23,12 @@ interface Props {
 }
 
 const OPENROUTER_MODELS = [
-  { id: 'anthropic/claude-3.7-sonnet', name: 'Claude 3.7 Sonnet (Anthropic) — Raciocínio Híbrido' },
-  { id: 'anthropic/claude-3.5-sonnet', name: 'Claude 3.5 Sonnet (Anthropic) — Física Teórica & Causalidade' },
-  { id: 'openai/gpt-4o', name: 'GPT-4o (OpenAI) — Multimodal de Alta Velocidade' },
-  { id: 'deepseek/deepseek-r1', name: 'DeepSeek R1 (DeepSeek) — Raciocínio Matemático CoT' },
+  { id: 'openai/gpt-4o-mini', name: 'GPT-4o Mini (OpenAI) — Alta Velocidade & Ultra-Econômico' },
+  { id: 'openai/gpt-4o', name: 'GPT-4o (OpenAI) — Multimodal de Alta Precisão' },
   { id: 'deepseek/deepseek-chat', name: 'DeepSeek V3 (DeepSeek) — Altíssima Eficiência' },
-  { id: 'google/gemini-2.0-flash-001', name: 'Gemini 2.0 Flash (Google) — Ultra-Baixa Latência' },
+  { id: 'deepseek/deepseek-r1', name: 'DeepSeek R1 (DeepSeek) — Raciocínio Matemático CoT' },
   { id: 'meta-llama/llama-3.3-70b-instruct', name: 'Llama 3.3 70B (Meta) — Open Weights' },
+  { id: 'anthropic/claude-3-haiku', name: 'Claude 3 Haiku (Anthropic) — Rápido e Leve' },
 ];
 
 export default function AIDrawer({ universe, lastAIResult, onClose, onApplyResolution }: Props) {
@@ -58,7 +57,7 @@ export default function AIDrawer({ universe, lastAIResult, onClose, onApplyResol
   const [endpoint, setEndpoint] = useState(AITemporalService.getConfig().endpoint || '/api/temporal');
   const [apiKey, setApiKey] = useState(AITemporalService.getConfig().apiKey || '');
   const [openRouterModel, setOpenRouterModel] = useState(
-    AITemporalService.getConfig().openRouterModel || 'anthropic/claude-3.5-sonnet'
+    AITemporalService.getConfig().openRouterModel || 'openai/gpt-4o-mini'
   );
   const [customModel, setCustomModel] = useState('');
   const [savedSuccess, setSavedSuccess] = useState(false);
@@ -113,7 +112,12 @@ export default function AIDrawer({ universe, lastAIResult, onClose, onApplyResol
     const seed = getKnowledgeBankSeed(text);
     const systemContext = `Você é o Oráculo Científico e Co-piloto de Física Teórica do laboratório Infinite Horizons.
 Universo Ativo: "${universe.name}" | Integridade: ${universe.temporalIntegrity}% | Paradoxos: ${universe.paradoxes.length} | Dimensões: ${universe.dimensions.length}.
-${seed ? `Semente Factual Compacta: ${seed}\n` : ''}Responda de forma rigorosa, elegante, inspiradora e científica com formatação Markdown e LaTeX ($...$) quando cabível.`;
+${seed ? `Semente Factual Compacta: ${seed}\n` : ''}
+DIRETRIZ MANDATÓRIA: ESTRITAMENTE ACADÊMICO & NÃO-FICÇÃO.
+- Responda exclusivamente com base em teorias acadêmicas formais e física teórica reconhecida (Relatividade Geral, Mecânica Quântica, Termodinâmica, Modelo Lambda-CDM, Interpretação de Muitos Mundos de Everett, Teoria de Cordas) ou história científica documentada.
+- É PROIBIDO inventar fatos, usar ficção científica fantasiosa, magias ou especulações sem respaldo acadêmico.
+- Quando abordar realidades paralelas ou paradoxos, diferencie claramente o que é observação empírica comprovada do que é modelo matemático teórico, citando sempre princípios e autores reais.
+- Use formatação Markdown e equações em LaTeX ($...$) para expressar formulações matemáticas rigorosas.`;
 
     // Truncar para no máximo as últimas 4 mensagens para economizar milhares de tokens por sessão
     const recentHistory = newHistory.slice(-4);
@@ -694,7 +698,7 @@ ${seed ? `Semente Factual Compacta: ${seed}\n` : ''}Responda de forma rigorosa, 
           <form className="ai-tab-content ai-settings-form" onSubmit={handleSaveConfig}>
             <h3 className="ai-content-title">Provedor & Modelo de Inteligência Artificial</h3>
             <p className="ai-content-desc">
-              Conecte o Claude 3.5 Sonnet ou outro LLM de ponta via OpenRouter para inferência física em tempo real.
+              Conecte modelos de ponta como GPT-4o Mini, DeepSeek ou Claude via OpenRouter para inferência física em tempo real.
             </p>
 
             <label>
@@ -703,7 +707,7 @@ ${seed ? `Semente Factual Compacta: ${seed}\n` : ''}Responda de forma rigorosa, 
                 value={provider}
                 onChange={e => setProvider(e.target.value as 'builtin' | 'openrouter' | 'custom_api')}
               >
-                <option value="openrouter">OpenRouter (Claude 3.5 Sonnet / Multi-Model)</option>
+                <option value="openrouter">OpenRouter (GPT-4o Mini / DeepSeek / Claude)</option>
                 <option value="builtin">Motor Heurístico Local (Offline)</option>
                 <option value="custom_api">Endpoint de API Customizado</option>
               </select>
