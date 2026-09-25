@@ -39,4 +39,3 @@ export function LaymanModeProvider({ children }: { children: React.ReactNode }) 
     </LaymanModeContext.Provider>
   );
 }
-
