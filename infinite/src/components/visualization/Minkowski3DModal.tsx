@@ -158,6 +158,9 @@ export default function Minkowski3DModal({ universe, onClose }: Props) {
     // Interactive mouse rotation
     let isDragging = false;
     let previousMousePosition = { x: 0, y: 0 };
+    let previousTouchPosition = { x: 0, y: 0 };
+    let initialPinchDistance = 0;
+    let initialCameraZ = camera.position.z;
 
     function onMouseDown(e: MouseEvent) {
       isDragging = true;
@@ -183,11 +186,58 @@ export default function Minkowski3DModal({ universe, onClose }: Props) {
       camera.position.z = Math.max(25, Math.min(150, camera.position.z + e.deltaY * 0.05));
     }
 
+    function getTouchDistance(touches: TouchList) {
+      if (touches.length < 2) return 0;
+      const dx = touches[0].clientX - touches[1].clientX;
+      const dy = touches[0].clientY - touches[1].clientY;
+      return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    function onTouchStart(e: TouchEvent) {
+      if (e.touches.length === 1) {
+        isDragging = true;
+        previousTouchPosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      } else if (e.touches.length === 2) {
+        isDragging = true;
+        initialPinchDistance = getTouchDistance(e.touches);
+        initialCameraZ = camera.position.z;
+      }
+    }
+
+    function onTouchMove(e: TouchEvent) {
+      if (!isDragging) return;
+      if (e.touches.length === 1) {
+        const deltaX = e.touches[0].clientX - previousTouchPosition.x;
+        const deltaY = e.touches[0].clientY - previousTouchPosition.y;
+
+        mainGroup.rotation.y += deltaX * 0.008;
+        mainGroup.rotation.x += deltaY * 0.008;
+
+        previousTouchPosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        e.preventDefault();
+      } else if (e.touches.length === 2 && initialPinchDistance > 0) {
+        const currentDist = getTouchDistance(e.touches);
+        const pinchRatio = initialPinchDistance / Math.max(1, currentDist);
+        camera.position.z = Math.max(25, Math.min(150, initialCameraZ * pinchRatio));
+        e.preventDefault();
+      }
+    }
+
+    function onTouchEnd() {
+      isDragging = false;
+      initialPinchDistance = 0;
+    }
+
     const domEl = renderer.domElement;
     domEl.addEventListener('mousedown', onMouseDown);
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('mouseup', onMouseUp);
     domEl.addEventListener('wheel', onWheel);
+
+    domEl.addEventListener('touchstart', onTouchStart, { passive: false });
+    window.addEventListener('touchmove', onTouchMove, { passive: false });
+    window.addEventListener('touchend', onTouchEnd);
+    window.addEventListener('touchcancel', onTouchEnd);
 
     // Animation Loop
     let animId = 0;
@@ -215,6 +265,25 @@ export default function Minkowski3DModal({ universe, onClose }: Props) {
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mouseup', onMouseUp);
       domEl.removeEventListener('wheel', onWheel);
+
+      domEl.removeEventListener('touchstart', onTouchStart);
+      window.removeEventListener('touchmove', onTouchMove);
+      window.removeEventListener('touchend', onTouchEnd);
+      window.removeEventListener('touchcancel', onTouchEnd);
+
+      // Deep GPU resource cleanup for Three.js
+      scene.traverse((obj) => {
+        if (obj instanceof THREE.Mesh) {
+          if (obj.geometry) {
+            obj.geometry.dispose();
+          }
+          if (Array.isArray(obj.material)) {
+            obj.material.forEach((mat) => mat.dispose());
+          } else if (obj.material) {
+            obj.material.dispose();
+          }
+        }
+      });
       renderer.dispose();
       if (container.contains(domEl)) {
         container.removeChild(domEl);

@@ -28,6 +28,13 @@ export default function TimeScrubber() {
   const activeTravelers = universeState.universe.travelers.filter(t => t.currentYear <= timelineYear);
 
   const timerRef = useRef<number | null>(null);
+  const maxYearRef = useRef(maxYear);
+  const minYearRef = useRef(minYear);
+
+  useEffect(() => {
+    maxYearRef.current = maxYear;
+    minYearRef.current = minYear;
+  }, [maxYear, minYear]);
 
   useEffect(() => {
     if (!isTimelinePlaying) {
@@ -37,13 +44,13 @@ export default function TimeScrubber() {
 
     const intervalMs = Math.max(50, Math.floor(400 / playbackSpeed));
     timerRef.current = window.setInterval(() => {
-      setTimelineYear(timelineYear >= maxYear ? minYear : timelineYear + 1);
+      setTimelineYear(current => (current >= maxYearRef.current ? minYearRef.current : current + 1));
     }, intervalMs);
 
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [isTimelinePlaying, playbackSpeed, timelineYear, maxYear, minYear, setTimelineYear]);
+  }, [isTimelinePlaying, playbackSpeed, setTimelineYear]);
 
   return (
     <div className="time-scrubber-container">

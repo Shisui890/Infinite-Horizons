@@ -777,6 +777,7 @@ export default function TimelineCanvas({
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
+        onTouchCancel={handleTouchEnd}
         onWheel={handleWheel}
         style={{
           cursor: isDragging ? 'grabbing' : 'grab',

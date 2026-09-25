@@ -1,4 +1,4 @@
-import { useState, useTransition, useId, useMemo } from 'react';
+import { useState, useTransition, useId, useMemo, useRef, useCallback } from 'react';
 import type { Universe, MonteCarloResult } from '../../types/temporal';
 import { MonteCarloService } from '../../engine/MonteCarloService';
 import { useLaymanMode } from '../../context/useLaymanMode';
@@ -18,7 +18,9 @@ export default function MonteCarloModal({ universe, onClose }: Props) {
     MonteCarloService.runSimulation(universe, 10000)
   );
   const [isPending, startTransition] = useTransition();
+  const [isComputing, setIsComputing] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<ActiveTab>('overview');
+  const runIdRef = useRef<number>(0);
 
   const gradientId = useId();
   const health = MonteCarloService.assessGraphHealth(universe);
@@ -26,20 +28,35 @@ export default function MonteCarloModal({ universe, onClose }: Props) {
     return MonteCarloService.generateCausalRecommendations(universe, result);
   }, [universe, result]);
 
-  function handleReRun(n: number) {
+  const executeSimulation = useCallback((n: number) => {
+    const currentRun = ++runIdRef.current;
+    setIsComputing(true);
     setIterations(n);
-    startTransition(() => {
-      const res = MonteCarloService.runSimulation(universe, n);
-      setResult(res);
-    });
+    MonteCarloService.runSimulationAsync(universe, n)
+      .then(res => {
+        if (currentRun === runIdRef.current) {
+          startTransition(() => {
+            setResult(res);
+          });
+          setIsComputing(false);
+        }
+      })
+      .catch(() => {
+        if (currentRun === runIdRef.current) {
+          setIsComputing(false);
+        }
+      });
+  }, [universe]);
+
+  function handleReRun(n: number) {
+    executeSimulation(n);
   }
 
   function handleReroll() {
-    startTransition(() => {
-      const res = MonteCarloService.runSimulation(universe, iterations);
-      setResult(res);
-    });
+    executeSimulation(iterations);
   }
+
+  const isBusy = isPending || isComputing;
 
   // Max theoretical entropy for 3 discrete states is log2(3) ≈ 1.585 bits
   const maxEntropy = 1.585;
@@ -447,7 +464,7 @@ export default function MonteCarloModal({ universe, onClose }: Props) {
                     type="button"
                     className={`btn-mc-iter ${iterations === n ? 'active' : ''}`}
                     onClick={() => handleReRun(n)}
-                    disabled={isPending}
+                    disabled={isBusy}
                   >
                     {n >= 1000 ? `${(n / 1000).toLocaleString('pt-BR')}k` : n}
                   </button>
@@ -460,10 +477,10 @@ export default function MonteCarloModal({ universe, onClose }: Props) {
                 type="button"
                 className="btn-mc-reroll"
                 onClick={handleReroll}
-                disabled={isPending}
+                disabled={isBusy}
                 title={isLaymanMode ? 'Rodar novos testes com outra combinação aleatória' : 'Executar novamente com nova semente estocástica'}
               >
-                <span>{isPending ? 'Simulando...' : (isLaymanMode ? 'Rodar Novos Testes' : 'Re-simular')}</span>
+                <span>{isBusy ? 'Simulando via Worker...' : (isLaymanMode ? 'Rodar Novos Testes' : 'Re-simular')}</span>
               </button>
 
               <button type="button" className="sim-btn-primary mc-btn-close-action" onClick={onClose}>

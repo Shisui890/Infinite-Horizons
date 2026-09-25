@@ -100,7 +100,7 @@ export interface SimulationStore {
   setActiveDimensionId: (id: string) => void;
   setSelectedEventId: (id: string | null) => void;
   setHighlightChain: (chain: string[]) => void;
-  setTimelineYear: (year: number) => void;
+  setTimelineYear: (yearOrUpdater: number | ((prev: number) => number)) => void;
   setIsTimelinePlaying: (playing: boolean) => void;
   setPlaybackSpeed: (speed: number) => void;
 
@@ -197,7 +197,10 @@ export const useSimulationStore = create<SimulationStore>((set, get) => {
     setActiveDimensionId: id => set({ activeDimensionId: id }),
     setSelectedEventId: id => set({ selectedEventId: id }),
     setHighlightChain: chain => set({ highlightChain: chain }),
-    setTimelineYear: year => set({ timelineYear: year }),
+    setTimelineYear: yearOrUpdater =>
+      set(state => ({
+        timelineYear: typeof yearOrUpdater === 'function' ? yearOrUpdater(state.timelineYear) : yearOrUpdater,
+      })),
     setIsTimelinePlaying: playing => set({ isTimelinePlaying: playing }),
     setPlaybackSpeed: speed => set({ playbackSpeed: speed }),
 
