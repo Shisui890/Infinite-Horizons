@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useLaymanMode } from '../../../context/useLaymanMode';
 import type {
   Universe,
   AIButterflyResult,
@@ -32,6 +33,8 @@ const OPENROUTER_MODELS = [
 ];
 
 export default function AIDrawer({ universe, lastAIResult, onClose, onApplyResolution }: Props) {
+  const { isLaymanMode: globalLayman } = useLaymanMode();
+  const [isLaymanMode, setIsLaymanMode] = useState<boolean>(globalLayman);
   const [activeTab, setActiveTab] = useState<'copilot' | 'symposium' | 'butterfly' | 'futures' | 'resolutions' | 'settings'>('copilot');
   const [selectedParadoxId, setSelectedParadoxId] = useState<string>(universe.paradoxes[0]?.id || '');
 
@@ -91,11 +94,17 @@ export default function AIDrawer({ universe, lastAIResult, onClose, onApplyResol
     // 1. Verificação Primária na Base Sub-Escondida Local (Economia de 100% de Tokens!)
     const localMatch = searchKnowledgeBank(text);
     if (localMatch) {
-      const formattedAnswer = `**[BASE CIENTÍFICA LOCAL // 0 TOKENS CONSUMIDOS]**\n\n### ${localMatch.title}\n\n${
-        localMatch.didacticAnswer
-      }\n\n**Formulação Matemática Fundamental:**\n$$${localMatch.formula || ''}$$\n*(${localMatch.formulaLabel || localMatch.topic})*\n\n**Aprofundamento Físico e Teórico:**\n${
-        localMatch.technicalAnswer
-      }\n\n*Fontes Primárias Verificadas: ${localMatch.sources.join(', ')}*`;
+      const formattedAnswer = isLaymanMode
+        ? `**[EXPLICAÇÃO FÁCIL PARA LEIGOS // BASE LOCAL]**\n\n### ${localMatch.title}\n\n${
+            localMatch.didacticAnswer
+          }\n\n💡 **O que isso significa na prática:**\n${
+            localMatch.technicalAnswer.replace(/(\$[^$]*\$)/g, '').slice(0, 320)
+          }...`
+        : `**[BASE CIENTÍFICA LOCAL // 0 TOKENS CONSUMIDOS]**\n\n### ${localMatch.title}\n\n${
+            localMatch.didacticAnswer
+          }\n\n**Formulação Matemática Fundamental:**\n$$${localMatch.formula || ''}$$\n*(${localMatch.formulaLabel || localMatch.topic})*\n\n**Aprofundamento Físico e Teórico:**\n${
+            localMatch.technicalAnswer
+          }\n\n*Fontes Primárias Verificadas: ${localMatch.sources.join(', ')}*`;
 
       setTimeout(() => {
         setChatMessages(prev => {
@@ -110,7 +119,16 @@ export default function AIDrawer({ universe, lastAIResult, onClose, onApplyResol
 
     // 2. Chamada Externa via LLM com Compressão de Histórico e Injeção de Semente Compacta
     const seed = getKnowledgeBankSeed(text);
-    const systemContext = `Você é o Oráculo Científico e Co-piloto de Física Teórica do laboratório Infinite Horizons.
+    const systemContext = isLaymanMode
+      ? `Você é o Oráculo Científico do Infinite Horizons, mas agora atuando no MODO DIDÁTICO / PARA LEIGOS.
+Universo Ativo: "${universe.name}" | Integridade: ${universe.temporalIntegrity}%.
+${seed ? `Semente Factual Compacta: ${seed}\n` : ''}
+DIRETRIZES MANDATÓRIAS PARA EXPLICAR A UM LEIGO (SEM CONHECIMENTO DE FÍSICA OU MATEMÁTICA):
+1. O usuário tem dificuldade para entender matemática pesada ou jargões técnicos.
+2. Explique com simplicidade absoluta, linguagem acolhedora, clara e analogias do cotidiano (ex: peças de dominó caindo, carros em uma rodovia, panelas de pressão).
+3. NUNCA use fórmulas matemáticas em LaTeX ($...$) ou termos complexos sem traduzi-los de imediato para português claro.
+4. Foque em como as coisas funcionam na prática, o que significaria para o mundo e para a vida das pessoas, e responda com entusiasmo e clareza didática.`
+      : `Você é o Oráculo Científico e Co-piloto de Física Teórica do laboratório Infinite Horizons.
 Universo Ativo: "${universe.name}" | Integridade: ${universe.temporalIntegrity}% | Paradoxos: ${universe.paradoxes.length} | Dimensões: ${universe.dimensions.length}.
 ${seed ? `Semente Factual Compacta: ${seed}\n` : ''}
 DIRETRIZ MANDATÓRIA: ESTRITAMENTE ACADÊMICO & NÃO-FICÇÃO.
@@ -341,10 +359,27 @@ DIRETRIZ MANDATÓRIA: ESTRITAMENTE ACADÊMICO & NÃO-FICÇÃO.
           <div className="ai-tab-content ai-copilot-container">
             <div className="copilot-quick-prompts">
               <div className="copilot-quick-header">
-                <span className="copilot-quick-label">BASE LOCAL (0 TOKENS):</span>
-                <span className="token-saver-pill" title="Perguntas locais não consomem tokens de API">
-                  0 TOKENS // INSTANTÂNEO
+                <span className="copilot-quick-label">
+                  {isLaymanMode ? 'MODO PARA LEIGOS ATIVO:' : 'BASE LOCAL (0 TOKENS):'}
                 </span>
+                <div className="cf-inline-toggle">
+                  <button
+                    type="button"
+                    className={`btn-cf-submode ${!isLaymanMode ? 'active' : ''}`}
+                    onClick={() => setIsLaymanMode(false)}
+                    title="Respostas com termos acadêmicos e fórmulas formais"
+                  >
+                    🎓 Acadêmico
+                  </button>
+                  <button
+                    type="button"
+                    className={`btn-cf-submode ${isLaymanMode ? 'active' : ''}`}
+                    onClick={() => setIsLaymanMode(true)}
+                    title="Respostas explicadas em linguagem fácil para leigos"
+                  >
+                    💡 Para Leigos
+                  </button>
+                </div>
               </div>
               <div className="copilot-chips-wrap">
                 {POPULAR_COSMIC_QUERIES.map((q, idx) => (
@@ -370,7 +405,7 @@ DIRETRIZ MANDATÓRIA: ESTRITAMENTE ACADÊMICO & NÃO-FICÇÃO.
                 <div key={idx} className={`copilot-msg-bubble ${msg.role}`}>
                   <div className="copilot-msg-author">
                     <span className="author-dot" />
-                    <span>{msg.role === 'assistant' ? 'ORÁCULO FÍSICO' : 'OBSERVADOR'}</span>
+                    <span>{msg.role === 'assistant' ? (isLaymanMode ? 'ORÁCULO DIDÁTICO' : 'ORÁCULO FÍSICO') : 'OBSERVADOR'}</span>
                   </div>
                   <div className="copilot-msg-content">
                     {msg.content ? (
@@ -383,6 +418,22 @@ DIRETRIZ MANDATÓRIA: ESTRITAMENTE ACADÊMICO & NÃO-FICÇÃO.
                       </span>
                     )}
                   </div>
+                  {msg.role === 'assistant' && msg.content && !isStreamingChat && (
+                    <div className="copilot-msg-actions">
+                      <button
+                        type="button"
+                        className="btn-simplify-msg"
+                        onClick={() =>
+                          handleSendChat(
+                            `Explique a sua resposta anterior de forma bem simples e prática para quem não entende nada de física ou matemática, usando analogias fáceis.`
+                          )
+                        }
+                        title="Simplificar esta resposta para leigos"
+                      >
+                        💡 Explicar de Forma Mais Fácil
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -396,7 +447,11 @@ DIRETRIZ MANDATÓRIA: ESTRITAMENTE ACADÊMICO & NÃO-FICÇÃO.
             >
               <input
                 type="text"
-                placeholder="Pergunte sobre relatividade, paradoxos, cordas ou métricas..."
+                placeholder={
+                  isLaymanMode
+                    ? 'Pergunte qualquer dúvida de física de forma fácil...'
+                    : 'Pergunte sobre relatividade, paradoxos, cordas ou métricas...'
+                }
                 value={chatInput}
                 onChange={e => setChatInput(e.target.value)}
                 disabled={isStreamingChat}

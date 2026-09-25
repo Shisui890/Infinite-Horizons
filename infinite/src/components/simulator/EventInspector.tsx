@@ -312,15 +312,21 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
         {counterfactual && (
           <div className="counterfactual-dossier-card">
             <div className="cf-dossier-header">
-              <span className="cf-dossier-badge">E SE NÃO EXISTISSE?</span>
-              <span className="cf-dossier-title">Cenário Contrafactual</span>
+              <span className="cf-dossier-badge">
+                {isLaymanMode ? 'E SE NÃO TIVESSE ACONTECIDO?' : 'E SE NÃO EXISTISSE?'}
+              </span>
+              <span className="cf-dossier-title">
+                {isLaymanMode ? 'Cenário para Leigos' : 'Cenário Contrafactual'}
+              </span>
             </div>
             <div className="cf-dossier-content">
               <p className="cf-dossier-text">
                 <MathText text={counterfactual.whatIfNonExistent} />
               </p>
               <div className="cf-dossier-hypothesis">
-                <span className="cf-dossier-hypo-tag">RAMIFICAÇÃO ALTERNATIVA:</span>
+                <span className="cf-dossier-hypo-tag">
+                  {isLaymanMode ? 'COMO SERIA O MUNDO HOJE:' : 'RAMIFICAÇÃO ALTERNATIVA:'}
+                </span>
                 <p>
                   <MathText text={counterfactual.alternateHistoryHypothesis} />
                 </p>
@@ -328,7 +334,9 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
               {counterfactual.brokenDescendants.length > 0 && (
                 <div className="cf-dossier-descendants">
                   <span className="cf-dossier-hypo-tag">
-                    CONSEQUÊNCIAS NO CONE DE LUZ ({counterfactual.brokenDescendants.length}):
+                    {isLaymanMode
+                      ? `MARCOS FUTUROS QUE SUMIRIAM (${counterfactual.brokenDescendants.length}):`
+                      : `CONSEQUÊNCIAS NO CONE DE LUZ (${counterfactual.brokenDescendants.length}):`}
                   </span>
                   <ul className="cf-dossier-list">
                     {counterfactual.brokenDescendants.slice(0, 3).map(desc => (

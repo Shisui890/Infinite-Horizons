@@ -1104,20 +1104,34 @@ Para a premissa levantada ("${lastUserMsg.slice(0, 100)}"):
   }
 
   /**
-   * Consulta a IA (OpenRouter / GPT-4o) para gerar um relatório contrafactual
-   * aprofundado, rigorosamente acadêmico e não-ficcional sobre a ausência do evento.
+   * Consulta a IA (OpenRouter / GPT-4o) para gerar um relatório contrafactual.
+   * Suporta modo estritamente acadêmico ou modo didático (para leigos) com linguagem acessível.
    */
   public static async fetchAICounterfactualReport(
     targetEvent: TemporalEvent,
-    universe: Universe
+    universe: Universe,
+    isLayman: boolean = false
   ): Promise<string> {
-    const cacheKey = `counterfactual:${universe.id}:${targetEvent.id}`;
+    const cacheKey = `counterfactual:${universe.id}:${targetEvent.id}:${isLayman ? 'layman' : 'academic'}`;
     const cached = this.getCached<string>(cacheKey);
     if (cached) return cached;
 
     if (this.config.provider === 'openrouter' && this.config.apiKey) {
       try {
-        const prompt = `Analise a causalidade contrafactual com rigor acadêmico absoluto:
+        const prompt = isLayman
+          ? `Explique de forma extremamente SIMPLES, CLARA e ACESSÍVEL PARA LEIGOS:
+O evento "${targetEvent.title}" (Ano ${targetEvent.year}) foi impedido de acontecer ou nunca existiu na história.
+Descrição factual original: "${targetEvent.description}".
+
+DIRETRIZES FUNDAMENTAIS PARA EXPLICAR A UM LEIGO (SEM CONHECIMENTO DE FÍSICA OU MATEMÁTICA):
+1. Linguagem simples, acolhedora e direta: Explique como se estivesse conversando com alguém leigo ou um jovem curioso.
+2. ZERO jargões difíceis e ZERO fórmulas matemáticas: Não use termos acadêmicos ou fórmulas como LaTeX, métricas ou termos quânticos pesados. Se falar de causa e efeito, use analogias do dia a dia (como uma fila de dominós ou um efeito bola de neve).
+3. Impacto prático na vida real:
+   - O que mudaria no dia a dia das pessoas comuns?
+   - Quais tecnologias ou invenções modernas deixariam de existir ou demorariam muito mais para aparecer?
+   - Como seria a sociedade hoje sem esse acontecimento?
+4. Organize a resposta com títulos fáceis e tópicos curtos e claros.`
+          : `Analise a causalidade contrafactual com rigor acadêmico absoluto:
 O evento "${targetEvent.title}" (Ano ${targetEvent.year}, Categoria: ${targetEvent.category}, Importância: ${targetEvent.importance}/100) foi suprimido ou impedido de ocorrer no continuum temporal.
 Descrição factual original do evento: "${targetEvent.description}".
 Contexto da realidade: "${universe.name}".
@@ -1127,6 +1141,10 @@ DIRETRIZES MANDATÓRIAS (ESTRITAMENTE ACADÊMICO & NÃO-FICÇÃO):
 2. Quais desenvolvimentos científicos, tecnológicos, institucionais ou cosmológicos específicos seriam adiados, inviabilizados ou tomariam rumos alternativos?
 3. Fundamente a resposta em teorias formais (Cones de luz de Minkowski, Interpretação de Muitos Mundos de Everett, Dinâmica não linear de Lyapunov) ou historiadores e fontes primárias reais.
 4. É TERMINANTEMENTE PROIBIDO usar fantasia, ficção científica clichê ou magia. Mantenha tom de artigo científico e utilize Markdown formal com equações em LaTeX ($...$).`;
+
+        const systemMessage = isLayman
+          ? 'Você é um professor e divulgador científico amigável. Sua missão é explicar o impacto das mudanças no tempo de forma muito simples, clara e compreensível para qualquer pessoa comum, sem matemática pesada e sem jargões complicados.'
+          : 'Você é o Historiador da Ciência e Físico Causal do laboratório Infinite Horizons. Sua função é elaborar análises contrafactuais estritamente acadêmicas, fundamentadas em fontes primárias e física teórica formal, sem nenhum teor ficcional ou fantasioso.';
 
         const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
           method: 'POST',
@@ -1138,13 +1156,12 @@ DIRETRIZES MANDATÓRIAS (ESTRITAMENTE ACADÊMICO & NÃO-FICÇÃO):
           },
           body: JSON.stringify({
             model: this.config.openRouterModel || 'openai/gpt-4o-mini',
-            temperature: 0.2,
+            temperature: isLayman ? 0.3 : 0.2,
             max_tokens: 1200,
             messages: [
               {
                 role: 'system',
-                content:
-                  'Você é o Historiador da Ciência e Físico Causal do laboratório Infinite Horizons. Sua função é elaborar análises contrafactuais estritamente acadêmicas, fundamentadas em fontes primárias e física teórica formal, sem nenhum teor ficcional ou fantasioso.',
+                content: systemMessage,
               },
               { role: 'user', content: prompt },
             ],
@@ -1166,7 +1183,24 @@ DIRETRIZES MANDATÓRIAS (ESTRITAMENTE ACADÊMICO & NÃO-FICÇÃO):
 
     // Grounded fallback synthesis
     const local = this.generateCounterfactualAnalysis(targetEvent, universe);
-    const synthesis = `### Análise Contrafactual Acadêmica: Ausência de "${local.targetEventTitle}" (${local.targetEventYear})
+    const synthesis = isLayman
+      ? `### E Se "${local.targetEventTitle}" (${local.targetEventYear}) Nunca Tivesse Acontecido? (Explicação para Leigos)
+
+Imagine que a história humana é como uma trilha: quando tiramos uma pedra fundamental do caminho, o rumo do mundo inteiro se transforma.
+
+#### O Que Teria Acontecido:
+${local.whatIfNonExistent.replace(/(\$[^$]*\$)/g, '').replace(/cones? de luz|espaço-tempo de minskowski/gi, 'curso da história')}
+
+#### Como Seria o Nosso Mundo Hoje:
+${local.alternateHistoryHypothesis.replace(/(\$[^$]*\$)/g, '').replace(/ramo ortogonal|decoerência quântica/gi, 'um caminho histórico paralelo')}
+
+${local.brokenDescendants.length > 0 ? `#### Avanços e Conquistas que Não Existiriam ou Seriam Adiados:\n${local.brokenDescendants.map(d => `- **${d.title} (${d.year})**: Dependia diretamente deste acontecimento; sem ele, a humanidade demoraria muito mais para alcançar essa conquista.`).join('\n')}` : ''}
+
+#### Como Entender Isso de Forma Simples:
+- **Efeito Dominó**: Uma única mudança no passado derruba peças em cascata no futuro;
+- **O Tempo Não Muda Sozinho**: Cada descoberta é construída em cima da anterior; sem a base, o resto não fica de pé;
+- **Um Novo Ramo na Árvore**: Em vez do mundo acabar, a história simplesmente tomaria um caminho diferente.`
+      : `### Análise Contrafactual Acadêmica: Ausência de "${local.targetEventTitle}" (${local.targetEventYear})
 
 ${local.whatIfNonExistent}
 
