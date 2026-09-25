@@ -26,16 +26,19 @@ Acesse em `http://localhost:5173`.
 ## 🌐 Publicar na Vercel
 
 O repositório já possui `vercel.json` na raiz configurado para monorepo com Vite e Serverless Functions:
+
 - Raiz do repositório como `Root Directory`.
 - Build automático em `infinite` gerando `infinite/dist`.
 - Serverless API `/api/temporal` para integração segura com OpenAI / Azure OpenAI.
 
 Para publicar pela CLI:
+
 ```bash
 npx vercel --prod
 ```
 
 Para validar a build de produção:
+
 ```bash
 npm run build
 ```
@@ -49,4 +52,3 @@ npm run build
 - **Zustand** (Estado global reativo)
 - **Web Workers** (Monte Carlo multithreaded)
 - **Oxlint** & **Vitest**
-

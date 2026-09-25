@@ -19,6 +19,7 @@
 O objetivo do **Infinite Horizons** é unir o rigor da física moderna (Relatividade Geral, Mecânica Quântica, Teoria do Caos e Termodinâmica Estatística) a uma experiência visual imersiva e de nível museu científico.
 
 A aplicação responde a perguntas fundamentais:
+
 - *O que acontece quando alteramos uma premissa causal no passado de uma linha temporal?*
 - *Como o efeito borboleta propaga divergências ao longo de ramos temporais paralelos?*
 - *Como a física relativística de Minkowski define a fronteira entre eventos causalmente conectados e causalmente desconectados?*
@@ -29,6 +30,7 @@ A aplicação responde a perguntas fundamentais:
 ## 🔬 Principais Funcionalidades
 
 ### 1. ⏳ Motor de Simulação Causal & Linha Temporal Interativa
+
 - **Grafo Causal em Canvas 2D**: Visualização fluida e de alto desempenho de nós de eventos e conexões de causa e efeito.
 - **Propagação Temporal Dinâmica**: Edição, bifurcação, deleção e inserção de pontos de divergência na linha do tempo.
 - **Detector de Paradoxos Temporais**: Identificação em tempo real de paradoxos lógicos como:
@@ -39,6 +41,7 @@ A aplicação responde a perguntas fundamentais:
 - **Replay Temporal & Time Scrubbing**: Inspeção passo a passo da evolução temporal dos eventos.
 
 ### 2. 🪐 NASA Cosmology Observatory ("Nosso Universo")
+
 - **8 Pilares Cosmológicos Oficiais da NASA**:
   1. *Big Bang e Época da Inflação Cósmica*
   2. *Radiação Cósmica de Fundo em Micro-ondas (CMB)* (Missões COBE, WMAP e Planck)
@@ -52,6 +55,7 @@ A aplicação responde a perguntas fundamentais:
 - **Target Scanner Panel**: Analisador espectroscópico e telemetria astronômica.
 
 ### 3. 🌐 Espaçotempo de Minkowski 3D (Three.js)
+
 - Visualização interativa tridimensional do cone de luz relativístico.
 - Distinção geométrica entre intervalos:
   - **Tipo-Tempo (Timelike)**: Conexão causal direta dentro do cone de luz.
@@ -59,11 +63,13 @@ A aplicação responde a perguntas fundamentais:
   - **Tipo-Espaço (Spacelike)**: Região fora do cone de luz, causalmente inacessível sem violação da velocidade da luz.
 
 ### 4. 🎲 Simulação Monte Carlo Probabilística (Web Workers)
+
 - Execução assíncrona em segundo plano sem congelamento da interface (multi-threaded via Web Worker).
 - Milhares de iterações estocásticas simulando a estabilidade e variabilidade de ramos temporais.
 - Diretrizes prescritivas de estabilização temporal calculadas a partir de desvios padrão estatísticos.
 
 ### 5. 📐 Renderizador de Fórmulas Matemáticas com KaTeX
+
 - Renderização tipográfica de precisão para as equações centrais da física teórica:
   - Equações de Campo de Einstein ($G_{\mu\nu} + \Lambda g_{\mu\nu} = \frac{8\pi G}{c^4} T_{\mu\nu}$)
   - Métrica de Alcubierre e Curvatura Espaçotempo
@@ -72,11 +78,13 @@ A aplicação responde a perguntas fundamentais:
   - Efeito Borboleta e Atrator de Lorenz ($\dot{x} = \sigma(y - x)$, $\dot{y} = x(\rho - z) - y$, $\dot{z} = xy - \beta z$)
 
 ### 6. 🧠 Assistente IA & Zero-Token Knowledge Bank
+
 - **Drawer de Assistente IA Integrado**: Consulta histórica, depuração de eventos e análise de coerência.
 - **Zero-Token Knowledge Bank**: Base de conhecimento offline integrada sem necessidade de consumo de tokens externos ou chaves de API, com buscas semânticas instantâneas.
 - **Suporte a Provedores Customizados**: Compatível com endpoints Vercel Serverless `/api/temporal`, OpenAI e Azure OpenAI.
 
 ### 7. 💻 Terminal Temporal CLI & Ferramentas Pro
+
 - **Temporal CLI**: Terminal integrado com comandos interativos (`help`, `status`, `entropy`, `diverge`, `reset`, `warp`).
 - **Modo Conferência / Auditório**: Visualização limpa para projeção em aulas, apresentações e seminários acadêmicos.
 - **Acessibilidade Completa**: Suporte total a atalhos de teclado (`?`, `Ctrl+K`, `Space`, setas direcionais) e leitores de tela.
@@ -102,29 +110,35 @@ A aplicação responde a perguntas fundamentais:
 ## 📦 Como Executar Localmente
 
 ### Pré-requisitos
+
 - [Node.js](https://nodejs.org/) (versão 20+ recomendada)
 - npm
 
 ### Passo a Passo
 
 1. **Clonar o repositório:**
+
    ```bash
    git clone https://github.com/Shisui890/Infinite-Horizons.git
    cd "Infinite Horizons/infinite"
    ```
 
 2. **Instalar as dependências:**
+
    ```bash
    npm install
    ```
 
 3. **Iniciar o servidor de desenvolvimento:**
+
    ```bash
    npm run dev
    ```
+
    Acesse a aplicação no navegador em `http://localhost:5173`.
 
 4. **Compilar para produção:**
+
    ```bash
    npm run build
    ```
@@ -133,12 +147,14 @@ A aplicação responde a perguntas fundamentais:
 
 ## 🌐 Deploy na Vercel
 
-O repositório já inclui configuração completa para Vercel através do [`vercel.json`](file:///c:/Users/shisui/Desktop/Infinite%20Horizons/vercel.json) na raiz:
+O repositório já inclui configuração completa para Vercel através do [`vercel.json`](./vercel.json) na raiz:
+
 - O diretório raiz (`Root Directory`) na Vercel deve permanecer como a raiz do repositório.
 - A pasta `infinite` executa o build e publica `infinite/dist`.
 - O endpoint serverless de IA em `/api/temporal` protege credenciais e aceita modelos OpenAI ou Azure OpenAI.
 
 Para publicar via Vercel CLI:
+
 ```bash
 npx vercel --prod
 ```

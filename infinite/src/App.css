@@ -2073,7 +2073,7 @@
   background: rgba(0, 0, 0, 0.35);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   overflow-x: auto;
-  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .ai-tabs::-webkit-scrollbar {
@@ -3766,7 +3766,6 @@
   max-width: 100%;
   overflow-x: auto;
   overflow-y: hidden;
-  scrollbar-width: thin;
 }
 
 /* --- Laptops & Intermediate Displays (<= 1440px) --- */
@@ -3888,7 +3887,7 @@
   .landing-nav-links {
     width: 100%;
     overflow-x: auto;
-    scrollbar-width: none;
+    -ms-overflow-style: none;
     padding-bottom: 2px;
     justify-content: flex-start;
     gap: 8px;
@@ -9947,8 +9946,6 @@
   padding-right: 6px;
   overscroll-behavior: contain;
   scroll-behavior: smooth;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(0, 229, 255, 0.45) rgba(8, 14, 28, 0.7);
 }
 
 .tab-pane::-webkit-scrollbar {
@@ -11872,7 +11869,6 @@
   gap: 6px;
   overflow-x: auto;
   padding-bottom: 4px;
-  scrollbar-width: thin;
 }
 
 .rpv-view-btn {
