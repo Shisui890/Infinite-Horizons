@@ -148,8 +148,13 @@ export default function TemporalCLIModal() {
   }
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-card cli-terminal-modal">
+    <div
+      className="modal-backdrop sim-modal-overlay"
+      onClick={() => setShowCLIModal(false)}
+      role="dialog"
+      aria-modal="true"
+    >
+      <div className="modal-card cli-terminal-modal" onClick={e => e.stopPropagation()}>
         <div className="cli-terminal-header">
           <div className="cli-title-wrap">
             <span className="cli-dot red" />

@@ -35,8 +35,13 @@ export default function PreflightPreviewModal() {
   }
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-card preflight-modal">
+    <div
+      className="modal-backdrop sim-modal-overlay"
+      onClick={() => setPreflightImpact(null)}
+      role="dialog"
+      aria-modal="true"
+    >
+      <div className="modal-card preflight-modal" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <div className="modal-title-group">
             <span className="preflight-warning-icon">
