@@ -8,11 +8,20 @@ interface Props {
 }
 
 /**
- * Normalizes unicode math characters and common shorthand into valid LaTeX
+ * Normalizes unicode math characters, delimiters, and common shorthand into valid LaTeX
  */
-function sanitizeLatex(input: string): string {
+export function sanitizeLatex(input: string): string {
   if (!input) return '';
-  let s = input;
+  let s = input.trim();
+
+  // Strip trailing unescaped single backslash (common in truncated LLM streams)
+  s = s.replace(/(^|[^\\])\\$/, '$1');
+
+  // Fix delimiters: KaTeX rejects \mid after \Big / \big / \Bigg / \left / \right
+  // NEVER convert | into \mid globally, as | is the standard delimiter in LaTeX!
+  s = s
+    .replace(/\\(Big|big|Bigg|bigg|left|right)\s*\\mid/g, '\\$1|')
+    .replace(/\\mid\s*\\(Big|big|Bigg|bigg|left|right)/g, '|\\$1');
 
   // Unicode superscripts
   s = s
@@ -83,7 +92,7 @@ function sanitizeLatex(input: string): string {
     s = s.replace(re, rep + ' ');
   }
 
-  // Common mathematical operators & notations
+  // Common mathematical operators & notations (keep native | as delimiter)
   s = s
     .replace(/≥/g, '\\ge ')
     .replace(/≤/g, '\\le ')
@@ -98,12 +107,36 @@ function sanitizeLatex(input: string): string {
     .replace(/∫/g, '\\int ')
     .replace(/⟨/g, '\\langle ')
     .replace(/⟩/g, '\\rangle ')
-    .replace(/\|/g, '\\mid ')
     .replace(/~/g, '\\sim ')
     .replace(/√\(([^)]+)\)/g, '\\sqrt{$1}')
-    .replace(/√/g, '\\sqrt ');
+    .replace(/√/g, '\\sqrt ')
+    .replace(/(\d+)\s*['\u2019]{2}\/\\text/g, '$1^{\\prime\\prime}/\\text')
+    .replace(/\^\\prime/g, '^{\\prime}')
+    .replace(/(\d+(?:\.\d+)?)\s*°/g, '$1^{\\circ}')
+    .replace(/°/g, '^{\\circ}');
 
   return s.trim();
+}
+
+/**
+ * Automatically balances unclosed braces or unclosed \left in LaTeX
+ */
+export function autoBalanceBraces(latex: string): string {
+  let s = latex;
+  let openCount = 0;
+  for (let i = 0; i < s.length; i++) {
+    if (s[i] === '{' && (i === 0 || s[i - 1] !== '\\')) openCount++;
+    if (s[i] === '}' && (i === 0 || s[i - 1] !== '\\')) openCount--;
+  }
+  if (openCount > 0) {
+    s += '}'.repeat(openCount);
+  }
+  const lefts = (s.match(/\\left\b/g) || []).length;
+  const rights = (s.match(/\\right\b/g) || []).length;
+  if (lefts > rights) {
+    s += ' \\right.'.repeat(lefts - rights);
+  }
+  return s;
 }
 
 /**
@@ -113,23 +146,40 @@ function autoDetectFormulasInText(text: string): string {
   if (!text) return '';
   return text
     // E.g. (G_μν + Λg_μν = 8πG/c⁴ T_μν)
-    .replace(/\((G[_\\][^)]*=[^)]*)\)/g, '($$$1$$)')
+    .replace(/\((G[_\\][^)]*=[^)]*)\)/g, (_m, g1) => `($${g1}$)`)
     // E.g. (ds² = -c²dt² + dx² + dy² + dz²)
-    .replace(/\((ds[²2][^)]*=[^)]*)\)/g, '($$$1$$)')
+    .replace(/\((ds[²2][^)]*=[^)]*)\)/g, (_m, g1) => `($${g1}$)`)
     // E.g. E = mc²
-    .replace(/(?<![$\w])(E\s*=\s*mc[²2])(?![$\w])/g, '$$$1$$')
+    .replace(/(?<![$\w])(E\s*=\s*mc[²2])(?![$\w])/g, (_m, g1) => `$${g1}$`)
     // E.g. c = 1/√(μ₀ε₀)
-    .replace(/(?<![$\w])(c\s*=\s*1\/\s*√\([^)]+\))(?![$\w])/g, '$$$1$$');
+    .replace(/(?<![$\w])(c\s*=\s*1\/\s*√\([^)]+\))(?![$\w])/g, (_m, g1) => `$${g1}$`);
 }
 
 export default function MathFormula({ math, block = false, className = '' }: Props) {
   const html = useMemo(() => {
+    if (!math || !math.trim()) return '';
     try {
       const sanitized = sanitizeLatex(math);
-      return katex.renderToString(sanitized, {
+      let rendered = katex.renderToString(sanitized, {
         displayMode: block,
         throwOnError: false,
+        strict: false,
       });
+
+      // If KaTeX rendered with an error tag, attempt auto-repairing braces
+      if (rendered.includes('katex-error')) {
+        const balanced = autoBalanceBraces(sanitized);
+        const retry = katex.renderToString(balanced, {
+          displayMode: block,
+          throwOnError: false,
+          strict: false,
+        });
+        if (!retry.includes('katex-error')) {
+          return retry;
+        }
+      }
+
+      return rendered;
     } catch {
       return math;
     }
@@ -377,8 +427,8 @@ function parseMarkdownBlocks(rawText: string): MarkdownBlock[] {
       continue;
     }
 
-    // Multiline Block math toggle ($$ on own line)
-    if (trimmed === '$$') {
+    // Multiline Block math toggle ($$ or \[ on own line)
+    if (trimmed === '$$' || trimmed === '\\[') {
       if (inBlockMath) {
         blocks.push({ type: 'block-math', content: blockMathLines.join('\n').trim() });
         inBlockMath = false;
@@ -394,13 +444,64 @@ function parseMarkdownBlocks(rawText: string): MarkdownBlock[] {
       }
     }
 
+    // End of \[ block on own line
+    if (inBlockMath && (trimmed === '\\]' || trimmed === '$$')) {
+      blocks.push({ type: 'block-math', content: blockMathLines.join('\n').trim() });
+      inBlockMath = false;
+      blockMathLines = [];
+      continue;
+    }
+
+    // Multiline block math starting with $$ on first line
+    if (!inBlockMath && trimmed.startsWith('$$') && !trimmed.endsWith('$$') && trimmed.length > 2) {
+      flushParagraph();
+      flushList();
+      flushQuote();
+      inBlockMath = true;
+      blockMathLines = [trimmed.slice(2)];
+      continue;
+    }
+
+    // Multiline block math starting with \[ on first line
+    if (!inBlockMath && trimmed.startsWith('\\[') && !trimmed.endsWith('\\]') && trimmed.length > 2) {
+      flushParagraph();
+      flushList();
+      flushQuote();
+      inBlockMath = true;
+      blockMathLines = [trimmed.slice(2)];
+      continue;
+    }
+
     if (inBlockMath) {
+      if (trimmed.endsWith('$$') && trimmed.length > 2) {
+        blockMathLines.push(trimmed.slice(0, -2));
+        blocks.push({ type: 'block-math', content: blockMathLines.join('\n').trim() });
+        inBlockMath = false;
+        blockMathLines = [];
+        continue;
+      }
+      if (trimmed.endsWith('\\]') && trimmed.length > 2) {
+        blockMathLines.push(trimmed.slice(0, -2));
+        blocks.push({ type: 'block-math', content: blockMathLines.join('\n').trim() });
+        inBlockMath = false;
+        blockMathLines = [];
+        continue;
+      }
       blockMathLines.push(line);
       continue;
     }
 
     // Single line block math $$...$$
     if (trimmed.startsWith('$$') && trimmed.endsWith('$$') && trimmed.length > 2) {
+      flushParagraph();
+      flushList();
+      flushQuote();
+      blocks.push({ type: 'block-math', content: trimmed.slice(2, -2).trim() });
+      continue;
+    }
+
+    // Single line block math \[...\]
+    if (trimmed.startsWith('\\[') && trimmed.endsWith('\\]') && trimmed.length > 2) {
       flushParagraph();
       flushList();
       flushQuote();

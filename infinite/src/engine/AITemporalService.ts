@@ -589,7 +589,7 @@ export class AITemporalService {
         status: 'supported',
         statusLabel: 'FRONTEIRA MATEMÁTICA',
         theoryBadge: 'CALABI-YAU / D-BRANAS',
-        formula: 'S = \\frac{1}{4\\pi\\alpha^\\prime} \\int d^2\\sigma \\, \\sqrt{-\\gamma} \\, \\gamma^{ab} \\partial_a X^\\mu \\partial_b X^\\nu \\eta_{\\mu\\nu} \\quad (10\\text{D} \\,/\\, 11\\text{D})',
+        formula: 'S = \\frac{1}{4\\pi\\alpha^{\\prime}} \\int d^2\\sigma \\, \\sqrt{-\\gamma} \\, \\gamma^{ab} \\partial_a X^\\mu \\partial_b X^\\nu \\eta_{\\mu\\nu} \\quad (10\\text{D} \\,/\\, 11\\text{D})',
         explanation: `Na escala de Planck (~10⁻³⁵ m), o evento não é pontual, mas o modo vibracional harmônico de uma supercorda aberta ou fechada. As 6 dimensões espaciais extras compactificadas em uma variedade de Calabi-Yau determinam as constantes fundamentais desta realidade no String Landscape.`,
         laymanFormulaMeaning: 'Esta equação calcula a energia e o movimento de uma pequena fita elástica (uma corda microscópica) se deslocando pelo espaço-tempo. Conforme essa corda vibra em notas diferentes dentro de 11 dimensões, ela dá origem a partículas de luz, elétrons ou gravidade.',
         laymanExplanation: 'Se pudéssemos dar um zoom infinito na matéria, não veríamos bolinhas duras, mas pequenos laços de energia vibrando como cordas de violino. Diferentes notas musicais criam todas as forças e partículas que existem na natureza.',
