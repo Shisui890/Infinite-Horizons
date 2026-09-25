@@ -11,9 +11,11 @@ import type {
   SimulationLog,
   Dimension,
   ScientificExplanation,
+  CounterfactualAnalysis,
 } from '../types/temporal';
 import { EventStatus, CausalRelation } from '../types/temporal';
 import { SimulationService } from './SimulationService';
+import { GraphEngine } from './GraphEngine';
 
 const AI_STORAGE_KEY = 'infinite-horizons:ai-config';
 
@@ -973,6 +975,213 @@ Para a premissa levantada ("${lastUserMsg.slice(0, 100)}"):
       await new Promise(r => setTimeout(r, 20));
     }
     return current;
+  }
+
+  /**
+   * Gera uma análise contrafactual rigorosa sobre o que aconteceria caso um evento
+   * fosse suprimido ou alterado no continuum espaço-temporal.
+   */
+  public static generateCounterfactualAnalysis(
+    targetEvent: TemporalEvent,
+    universe: Universe,
+    action: 'erase' | 'alter' | 'branch' = 'erase'
+  ): CounterfactualAnalysis {
+    const allEvents = universe.dimensions.flatMap(d => d.events);
+    const descendants = Array.from(GraphEngine.getDescendants(targetEvent.id, universe.edges));
+    const descendantEvents = allEvents.filter(e => descendants.includes(e.id));
+    const directChildren = GraphEngine.getChildren(targetEvent.id, universe.edges);
+
+    // Identificação de desdobramentos específicos para os eventos descendentes
+    const brokenDescendants = descendantEvents.slice(0, 6).map(desc => {
+      let consequence = '';
+      if (desc.category === 'MILITAR' || desc.category === 'GEOPOLÍTICA') {
+        consequence = `Sem "${targetEvent.title}", a conjuntura geopolítica de ${desc.year} não atingiria a massa crítica necessária para este desfecho.`;
+      } else if (desc.category === 'FÍSICA TEÓRICA' || desc.category === 'CIENTÍFICO') {
+        consequence = `O paradigma epistêmico que possibilitou "${desc.title}" em ${desc.year} seria atrasado ou formulado sob outra base teórica.`;
+      } else if (desc.category === 'TECNOLOGIA') {
+        consequence = `A infraestrutura e as patentes tecnológicas de ${desc.year} seriam adiadas por ausência do salto causal precursor.`;
+      } else {
+        consequence = `O cone de luz causal deste marco é seccionado, impedindo a recepção do sinal histórico emitido em ${targetEvent.year}.`;
+      }
+      return {
+        id: desc.id,
+        title: desc.title,
+        year: desc.year,
+        consequenceIfMissing: consequence,
+      };
+    });
+
+    // Análise contextual contrafactual baseada na categoria e dados do evento
+    const titleLower = targetEvent.title.toLowerCase();
+    let whatIfNonExistent = '';
+    let alternateHistoryHypothesis = '';
+
+    if (
+      titleLower.includes('polônia') ||
+      titleLower.includes('polonia') ||
+      titleLower.includes('guerra') ||
+      titleLower.includes('versailles') ||
+      titleLower.includes('naz') ||
+      titleLower.includes('aliad')
+    ) {
+      whatIfNonExistent =
+        `Caso "${targetEvent.title}" (${targetEvent.year}) não tivesse ocorrido, a cadeia de compromissos mútuos de defesa entre potências européias não seria acionada nessa data precisa. Documentos historiográficos e análises diplomáticas indicam que a corrida armamentista e a militarização da Europa Central poderiam ter se estendido por anos em estado de atrito de fronteira, atrasando o salto massivo em tecnologia de radar (cavity magnetron), computação criptográfica em Bletchley Park (Colossus de Alan Turing) e o esforço industrial concentrado da década de 1940.`;
+      alternateHistoryHypothesis =
+        'Transição para uma ordem geopolítica multipolar instável, com postergação da conferência de Bretton Woods e da criação da Organização das Nações Unidas (ONU) para um contexto internacional profundamente fraturado.';
+    } else if (
+      titleLower.includes('relatividade') ||
+      titleLower.includes('einstein') ||
+      titleLower.includes('newton') ||
+      titleLower.includes('maxwell') ||
+      titleLower.includes('eletromagnetismo') ||
+      titleLower.includes('quântic') ||
+      titleLower.includes('bohr') ||
+      titleLower.includes('schrödinger') ||
+      titleLower.includes('curie') ||
+      titleLower.includes('fóton')
+    ) {
+      whatIfNonExistent =
+        `A ausência da formulação de "${targetEvent.title}" (${targetEvent.year}) deixaria a física fundamentada em premissas newtonianas ou modelos mecânicos clássicos incompletos. Na física aplicada, isso atrasaria o desenvolvimento de semicondutores, transistores de silício, lasers, espectroscopia óptica e o cálculo de dilatação temporal cinemática/gravitacional essencial para o sistema global de satélites GPS.`;
+      alternateHistoryHypothesis =
+        'A revolução da física moderna teria que aguardar a convergência de novos experimentos de alta energia, mantendo a tecnologia do século XX dependente de engenharia puramente mecânica e termodinâmica clássica por décadas adicionais.';
+    } else if (
+      titleLower.includes('lua') ||
+      titleLower.includes('apolo') ||
+      titleLower.includes('apollo') ||
+      titleLower.includes('sputnik') ||
+      titleLower.includes('gagarin') ||
+      titleLower.includes('telescópio') ||
+      titleLower.includes('webb') ||
+      titleLower.includes('hubble')
+    ) {
+      whatIfNonExistent =
+        `Sem o marco de "${targetEvent.title}" (${targetEvent.year}), o vetor aeroespacial e astronômico perderia seu ponto de ancoragem causal mais relevante. O investimento estatal e privado em engenharia de propulsão, materiais de isolamento térmico avançados e transmissão telemétrica por micro-ondas sofreria retração, atrasando o mapeamento cosmológico profundo e a observação da radiação primordial do universo.`;
+      alternateHistoryHypothesis =
+        'Exploração planetária postergada para a virada do milênio, com foco temporário restrito a balística suborbital e satélites meteorológicos de baixa altitude.';
+    } else {
+      whatIfNonExistent =
+        `Se o evento "${targetEvent.title}" (${targetEvent.year}) fosse suprimido do continuum, todo o cone de luz futuro emitido a partir de suas coordenadas espaço-temporais seria cancelado ($ds^2 > 0$ em relação às trajetórias dependentes). Na dinâmica de sistemas complexos, isso remove ${directChildren.length} causa(s) direta(s) e reorganiza as geodésicas de ${descendantEvents.length} marco(s) subsequente(s), gerando uma divergência causal acumulada proporcional ao expoente de Lyapunov do atrator histórico.`;
+      alternateHistoryHypothesis =
+        `A evolução temporal da linha "${universe.name}" derivaria para um novo ramo ortogonal de decoerência, forçando as leis de conservação e a causalidade de Novikov a reequilibrar os vetores de estado sem os efeitos desencadeados por "${targetEvent.title}".`;
+    }
+
+    const causalSummary = action === 'erase'
+      ? `Supressão irreversível de "${targetEvent.title}" (${targetEvent.year}) com anulação de ${descendantEvents.length} consequência(s) subsequente(s) no cone de luz.`
+      : `Perturbação do estado de "${targetEvent.title}" (${targetEvent.year}), induzindo desfasamento de probabilidade nos ramos derivados.`;
+
+    const physicalPrinciples = [
+      {
+        principle: 'Estrutura Causal & Cones de Luz de Minkowski',
+        formula: 'ds^2 = -c^2 dt^2 + dx^2 + dy^2 + dz^2',
+        implication: 'A velocidade da luz c é a taxa máxima de transmissão causal; anular o vértice no passado extingue a emissão de sinais para todo o cone de luz futuro.',
+      },
+      {
+        principle: 'Divergência Exponencial de Lyapunov (Efeito Borboleta)',
+        formula: '|\\Delta x(t)| \\sim |\\Delta x_0| \\, e^{\\lambda t} \\quad (\\lambda > 0)',
+        implication: 'Variações infinitesimais no ponto de bifurcação amplificam-se exponencialmente, transformando pequenas alterações locais em destinos globais divergentes.',
+      },
+      {
+        principle: 'Interpretação de Muitos Mundos de Everett & Decoerência',
+        formula: '|\\Psi(t)\\rangle = \\sum c_i |\\psi_i(t)\\rangle \\otimes |\\text{Ambiente}_i(t)\\rangle',
+        implication: 'A realidade não é apagada em sentido absoluto, mas bifurcada: cria-se um ramo ortogonal onde este evento nunca ocorreu, enquanto a linha original subsiste em decoerência.',
+      },
+      {
+        principle: 'Princípio de Autoconsistência Global de Novikov',
+        formula: '\\Delta S_{\\text{total}} \\ge 0 \\quad\\Big|\\quad \\mathcal{P}(\\text{paradoxo}) = 0',
+        implication: 'O continuum físico impõe probabilidade nula a contradições temporais insolúveis, forçando o ajuste termodinâmico da nova história.',
+      },
+    ];
+
+    return {
+      targetEventTitle: targetEvent.title,
+      targetEventYear: targetEvent.year,
+      causalSummary,
+      whatIfNonExistent,
+      brokenDescendants,
+      alternateHistoryHypothesis,
+      physicalPrinciples,
+    };
+  }
+
+  /**
+   * Consulta a IA (OpenRouter / GPT-4o) para gerar um relatório contrafactual
+   * aprofundado, rigorosamente acadêmico e não-ficcional sobre a ausência do evento.
+   */
+  public static async fetchAICounterfactualReport(
+    targetEvent: TemporalEvent,
+    universe: Universe
+  ): Promise<string> {
+    const cacheKey = `counterfactual:${universe.id}:${targetEvent.id}`;
+    const cached = this.getCached<string>(cacheKey);
+    if (cached) return cached;
+
+    if (this.config.provider === 'openrouter' && this.config.apiKey) {
+      try {
+        const prompt = `Analise a causalidade contrafactual com rigor acadêmico absoluto:
+O evento "${targetEvent.title}" (Ano ${targetEvent.year}, Categoria: ${targetEvent.category}, Importância: ${targetEvent.importance}/100) foi suprimido ou impedido de ocorrer no continuum temporal.
+Descrição factual original do evento: "${targetEvent.description}".
+Contexto da realidade: "${universe.name}".
+
+DIRETRIZES MANDATÓRIAS (ESTRITAMENTE ACADÊMICO & NÃO-FICÇÃO):
+1. Explique com profundidade historiográfica ou física: O que a ciência e a historiografia reconhecida sustentam que teria acontecido caso esse evento NUNCA tivesse existido?
+2. Quais desenvolvimentos científicos, tecnológicos, institucionais ou cosmológicos específicos seriam adiados, inviabilizados ou tomariam rumos alternativos?
+3. Fundamente a resposta em teorias formais (Cones de luz de Minkowski, Interpretação de Muitos Mundos de Everett, Dinâmica não linear de Lyapunov) ou historiadores e fontes primárias reais.
+4. É TERMINANTEMENTE PROIBIDO usar fantasia, ficção científica clichê ou magia. Mantenha tom de artigo científico e utilize Markdown formal com equações em LaTeX ($...$).`;
+
+        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${this.config.apiKey}`,
+            'HTTP-Referer': 'https://infinite-horizons.app',
+            'X-Title': 'Infinite Horizons Counterfactual Analysis',
+          },
+          body: JSON.stringify({
+            model: this.config.openRouterModel || 'openai/gpt-4o-mini',
+            temperature: 0.2,
+            max_tokens: 1200,
+            messages: [
+              {
+                role: 'system',
+                content:
+                  'Você é o Historiador da Ciência e Físico Causal do laboratório Infinite Horizons. Sua função é elaborar análises contrafactuais estritamente acadêmicas, fundamentadas em fontes primárias e física teórica formal, sem nenhum teor ficcional ou fantasioso.',
+              },
+              { role: 'user', content: prompt },
+            ],
+          }),
+        });
+
+        if (response.ok) {
+          const res = (await response.json()) as { choices?: Array<{ message?: { content?: string } }> };
+          const content = res.choices?.[0]?.message?.content;
+          if (content) {
+            this.responseCache.set(cacheKey, { data: content, timestamp: Date.now() });
+            return content;
+          }
+        }
+      } catch (err) {
+        console.warn('Falha na chamada remota de contrafactual IA:', err);
+      }
+    }
+
+    // Grounded fallback synthesis
+    const local = this.generateCounterfactualAnalysis(targetEvent, universe);
+    const synthesis = `### Análise Contrafactual Acadêmica: Ausência de "${local.targetEventTitle}" (${local.targetEventYear})
+
+${local.whatIfNonExistent}
+
+#### Ramificação Causal e Hipótese Histórica Alternativa
+${local.alternateHistoryHypothesis}
+
+${local.brokenDescendants.length > 0 ? `#### Desdobramentos nos Marcos Subsequentes\n${local.brokenDescendants.map(d => `- **${d.title} (${d.year})**: ${d.consequenceIfMissing}`).join('\n')}` : ''}
+
+#### Fundamentação em Leis Físicas
+- **Cones de Luz de Minkowski**: $ds^2 = -c^2 dt^2 + dx^2 + dy^2 + dz^2$ — Nenhuma influência causal transita mais rápido que a luz no vácuo;
+- **Divergência de Lyapunov**: $|\\Delta x(t)| \\sim e^{\\lambda t}$ — A supressão perturba a trajetória do atrator histórico;
+- **Bifurcação de Everett**: $|\\Psi(t)\\rangle = \\sum c_i |\\psi_i\\rangle$ — A conservação de probabilidade projeta a realidade em um ramo ortogonal e causalmente autônomo.`;
+
+    this.responseCache.set(cacheKey, { data: synthesis, timestamp: Date.now() });
+    return synthesis;
   }
 }
 

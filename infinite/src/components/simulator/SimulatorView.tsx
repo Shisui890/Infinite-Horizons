@@ -377,9 +377,15 @@ export default function SimulatorView({ onExit, onOpenGuide, initialState }: Pro
       return;
     }
 
+    if (newStatus === EventStatus.ALTERED) {
+      const impact = calculatePreflight(eventId, 'alter');
+      setPreflightImpact(impact);
+      return;
+    }
+
     const { updatedUniverse } = SimulationService.alterEvent(universe, eventId, newStatus);
     setUniverseState(prev => ({ ...prev, universe: updatedUniverse }));
-    addLog(`Intervenção no evento ${eventId}: Estado alterado para ${newStatus.toUpperCase()}`, 'warning');
+    addLog(`Intervenção no evento ${eventId}: Estado restaurado para ${newStatus.toUpperCase()}`, 'info');
   }, [universe, calculatePreflight, setPreflightImpact, setUniverseState, addLog]);
 
   const handleInvestigateParadox = useCallback((paradox: Paradox) => {

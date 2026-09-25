@@ -313,6 +313,16 @@ export interface ReplayFrame {
   integritySnapshot: number;
 }
 
+export interface CounterfactualAnalysis {
+  targetEventTitle: string;
+  targetEventYear: number;
+  causalSummary: string;
+  whatIfNonExistent: string;
+  brokenDescendants: Array<{ id: string; title: string; year: number; consequenceIfMissing: string }>;
+  alternateHistoryHypothesis: string;
+  physicalPrinciples: Array<{ principle: string; formula: string; implication: string }>;
+}
+
 export interface PreflightImpact {
   targetEventId: string;
   targetEventTitle: string;
@@ -324,6 +334,7 @@ export interface PreflightImpact {
   currentIntegrity: number;
   predictedIntegrity: number;
   criticalAnchorsAtRisk: string[];
+  counterfactualAnalysis?: CounterfactualAnalysis;
 }
 
 export interface CLICommandLog {
