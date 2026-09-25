@@ -197,7 +197,6 @@ export default function PreflightPreviewModal() {
             <div className="preflight-counterfactual-card">
               <div className="cf-card-header">
                 <div className="cf-title-badge">
-                  <span className="cf-icon">🏛️</span>
                   <div>
                     <h4>O Que Aconteceria se este Evento Não Existisse?</h4>
                     <span className="cf-sub">Análise causal fundamentada em historiografia e teorias físicas formais</span>
@@ -269,13 +268,13 @@ export default function PreflightPreviewModal() {
                           Consultando Historiografia e Modelos Relativísticos com IA...
                         </>
                       ) : (
-                        <>✨ Aprofundar Análise Contrafactual com IA (GPT-4o)</>
+                        <>Aprofundar Análise Contrafactual com IA (GPT-4o)</>
                       )}
                     </button>
                   ) : (
                     <div className="cf-ai-report-container">
                       <div className="cf-ai-report-header">
-                        <span>📑 Relatório Acadêmico Aprofundado (IA Temporal)</span>
+                        <span>Relatório Acadêmico Aprofundado (IA Temporal)</span>
                         <button
                           type="button"
                           className="btn-cf-toggle"

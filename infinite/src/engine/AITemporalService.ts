@@ -909,7 +909,7 @@ Retorne APENAS um JSON:
           const errData = await response.json().catch(() => ({}));
           const errMsg = (errData as any)?.error?.message || `Erro HTTP ${response.status}: ${response.statusText}`;
           console.error('OpenRouter streaming error:', errMsg);
-          const feedback = `⚠️ **Falha no OpenRouter (${response.status})**: ${errMsg}\n\n*Dica: Experimente alternar para GPT-4o Mini ou DeepSeek no topo do painel.*`;
+          const feedback = `**Falha no OpenRouter (${response.status})**: ${errMsg}\n\n*Dica: Experimente alternar para GPT-4o Mini ou DeepSeek no topo do painel.*`;
           onChunk(feedback);
           return feedback;
         }

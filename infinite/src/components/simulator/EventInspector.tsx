@@ -312,7 +312,7 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
         {counterfactual && (
           <div className="counterfactual-dossier-card">
             <div className="cf-dossier-header">
-              <span className="cf-dossier-badge">🏛️ E SE NÃO EXISTISSE?</span>
+              <span className="cf-dossier-badge">E SE NÃO EXISTISSE?</span>
               <span className="cf-dossier-title">Cenário Contrafactual</span>
             </div>
             <div className="cf-dossier-content">
