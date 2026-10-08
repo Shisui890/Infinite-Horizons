@@ -21,6 +21,7 @@ import ParadoxConsole from './ParadoxConsole';
 import TimeScrubber from './TimeScrubber';
 import ReplayControls from './ReplayControls';
 import { exportToBibTeX } from '../../utils/exportAcademic';
+import { formatHistoricalYear } from '../../utils/formatters';
 import {
   AddEventModal,
   AddTravelerModal,
@@ -40,6 +41,7 @@ const PreflightPreviewModal = lazy(() => import('./PreflightPreviewModal'));
 const DimensionComparatorModal = lazy(() => import('./DimensionComparatorModal'));
 const KeyboardShortcutsModal = lazy(() => import('./KeyboardShortcutsModal'));
 const InteractiveTourModal = lazy(() => import('./InteractiveTourModal'));
+const CausalBacktrackingModal = lazy(() => import('./CausalBacktrackingModal'));
 
 interface Props {
   onExit: () => void;
@@ -86,6 +88,7 @@ export default function SimulatorView({ onExit, onOpenGuide, initialState }: Pro
 
   const { isLaymanMode, toggleLaymanMode } = useLaymanMode();
   const [showComparatorModal, setShowComparatorModal] = useState(false);
+  const [showBacktrackingModal, setShowBacktrackingModal] = useState(false);
   const [showShortcutsModal, setShowShortcutsModal] = useState(false);
   const [showTourModal, setShowTourModal] = useState(false);
   const [shortcutToast, setShortcutToast] = useState<string | null>(null);
@@ -169,7 +172,7 @@ export default function SimulatorView({ onExit, onOpenGuide, initialState }: Pro
         const ny = Math.max(1850, store.timelineYear - step);
         store.setTimelineYear(ny);
         CosmicAudio.playTemporalWarp(0.3);
-        triggerToast(`Ano ${ny} AD (-${step}a)`);
+        triggerToast(`${formatHistoricalYear(ny)} (-${step}a)`);
         return;
       }
 
@@ -181,7 +184,7 @@ export default function SimulatorView({ onExit, onOpenGuide, initialState }: Pro
         const ny = Math.min(2200, store.timelineYear + step);
         store.setTimelineYear(ny);
         CosmicAudio.playTemporalWarp(0.7);
-        triggerToast(`Ano ${ny} AD (+${step}a)`);
+        triggerToast(`${formatHistoricalYear(ny)} (+${step}a)`);
         return;
       }
 
@@ -409,7 +412,7 @@ export default function SimulatorView({ onExit, onOpenGuide, initialState }: Pro
     addLog(`Pesquisando fontes primárias para "${query}"...`, 'info');
     try {
       const data = await AITemporalService.researchHistoricalEvent(query);
-      addLog(`Descoberta localizada: "${data.title}" (${data.year}) via ${data.source}`, 'success');
+      addLog(`Descoberta localizada: "${data.title}" (${formatHistoricalYear(data.year)}) via ${data.source}`, 'success');
       return data;
     } catch {
       addLog(`Pesquisa offline utilizada para "${query}".`, 'warning');
@@ -440,7 +443,7 @@ export default function SimulatorView({ onExit, onOpenGuide, initialState }: Pro
       parents: eventData.causeIds,
       causes: eventData.causeIds,
     });
-    addLog(`Novo evento incorporado: "${eventData.title}" (${eventData.year})`, 'success');
+    addLog(`Novo evento incorporado: "${eventData.title}" (${formatHistoricalYear(eventData.year)})`, 'success');
   }, [activeDimensionId, addLog]);
 
   const handleAddTraveler = useCallback((travelerData: {
@@ -459,7 +462,7 @@ export default function SimulatorView({ onExit, onOpenGuide, initialState }: Pro
     alterTargetEventId?: string;
   }) => {
     useSimulationStore.getState().timeTravel(data.travelerId, activeDimensionId, data.destinationYear, 'Salto Relativístico');
-    addLog(`Salto de geodésica executado para o ano ${data.destinationYear}.`, 'warning');
+    addLog(`Salto de geodésica executado para o ano ${formatHistoricalYear(data.destinationYear)}.`, 'warning');
   }, [activeDimensionId, addLog]);
 
   const handleAddDimension = useCallback((data: { name: string; designation: string; color: string }) => {
@@ -481,6 +484,7 @@ export default function SimulatorView({ onExit, onOpenGuide, initialState }: Pro
         onOpenMonteCarlo={() => setShowMonteCarlo(true)}
         onToggleAIDrawer={() => setShowAIDrawer(!showAIDrawer)}
         onOpenComparator={() => setShowComparatorModal(true)}
+        onOpenBacktracking={() => setShowBacktrackingModal(true)}
         onOpenGuide={onOpenGuide}
         onOpenShortcuts={() => setShowShortcutsModal(true)}
         onStartTour={() => setShowTourModal(true)}
@@ -669,6 +673,16 @@ export default function SimulatorView({ onExit, onOpenGuide, initialState }: Pro
         </Suspense>
       )}
 
+      {/* Historical Reverse Engineering (Causal Backtracking) Modal */}
+      {showBacktrackingModal && (
+        <Suspense fallback={null}>
+          <CausalBacktrackingModal
+            isOpen={showBacktrackingModal}
+            onClose={() => setShowBacktrackingModal(false)}
+          />
+        </Suspense>
+      )}
+
       {/* HUD Toast for Keyboard Actions */}
       {shortcutToast && (
         <div className="shortcut-toast-pill" role="status" aria-live="polite">
@@ -845,6 +859,25 @@ export default function SimulatorView({ onExit, onOpenGuide, initialState }: Pro
                 </span>
                 <span className="m-tool-name">Comparar Dimensões</span>
                 <span className="m-tool-sub">Fusão e divergência</span>
+              </button>
+
+              <button
+                type="button"
+                className="m-tool-card"
+                onClick={() => {
+                  setShowBacktrackingModal(true);
+                  setMobileTab('canvas');
+                }}
+              >
+                <span className="m-tool-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12 6 12 12 8 14" />
+                    <path d="M4 12a8 8 0 0 1 8-8" strokeDasharray="3 3" />
+                  </svg>
+                </span>
+                <span className="m-tool-name">Engenharia Reversa</span>
+                <span className="m-tool-sub">Backtracking causal</span>
               </button>
 
               {onOpenGuide && (

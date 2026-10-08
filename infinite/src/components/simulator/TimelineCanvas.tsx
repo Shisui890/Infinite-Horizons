@@ -5,6 +5,7 @@ import { LigoAudio } from '../../engine/LigoAudioService';
 import { CosmicAudio } from '../../engine/CosmicAudioEngine';
 import { useLaymanMode } from '../../context/LaymanModeContext';
 import { getLaymanExplanation } from '../../utils/laymanContent';
+import { formatHistoricalYear } from '../../utils/formatters';
 
 interface Props {
   events: TemporalEvent[];
@@ -238,7 +239,7 @@ export default function TimelineCanvas({
         ctx!.font = '600 9px Orbitron, sans-serif';
         ctx!.fillStyle = 'rgba(232, 234, 246, 0.35)';
         ctx!.textAlign = 'center';
-        ctx!.fillText(String(ev.year), pos.x, h - 14);
+        ctx!.fillText(formatHistoricalYear(ev.year), pos.x, h - 14);
       });
 
       // 2. Present Time Boundary Indicator
@@ -420,7 +421,7 @@ export default function TimelineCanvas({
 
         ctx!.font = '700 9px Orbitron, sans-serif';
         ctx!.fillStyle = col;
-        ctx!.fillText(String(event.year), pos.x, cardY + (line2 ? 39 : 25));
+        ctx!.fillText(formatHistoricalYear(event.year), pos.x, cardY + (line2 ? 39 : 25));
 
         ctx!.globalAlpha = 1;
       }

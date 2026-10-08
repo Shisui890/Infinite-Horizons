@@ -17,6 +17,7 @@ interface Props {
   onOpenMonteCarlo: () => void;
   onToggleAIDrawer: () => void;
   onOpenComparator: () => void;
+  onOpenBacktracking?: () => void;
   onOpenGuide?: () => void;
   onOpenShortcuts?: () => void;
   onStartTour?: () => void;
@@ -39,6 +40,7 @@ export default function SimulatorHeader({
   onOpenMonteCarlo,
   onToggleAIDrawer,
   onOpenComparator,
+  onOpenBacktracking,
   onOpenGuide,
   onOpenShortcuts,
   onStartTour,
@@ -188,6 +190,16 @@ export default function SimulatorHeader({
           >
             <span className="btn-text-full">{isLaymanMode ? '3D' : t.cones3D}</span>
             <span className="btn-text-compact">3D</span>
+          </button>
+
+          <button
+            type="button"
+            className="sim-btn-backtracking"
+            onClick={onOpenBacktracking}
+            title={isLaymanMode ? 'Descobrir como adiantar tecnologias no passado' : 'Engenharia Reversa Histórica (Causal Backtracking)'}
+          >
+            <span className="btn-text-full">{isLaymanMode ? 'Engenharia Reversa' : 'Backtracking'}</span>
+            <span className="btn-text-compact">Retro</span>
           </button>
 
           <button
@@ -496,6 +508,29 @@ export default function SimulatorHeader({
                   <small>Comparar linhas temporais</small>
                 </div>
               </button>
+
+              {onOpenBacktracking && (
+                <button
+                  type="button"
+                  className="mobile-drawer-item"
+                  onClick={() => {
+                    setShowMobileMenu(false);
+                    onOpenBacktracking();
+                  }}
+                >
+                  <span className="drawer-icon-wrap">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10" />
+                      <polyline points="12 6 12 12 8 14" />
+                      <path d="M4 12a8 8 0 0 1 8-8" strokeDasharray="3 3" />
+                    </svg>
+                  </span>
+                  <div className="drawer-item-text">
+                    <strong>Engenharia Reversa</strong>
+                    <small>Backtracking causal</small>
+                  </div>
+                </button>
+              )}
 
               <button
                 type="button"

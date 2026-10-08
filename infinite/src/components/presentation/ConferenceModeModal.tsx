@@ -4,6 +4,7 @@ import { getLaymanExplanation } from '../../utils/laymanContent';
 import type { Universe, TemporalEvent } from '../../types/temporal';
 import MathFormula from '../MathFormula';
 import { exportToLaTeX, exportToBibTeX } from '../../utils/exportAcademic';
+import { formatHistoricalYear } from '../../utils/formatters';
 
 interface Props {
   universe: Universe;
@@ -211,7 +212,7 @@ export default function ConferenceModeModal({ universe, onClose }: Props) {
               SLIDE {currentIndex + 1} DE {events.length}
             </div>
             <div className="conf-year-pill">
-              Ano {currentEvent.year}
+              {formatHistoricalYear(currentEvent.year)}
             </div>
             <div className="conf-category-pill">
               {isLaymanMode ? layman.laymanCategory : currentEvent.category}
@@ -307,9 +308,9 @@ export default function ConferenceModeModal({ universe, onClose }: Props) {
                 type="button"
                 className={`conf-dot ${idx === currentIndex ? 'active' : ''}`}
                 onClick={() => setCurrentIndex(idx)}
-                title={`${ev.year}: ${ev.title}`}
+                title={`${formatHistoricalYear(ev.year)}: ${ev.title}`}
               >
-                <span>{ev.year}</span>
+                <span>{formatHistoricalYear(ev.year)}</span>
               </button>
             ))}
           </div>

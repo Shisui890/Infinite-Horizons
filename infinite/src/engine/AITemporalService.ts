@@ -14,6 +14,32 @@ import type {
 } from '../types/temporal';
 import { EventStatus, CausalRelation } from '../types/temporal';
 import { SimulationService } from './SimulationService';
+import { formatHistoricalYear } from '../utils/formatters';
+import type { CausalBacktrackingPlan } from './CausalBacktrackingEngine';
+
+export interface AIEpistemicAudit {
+  verdict: 'approved' | 'restricted' | 'critical_barrier';
+  verdictLabel: string;
+  verdictScore: number;
+  thermodynamicAssessment: string;
+  entropyDeltaFormula: string;
+  lorentzInvarianceCheck: string;
+  causalFeasibilityRatio: number;
+  materialHurdles: Array<{
+    material: string;
+    requiredPurityOrTolerance: string;
+    historicalAvailabilityYear: number;
+    acceleratedFeasibility: string;
+  }>;
+  primaryAcademicSources: Array<{
+    author: string;
+    title: string;
+    year: number;
+    journalOrInstitution: string;
+    doiOrCitation: string;
+  }>;
+  expertConsensusSummary: string;
+}
 
 const AI_STORAGE_KEY = 'infinite-horizons:ai-config';
 
@@ -630,7 +656,7 @@ export class AITemporalService {
     // 1. OpenRouter direto se configurado
     if (this.config.provider === 'openrouter' && this.config.apiKey) {
       try {
-        const prompt = `O evento "${targetEvent.title}" (Ano ${targetEvent.year}, Importância ${targetEvent.importance}/100, Categoria ${targetEvent.category}) teve seu estado alterado para "${targetEvent.status}" no laboratório temporal.
+        const prompt = `O evento "${targetEvent.title}" (${formatHistoricalYear(targetEvent.year)}, Importância ${targetEvent.importance}/100, Categoria ${targetEvent.category}) teve seu estado alterado para "${targetEvent.status}" no laboratório temporal.
 Integridade da realidade: ${universe.temporalIntegrity}%.
 Com base em física teórica (cones de luz, relatividade, efeito borboleta e mecânica quântica), gere o impacto e anomalias decorrentes.
 Retorne APENAS um JSON:
@@ -950,6 +976,429 @@ Para a premissa levantada ("${lastUserMsg.slice(0, 100)}"):
       await new Promise(r => setTimeout(r, 20));
     }
     return current;
+  }
+
+  /**
+   * Executa auditoria científica profunda por IA sobre um plano de Engenharia Reversa (Causal Backtracking)
+   */
+  public static async auditBacktrackingWithAI(plan: CausalBacktrackingPlan): Promise<AIEpistemicAudit> {
+    const cacheKey = `audit-bt-${plan.goalId}-${plan.targetDesiredYear}`;
+    const cached = this.getCached<AIEpistemicAudit>(cacheKey);
+    if (cached) return cached;
+
+    // 1. Chamada via OpenRouter se API Key configurada
+    if (this.config.provider === 'openrouter' && this.config.apiKey) {
+      try {
+        const prompt = `Analise como Comitê de Pares Científicos a aceleração da tecnologia "${plan.targetTitle}" para o ano ${plan.targetDesiredYear} d.C. (histórico real: ${plan.originalHistoricalYear} d.C., salto de ${plan.totalShiftYears} anos).
+Gargalo físico atual: ${plan.primaryBottleneckFormula} - ${plan.bottleneckExplanation}.
+Pré-requisitos: ${plan.prerequisiteSteps.map(s => s.originalTitle + ' (' + s.requiredAcceleratedYear + ')').join(', ')}.
+
+Avalie com máximo rigor científico e retorne estritamente um JSON com:
+- "verdict": "approved" | "restricted" | "critical_barrier"
+- "verdictLabel": título curto em maiúsculas
+- "verdictScore": número de 0 a 100
+- "thermodynamicAssessment": análise das leis da termodinâmica e dissipação de calor
+- "entropyDeltaFormula": fórmula em LaTeX
+- "lorentzInvarianceCheck": validação de limites de causalidade relativística
+- "causalFeasibilityRatio": probabilidade factual em %
+- "materialHurdles": array de 2 a 3 objetos { "material", "requiredPurityOrTolerance", "historicalAvailabilityYear", "acceleratedFeasibility" }
+- "primaryAcademicSources": array de 2 a 3 papers históricos reais com { "author", "title", "year", "journalOrInstitution", "doiOrCitation" }
+- "expertConsensusSummary": parecer colegiado conclusivo sem ficção`;
+
+        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          signal: AbortSignal.timeout(2000),
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${this.config.apiKey}`,
+            'HTTP-Referer': 'https://infinite-horizons.app',
+            'X-Title': 'Infinite Horizons Epistemic Auditor',
+          },
+          body: JSON.stringify({
+            model: this.config.openRouterModel || 'anthropic/claude-3.5-sonnet',
+            temperature: 0.15,
+            messages: [
+              {
+                role: 'system',
+                content: 'Você é o Auditor Epistêmico de Física e História da Ciência do Infinite Horizons. Forneça análises com rigor acadêmico de pós-graduação, equações KaTeX e fontes primárias históricas. Retorne APENAS JSON.',
+              },
+              { role: 'user', content: prompt },
+            ],
+          }),
+        });
+
+        if (response.ok) {
+          const res = (await response.json()) as { choices?: Array<{ message?: { content?: string } }> };
+          const raw = res.choices?.[0]?.message?.content || '';
+          const parsed = this.extractJson<AIEpistemicAudit>(raw);
+          if (parsed && parsed.verdict && parsed.primaryAcademicSources?.length) {
+            this.setCache(cacheKey, parsed);
+            return parsed;
+          }
+        }
+      } catch (err) {
+        console.warn('Auditoria online falhou, aplicando modelo epistêmico determinístico:', err);
+      }
+    }
+
+    // 2. Modelo Físico Epistêmico Determinístico Baseado em Domínio
+    const titleLower = plan.targetTitle.toLowerCase();
+    let audit: AIEpistemicAudit;
+
+    if (titleLower.includes('quântic') || titleLower.includes('quantum') || titleLower.includes('qubit')) {
+      audit = {
+        verdict: 'restricted',
+        verdictLabel: 'VIABILIDADE CONDICIONADA A CRIOGENIA PROFUNDA',
+        verdictScore: 72,
+        thermodynamicAssessment:
+          'A taxa de decoerência termodinâmica $\\Gamma = \\tau^{-1}$ diverge exponencialmente se $k_B T > \\Delta E$. Em meados do século XX, a liquefação de hélio por Samuel Collins (1946) permitia atingir $4.2\\text{ K}$, mas a supressão de ruído térmico para portas de Clifford exige refrigeração por diluição de $^3\\text{He}/^4\\text{He}$ ($< 20\\text{ mK}$) e blindagem magnética de Permalloy.',
+        entropyDeltaFormula: '\\Delta S_{\\text{total}} \\ge k_B \\ln 2 \\quad \\implies \\quad E_{\\text{dissipada}} \\ge k_B T \\ln 2',
+        lorentzInvarianceCheck:
+          'Invariância de Lorentz plenamente obedecida: o colapso e correlações quânticas de Bell respeitam o Teorema de Não-Comunicação ($v_{\\text{sinal}} \\le c$).',
+        causalFeasibilityRatio: 72,
+        materialHurdles: [
+          {
+            material: 'Hélio-3 Isotópico Puro',
+            requiredPurityOrTolerance: 'Pureza isotópica > 99.98% para ciclo de diluição fracionada',
+            historicalAvailabilityYear: 1948,
+            acceleratedFeasibility: 'Exige reatores nucleares moderados a água pesada para produção por decaimento de trítio.',
+          },
+          {
+            material: 'Junções Josephson Supercondutoras',
+            requiredPurityOrTolerance: 'Barreira isolante de AlOx com espessura controlada de ~1.2 nm',
+            historicalAvailabilityYear: 1962,
+            acceleratedFeasibility: 'Pode ser antecipada via evaporação térmica sob vácuo de difusão de vapor de mercúrio.',
+          },
+          {
+            material: 'Blindagem de Mu-Metal / Crioperm',
+            requiredPurityOrTolerance: 'Permeabilidade magnética inicial $\\mu_r > 80.000$',
+            historicalAvailabilityYear: 1923,
+            acceleratedFeasibility: 'Tecnologia já disponível em fundições metalúrgicas europeias na década de 1930.',
+          },
+        ],
+        primaryAcademicSources: [
+          {
+            author: 'John von Neumann',
+            title: 'Mathematische Grundlagen der Quantenmechanik',
+            year: 1932,
+            journalOrInstitution: 'Springer Berlin',
+            doiOrCitation: 'ISBN: 978-3-540-59207-5',
+          },
+          {
+            author: 'Samuel C. Collins',
+            title: 'A Helium Cryostat',
+            year: 1947,
+            journalOrInstitution: 'Review of Scientific Instruments 18(3), 157-167',
+            doiOrCitation: '10.1063/1.1740911',
+          },
+          {
+            author: 'David Deutsch',
+            title: 'Quantum theory, the Church-Turing principle and the universal quantum computer',
+            year: 1985,
+            journalOrInstitution: 'Proc. R. Soc. Lond. A 400, 97-117',
+            doiOrCitation: '10.1098/rspa.1985.0070',
+          },
+        ],
+        expertConsensusSummary:
+          'Consenso de especialistas em física do estado sólido: a coerência de qubits em 1950 é teoricamente viável através de ressonadores mecânicos supercondutores ou cavidades de micro-ondas de klystron, embora a contagem de qubits físicos permaneça restrita a $N \\le 8$ devido à ausência de litografia óptica ultravioleta.',
+      };
+    } else if (titleLower.includes('nuclear') || titleLower.includes('fissão') || titleLower.includes('átom')) {
+      audit = {
+        verdict: 'approved',
+        verdictLabel: 'VIABILIDADE FÍSICA RIGOROSAMENTE COMPROVADA',
+        verdictScore: 84,
+        thermodynamicAssessment:
+          'Balanço energético de quebra de núcleos pesados ($Q = [M(^{235}\\text{U}) + m_n - \\sum M_f] c^2 \\approx 200\\text{ MeV}$). A dissipação térmica em regime estacionário é governada pelas equações de Fourier de condução em urânio metálico com barras de cádmio para captura de nêutrons ressonantes.',
+        entropyDeltaFormula: 'k_{\\text{eff}} = \\frac{\\text{nêutrons produzidos}}{\\text{nêutrons absorvidos + perdidos}} \\ge 1.0',
+        lorentzInvarianceCheck:
+          'Cinemática de conservação do quadrivetor momento $p^\\mu = (E/c, \\mathbf{p})$ perfeitamente invariante sob o grupo de Poincaré $SO(1,3)$.',
+        causalFeasibilityRatio: 84,
+        materialHurdles: [
+          {
+            material: 'Grafite de Pureza Nuclear',
+            requiredPurityOrTolerance: 'Contaminação de Boro < 0.5 ppm para evitar seção de choque parasitária',
+            historicalAvailabilityYear: 1941,
+            acceleratedFeasibility: 'Síntese carbotérmica por eletrodos de grafite Acheson (já dominada industrialmente em 1905).',
+          },
+          {
+            material: 'Urânio Metálico Purificado',
+            requiredPurityOrTolerance: 'Isótopos pesados sem contaminação por terras raras neutrofílicas',
+            historicalAvailabilityYear: 1942,
+            acceleratedFeasibility: 'Redução térmica de tetrafluoreto de urânio ($UF_4$) por cálcio em cadinhos refratários.',
+          },
+        ],
+        primaryAcademicSources: [
+          {
+            author: 'Ernest Rutherford',
+            title: 'The Scattering of alpha and beta Particles by Matter and the Structure of the Atom',
+            year: 1911,
+            journalOrInstitution: 'Philosophical Magazine, Series 6, 21: 669-688',
+            doiOrCitation: '10.1080/14786440508637080',
+          },
+          {
+            author: 'James Chadwick',
+            title: 'Possible Existence of a Neutron',
+            year: 1932,
+            journalOrInstitution: 'Nature 129, 312',
+            doiOrCitation: '10.1038/129312a0',
+          },
+          {
+            author: 'Lise Meitner & Otto Robert Frisch',
+            title: 'Disintegration of Uranium by Neutrons: a New Type of Nuclear Reaction',
+            year: 1939,
+            journalOrInstitution: 'Nature 143, 239-240',
+            doiOrCitation: '10.1038/143239a0',
+          },
+        ],
+        expertConsensusSummary:
+          'Comitê histórico-físico: se a descoberta do nêutron for antecipada para o Laboratório Cavendish por Rutherford e Chadwick antes da Primeira Guerra, uma pilha atômica crítica subcrítica ($k \\approx 1.01$) era plenamente edificável com o parque químico e metalúrgico de 1910.',
+      };
+    } else if (titleLower.includes('lunar') || titleLower.includes('aeroespacial') || titleLower.includes('foguete')) {
+      audit = {
+        verdict: 'restricted',
+        verdictLabel: 'EXIGÊNCIA DE METALURGIA REFRATÁRIA AVANÇADA',
+        verdictScore: 76,
+        thermodynamicAssessment:
+          'Termodinâmica de expansão em tubeira de De Laval: $v_e = \\sqrt{\\frac{2\\gamma}{\\gamma - 1} \\frac{R T_c}{M} \\left[1 - \\left(\\frac{p_e}{p_c}\\right)^{\\frac{\\gamma - 1}{\\gamma}}\\right]}$. Pressões de câmara $p_c > 50\\text{ bar}$ demandam resfriamento regenerativo da garganta contra fluxo de calor crítico $> 20\\text{ MW/m}^2$.',
+        entropyDeltaFormula: '\\Delta v = I_{\\text{sp}} g_0 \\ln\\left(\\frac{m_0}{m_f}\\right) \\quad \\ge \\quad 9.400\\text{ m/s (LEO)}',
+        lorentzInvarianceCheck:
+          'Velocidades orbitais ($v \\sim 7.8\\text{ km/s} \\approx 2.6 \\times 10^{-5} c$) operam no regime newtoniano clássico com correções relativísticas de Schwarzschild $\\Delta t / t \\approx -10^{-10}$ para telemetria.',
+        causalFeasibilityRatio: 76,
+        materialHurdles: [
+          {
+            material: 'Turbobombas de Alta Pressão',
+            requiredPurityOrTolerance: 'Palhetas de turbina em ligas de níquel resistentes a choque térmico de LOX/Álcool',
+            historicalAvailabilityYear: 1944,
+            acceleratedFeasibility: 'Desenvolvimento antecipado de turbocompressores de aviação por Auguste Rateau (1916).',
+          },
+          {
+            material: 'Giroscópios de Navegação Inercial',
+            requiredPurityOrTolerance: 'Taxa de deriva < 0.5 graus/hora com mancais de esferas de precisão',
+            historicalAvailabilityYear: 1938,
+            acceleratedFeasibility: 'Sistemas eletromecânicos de Anschütz-Kaempfe e Elmer Sperry (1911) adaptáveis para três eixos.',
+          },
+        ],
+        primaryAcademicSources: [
+          {
+            author: 'Konstantin Tsiolkovsky',
+            title: 'Exploration of Cosmic Space by Means of Reaction Devices',
+            year: 1903,
+            journalOrInstitution: 'Nauchnoye Obozreniye (Revisão Científica)',
+            doiOrCitation: 'Arquivo da Academia de Ciências da URSS',
+          },
+          {
+            author: 'Robert H. Goddard',
+            title: 'A Method of Reaching Extreme Altitudes',
+            year: 1919,
+            journalOrInstitution: 'Smithsonian Miscellaneous Collections 71(2)',
+            doiOrCitation: 'Smithsonian Inst. Pub. 2540',
+          },
+          {
+            author: 'Hermann Oberth',
+            title: 'Die Rakete zu den Planetenräumen (O Foguete no Espaço Interplanetário)',
+            year: 1923,
+            journalOrInstitution: 'R. Oldenbourg Verlag, München',
+            doiOrCitation: 'OCLC: 247065961',
+          },
+        ],
+        expertConsensusSummary:
+          'Conselho Aeroespacial: a colocação de um satélite orbital na década de 1920 e subsequente pouso lunar tripulado em 1930 é fisicamente possível utilizando querosene/LOX ou etanol/LOX em estágios múltiplos, substituindo computadores eletrônicos por computadores analógicos diferenciais de Vannevar Bush (1931).',
+      };
+    } else if (titleLower.includes('dna') || titleLower.includes('genétic') || titleLower.includes('molecular')) {
+      audit = {
+        verdict: 'approved',
+        verdictLabel: 'ALTO ÍNDICE DE PLAUSIBILIDADE HISTÓRICA',
+        verdictScore: 89,
+        thermodynamicAssessment:
+          'A dupla hélice é estabilizada entalpicamente por ligações de hidrogênio ($-12\\text{ a }-20\\text{ kJ/mol}$) e compensação entrópica hidrofóbica com empilhamento de anéis de purina e pirimidina na conformação B-DNA hidratada a 92% de umidade relativa.',
+        entropyDeltaFormula: 'n\\lambda = 2d \\sin \\theta \\quad \\implies \\quad F(h,k,l) = \\sum f_j e^{2\\pi i (hx_j + ky_j + lz_j)}',
+        lorentzInvarianceCheck:
+          'Comprimento de onda dos raios-X de emissão $K_\\alpha$ do Cobre ($\\lambda = 0.154\\text{ nm}$) não viola nenhuma restrição quântica ou relativística.',
+        causalFeasibilityRatio: 89,
+        materialHurdles: [
+          {
+            material: 'Câmara de Difração com Controle de Umidade',
+            requiredPurityOrTolerance: 'Atmosfera de hidrogênio com controle de vapor saturado a 92% para manter conformação B',
+            historicalAvailabilityYear: 1951,
+            acceleratedFeasibility: 'Vidraria de laboratório e tubos de raios-X de William Coolidge (1913) eram suficientes.',
+          },
+          {
+            material: 'Microcâmeras de Raios-X de Alta Colimação',
+            requiredPurityOrTolerance: 'Colimadores capilares de chumbo com abertura < 0.2 mm',
+            historicalAvailabilityYear: 1928,
+            acceleratedFeasibility: 'William Henry Bragg e William Lawrence Bragg já dominavam o arranjo em 1913 na Universidade de Leeds.',
+          },
+        ],
+        primaryAcademicSources: [
+          {
+            author: 'William Henry Bragg & William Lawrence Bragg',
+            title: 'The Reflection of X-rays by Crystals',
+            year: 1913,
+            journalOrInstitution: 'Proc. R. Soc. Lond. A 88, 428-438',
+            doiOrCitation: '10.1098/rspa.1913.0040',
+          },
+          {
+            author: 'Rosalind Franklin & Raymond Gosling',
+            title: 'Molecular Configuration in Sodium Thymonucleate',
+            year: 1953,
+            journalOrInstitution: 'Nature 171, 740-741',
+            doiOrCitation: '10.1038/171740a0',
+          },
+          {
+            author: 'J. D. Watson & F. H. C. Crick',
+            title: 'Molecular Structure of Nucleic Acids: A Structure for Deoxyribose Nucleic Acid',
+            year: 1953,
+            journalOrInstitution: 'Nature 171, 737-738',
+            doiOrCitation: '10.1038/171737a0',
+          },
+        ],
+        expertConsensusSummary:
+          'Colegiado de Biofísica: a estrutura helicoidal do DNA é o marco contrafactual mais viável para antecipação precoce, pois todos os instrumentos empíricos (cristalografia de raios-X e química orgânica de purinas) já existiam no rescaldo da Primeira Guerra Mundial.',
+      };
+    } else {
+      audit = {
+        verdict: 'restricted',
+        verdictLabel: 'ANÁLISE ANALÍTICA GERAL APROVADA',
+        verdictScore: Math.min(85, Math.max(50, plan.overallFeasibilityScore)),
+        thermodynamicAssessment: `A aceleração de "${plan.targetTitle}" para ${plan.targetDesiredYear} d.C. respeita a conservação local de energia-momento ($T^{\\mu\\nu}_{;\\nu} = 0$). As etapas exigem convergência de ferramental industrial e difusão de conhecimento colegiado.`,
+        entropyDeltaFormula: `\\Delta S_{\\text{descoberta}} \\approx -k_B \\ln\\left(\\frac{\\Omega_{\\text{possibilidades}}}{\\Omega_{\\text{factual}}}\\right) \\quad \\text{compensado por } \\Delta S_{\\text{ambiente}} > 0`,
+        lorentzInvarianceCheck: 'Nenhuma contradição causal em curvas temporais fechadas (ausência de CTCs).',
+        causalFeasibilityRatio: plan.overallFeasibilityScore,
+        materialHurdles: [
+          {
+            material: 'Instrumentação de Precisão Dedicada',
+            requiredPurityOrTolerance: 'Tolerâncias mecânicas compatíveis com o estado da arte do período',
+            historicalAvailabilityYear: plan.targetDesiredYear - 5,
+            acceleratedFeasibility: 'Depende de oficinas mecânicas especializadas e financiamento institucional prioritário.',
+          },
+        ],
+        primaryAcademicSources: [
+          {
+            author: 'Albert Einstein',
+            title: 'Zur Elektrodynamik bewegter Körper (Sobre a Eletrodinâmica dos Corpos em Movimento)',
+            year: 1905,
+            journalOrInstitution: 'Annalen der Physik 17, 891-921',
+            doiOrCitation: '10.1002/andp.19053221004',
+          },
+          {
+            author: 'Claude E. Shannon',
+            title: 'A Mathematical Theory of Communication',
+            year: 1948,
+            journalOrInstitution: 'Bell System Technical Journal 27, 379-423',
+            doiOrCitation: '10.1002/j.1538-7305.1948.tb01338.x',
+          },
+        ],
+        expertConsensusSummary:
+          `O plano retrocausal apresenta consistência lógica no grafo de dependências, exigindo o cumprimento sequencial das ${plan.prerequisiteSteps.length} etapas precursoras.`,
+      };
+    }
+
+    this.setCache(cacheKey, audit);
+    return audit;
+  }
+
+  /**
+   * Responde dúvidas de engenharia e contorno de gargalos históricos com IA
+   */
+  public static async consultAIBacktrackingBypass(
+    question: string,
+    plan: CausalBacktrackingPlan
+  ): Promise<string> {
+    const q = question.trim();
+    if (!q) return '';
+
+    if (this.config.provider === 'openrouter' && this.config.apiKey) {
+      try {
+        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          signal: AbortSignal.timeout(2000),
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${this.config.apiKey}`,
+            'HTTP-Referer': 'https://infinite-horizons.app',
+            'X-Title': 'Infinite Horizons Tech Specialist',
+          },
+          body: JSON.stringify({
+            model: this.config.openRouterModel || 'anthropic/claude-3.5-sonnet',
+            temperature: 0.2,
+            messages: [
+              {
+                role: 'system',
+                content:
+                  'Você é um historiador da tecnologia e físico teórico sênior. Responda como um cientista real de ponta, explicando métodos práticos, componentes de época e rigor matemático para contornar gargalos técnicos no passado.',
+              },
+              {
+                role: 'user',
+                content: `Meta contrafactual: "${plan.targetTitle}" antecipada para ${plan.targetDesiredYear} d.C.
+Gargalo: ${plan.primaryBottleneckFormula} (${plan.bottleneckExplanation}).
+Pergunta do pesquisador: "${q}".
+Forneça a resolução técnica mais fundamentada e precisa cientificamente.`,
+              },
+            ],
+          }),
+        });
+
+        if (response.ok) {
+          const res = (await response.json()) as { choices?: Array<{ message?: { content?: string } }> };
+          const ans = res.choices?.[0]?.message?.content;
+          if (ans) return ans;
+        }
+      } catch (err) {
+        console.warn('Consulta online falhou, usando modelo histórico interno:', err);
+      }
+    }
+
+    // Resposta determinística contextual de alta precisão
+    return `Análise do Comitê Histórico para "${q}":
+No contexto de ${plan.targetDesiredYear} d.C., os pesquisadores pioneiros liderados por ${plan.pioneerCandidates.join(', ')} poderiam contornar esta limitação substituindo componentes inexistentes por arranjos físico-químicos contemporâneos:
+
+1. **Abordagem de Engenharia**: A equação governante $${plan.primaryBottleneckFormula}$ indica que a variável crítica é o tempo de resposta do sistema. Em vez de circuitos integrados modernos, a solução factível residiria em válvulas termiônicas de catodo frio (como os tiratrons de gás nobre) e tubos de vácuo secundário de alta transcondutância.
+2. **Materiais Substitutos**: Utilização de cristal de quartzo piezoelétrico cortado no ângulo AT para estabilização de frequência, juntamente com bobinas enroladas em núcleos de ferrita com isolamento de seda e verniz de baquelite.
+3. **Precedente Documentado**: Mecanismos de compensação análogos foram empregados com sucesso em Bletchley Park (computador Colossus de Tommy Flowers, 1943) e no ciclotrão de Ernest Lawrence em Berkeley (1932), demonstrando viabilidade empírica sem violação de leis de conservação.`;
+  }
+
+  /**
+   * Fornece auditoria de rigor científico e revisão por pares para qualquer evento
+   */
+  public static auditEventScientificRigor(event: TemporalEvent): AIEpistemicAudit {
+    const status = event.scientificStatus || 'theoretical_untested';
+    const isProven = status === 'proven';
+    const isSupported = status === 'theoretical_untested' || status === 'computational';
+
+    return {
+      verdict: isProven ? 'approved' : isSupported ? 'restricted' : 'critical_barrier',
+      verdictLabel: isProven
+        ? 'COMPROVADO EXPERIMENTALMENTE (CONSENSO CIENTÍFICO)'
+        : isSupported
+        ? 'BASE TEÓRICA CONSISTENTE (AGUARDANDO MEDIÇÕES DIRETAS)'
+        : 'HIPÓTESE ESPECULATIVA / CONJECTURA NÃO-CONFIRMADA',
+      verdictScore: isProven ? 98 : isSupported ? 75 : 45,
+      thermodynamicAssessment:
+        `O evento "${event.title}" (${formatHistoricalYear(event.year)}) está ancorado na conservação local de energia-momento ($T^{\\mu\\nu}_{;\\nu} = 0$) e na 2ª Lei da Termodinâmica ($\\Delta S \\ge 0$).`,
+      entropyDeltaFormula: 'S = -k_B \\sum p_i \\ln p_i \\quad \\implies \\quad \\Delta S_{\\text{universo}} > 0',
+      lorentzInvarianceCheck:
+        'Intervalo de espaço-tempo $ds^2 = -c^2 dt^2 + dx^2 + dy^2 + dz^2$ preservado como escalar invariante sob transformações de Lorentz.',
+      causalFeasibilityRatio: isProven ? 100 : isSupported ? 80 : 50,
+      materialHurdles: [
+        {
+          material: 'Aparato Experimental do Marco Histórico',
+          requiredPurityOrTolerance: 'Conforme registrado nas publicações científicas originais do autor',
+          historicalAvailabilityYear: event.year,
+          acceleratedFeasibility: 'Marco historicamente consolidado e validado por replicação em múltiplos laboratórios mundiais.',
+        },
+      ],
+      primaryAcademicSources: [
+        {
+          author: event.academicCitation ? event.academicCitation.split('(')[0].trim() : 'Comitê Científico Internacional',
+          title: event.title,
+          year: event.year,
+          journalOrInstitution: event.doi ? `DOI: ${event.doi}` : 'Arquivos Históricos da Ciência',
+          doiOrCitation: event.doi || 'Referência Acadêmica Registrada',
+        },
+      ],
+      expertConsensusSummary:
+        `Status epistemológico: ${status.toUpperCase()} (${event.evidenceKind || 'documentado'}). O marco possui rigor factual e fundamenta as ramificações posteriores da física moderna.`,
+    };
   }
 }
 

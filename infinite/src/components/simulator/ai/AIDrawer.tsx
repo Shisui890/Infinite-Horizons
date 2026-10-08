@@ -14,6 +14,7 @@ import {
   getKnowledgeBankSeed,
   POPULAR_COSMIC_QUERIES,
 } from '../../../data/aiKnowledgeBank';
+import { formatHistoricalYear } from '../../../utils/formatters';
 
 interface Props {
   universe: Universe;
@@ -587,7 +588,7 @@ ${seed ? `Semente Factual Compacta: ${seed}\n` : ''}Responda de forma rigorosa, 
                     {lastAIResult.generatedAnomalies.map((anom, i) => (
                       <div key={i} className="anomaly-item">
                         <span className="anom-title">[IA] {anom.title}</span>
-                        <span className="anom-year">Ano {anom.year}</span>
+                        <span className="anom-year">{formatHistoricalYear(anom.year)}</span>
                         <p className="anom-desc">{anom.description}</p>
                       </div>
                     ))}

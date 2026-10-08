@@ -246,6 +246,108 @@ class CosmicAudioEngineService {
     osc.start(now);
     osc.stop(now + 0.45);
   }
+
+  /**
+   * 6. Chirp Gravitacional (LIGO-Style Gravitational Wave Chirp)
+   * Simula a deformação métrica proporcional à queda de integridade causal
+   */
+  public playGravitationalChirp(integrityDrop: number = 30): void {
+    if (this.muted) return;
+    const ctx = this.initContext();
+    if (!ctx || !this.masterGain) return;
+
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = 'sine';
+    // Curva de subida de frequência característica de coalescência gravitacional: 40 Hz -> 420 Hz
+    const startFreq = Math.max(35, 80 - integrityDrop * 0.8);
+    const peakFreq = 280 + integrityDrop * 3.5;
+    const duration = 0.45;
+
+    osc.frequency.setValueAtTime(startFreq, now);
+    osc.frequency.exponentialRampToValueAtTime(peakFreq, now + duration * 0.85);
+    osc.frequency.exponentialRampToValueAtTime(peakFreq * 1.2, now + duration);
+
+    gain.gain.setValueAtTime(0.001, now);
+    gain.gain.linearRampToValueAtTime(0.18, now + duration * 0.7);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + duration + 0.08);
+
+    osc.connect(gain);
+    gain.connect(this.masterGain);
+
+    osc.start(now);
+    osc.stop(now + duration + 0.1);
+  }
+
+  /**
+   * 7. Pulso de Linhagem Acadêmica (Harmônico de Mentoria)
+   * Disparado ao inspecionar ou ativar a cadeia genealógica de um cientista
+   */
+  public playLineagePulse(): void {
+    if (this.muted) return;
+    const ctx = this.initContext();
+    if (!ctx || !this.masterGain) return;
+
+    const now = ctx.currentTime;
+    const notes = [528, 660, 792]; // Frequências de clareza e conexão
+
+    notes.forEach((freq, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, now + idx * 0.05);
+
+      gain.gain.setValueAtTime(0.001, now + idx * 0.05);
+      gain.gain.linearRampToValueAtTime(0.08, now + idx * 0.05 + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.05 + 0.35);
+
+      osc.connect(gain);
+      gain.connect(this.masterGain!);
+
+      osc.start(now + idx * 0.05);
+      osc.stop(now + idx * 0.05 + 0.38);
+    });
+  }
+
+  /**
+   * 8. Ressonância do Espaço de Fase (Binaural Coherence Drone)
+   */
+  public playPhaseSpaceHum(entropy: number, lyapunov: number): void {
+    if (this.muted) return;
+    const ctx = this.initContext();
+    if (!ctx || !this.masterGain) return;
+
+    const now = ctx.currentTime;
+    const osc1 = ctx.createOscillator();
+    const osc2 = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    const baseFreq = 108 + Math.min(60, entropy * 20);
+    const beatOffset = Math.max(0.5, Math.abs(lyapunov) * 80);
+
+    osc1.type = 'sine';
+    osc1.frequency.setValueAtTime(baseFreq, now);
+
+    osc2.type = 'sine';
+    osc2.frequency.setValueAtTime(baseFreq + beatOffset, now);
+
+    gain.gain.setValueAtTime(0.001, now);
+    gain.gain.linearRampToValueAtTime(0.06, now + 0.2);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.2);
+
+    osc1.connect(gain);
+    osc2.connect(gain);
+    gain.connect(this.masterGain);
+
+    osc1.start(now);
+    osc2.start(now);
+    osc1.stop(now + 1.25);
+    osc2.stop(now + 1.25);
+  }
 }
 
 export const CosmicAudio = new CosmicAudioEngineService();
+

@@ -3,6 +3,7 @@ import type { Universe, Dimension, TemporalEvent } from '../../types/temporal';
 import { LigoAudio } from '../../engine/LigoAudioService';
 import { useLaymanMode } from '../../context/LaymanModeContext';
 import { getLaymanExplanation } from '../../utils/laymanContent';
+import { formatHistoricalYear } from '../../utils/formatters';
 
 interface Props {
   universe: Universe;
@@ -136,7 +137,7 @@ export default function DimensionComparatorModal({ universe, onClose, onMergeDim
                 return (
                   <div key={ev.id} className="comp-event-item">
                     <div className="comp-event-top">
-                      <span className="comp-year" style={{ color: dimA?.color || '#00d4ff' }}>{ev.year}</span>
+                      <span className="comp-year" style={{ color: dimA?.color || '#00d4ff' }}>{formatHistoricalYear(ev.year)}</span>
                       <span className="comp-cat">{lay ? lay.laymanCategory.toUpperCase() : ev.category}</span>
                     </div>
                     <h5 className="comp-title">{lay ? lay.simpleTitle : ev.title}</h5>
@@ -163,7 +164,7 @@ export default function DimensionComparatorModal({ universe, onClose, onMergeDim
                 return (
                   <div key={ev.id} className="comp-event-item">
                     <div className="comp-event-top">
-                      <span className="comp-year" style={{ color: dimB?.color || '#a855f7' }}>{ev.year}</span>
+                      <span className="comp-year" style={{ color: dimB?.color || '#a855f7' }}>{formatHistoricalYear(ev.year)}</span>
                       <span className="comp-cat">{lay ? lay.laymanCategory.toUpperCase() : ev.category}</span>
                     </div>
                     <h5 className="comp-title">{lay ? lay.simpleTitle : ev.title}</h5>

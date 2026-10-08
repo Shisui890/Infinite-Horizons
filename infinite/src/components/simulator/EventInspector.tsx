@@ -1,14 +1,15 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useLaymanMode } from '../../context/LaymanModeContext';
 import { getLaymanExplanation } from '../../utils/laymanContent';
 import type { TemporalEvent } from '../../types/temporal';
 import { EventStatus } from '../../types/temporal';
 import { AITemporalService } from '../../engine/AITemporalService';
 import { LigoAudio } from '../../engine/LigoAudioService';
-import MathFormula, { MathText } from '../MathFormula';
+import MathFormula, { MathText, InlineMathText } from '../MathFormula';
 import PhysicsCalculatorWidget from './PhysicsCalculatorWidget';
 import ScientificStatusBadge from './ScientificStatusBadge';
 import SpacetimeIntervalCard from './SpacetimeIntervalCard';
+import { formatHistoricalYear } from '../../utils/formatters';
 
 interface Props {
   event: TemporalEvent | null;
@@ -36,6 +37,7 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
   const { isLaymanMode } = useLaymanMode();
   const [showCalculator, setShowCalculator] = useState(false);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+  const [showAiRigorAudit, setShowAiRigorAudit] = useState(false);
 
   if (!event) {
     return (
@@ -65,6 +67,7 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
     .map(id => eventsMap.get(id))
     .filter((e): e is TemporalEvent => Boolean(e));
   const physics = AITemporalService.explainEventWithPhysics(event);
+  const eventRigorAudit = useMemo(() => AITemporalService.auditEventScientificRigor(event), [event]);
 
   function handlePlayLigoSound() {
     setIsPlayingAudio(true);
@@ -89,7 +92,7 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
         </h2>
 
         {/* Rigorous Scientific Status Badge */}
-        <div style={{ marginBottom: '12px' }}>
+        <div style={{ marginBottom: '10px' }}>
           <ScientificStatusBadge
             status={event.scientificStatus}
             evidenceKind={event.evidenceKind}
@@ -99,10 +102,94 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
           />
         </div>
 
+        {/* Auditoria Científica por IA & Rigor Epistêmico */}
+        <div className="inspector-ai-rigor-box">
+          <button
+            type="button"
+            className={`btn-inspector-ai-rigor ${showAiRigorAudit ? 'active' : ''}`}
+            onClick={() => setShowAiRigorAudit(!showAiRigorAudit)}
+            title="Verificar comitê de física teórica e validação empírica por IA"
+          >
+            <span className="btn-ai-rigor-left">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 16v-4M12 8h.01" />
+              </svg>
+              <span>{isLaymanMode ? 'Checagem Científica com IA' : 'Auditoria de Rigor por IA'}</span>
+            </span>
+            <span className="ai-rigor-pill">
+              {showAiRigorAudit ? 'Ocultar' : `${eventRigorAudit.verdictScore}% Rigor`}
+            </span>
+          </button>
+
+          {showAiRigorAudit && (
+            <div className="inspector-ai-audit-card">
+              <div className="audit-card-top">
+                <div className="audit-verdict-badge-group">
+                  <span className={`inspector-verdict-pill verdict-${eventRigorAudit.verdict}`}>
+                    <span className="verdict-dot" />
+                    <span className="verdict-text">{eventRigorAudit.verdictLabel}</span>
+                  </span>
+                  <span className="audit-rigor-score-pill">
+                    <strong>{eventRigorAudit.verdictScore}%</strong> Rigor Factual
+                  </span>
+                </div>
+              </div>
+
+              <div className="audit-card-summary">
+                <InlineMathText text={eventRigorAudit.expertConsensusSummary} />
+              </div>
+
+              <div className="audit-card-physics-row">
+                <div className="physics-sub-pill physics-pill-lorentz">
+                  <div className="physics-sub-pill-header">
+                    <span className="physics-pill-tag">INVARIÂNCIA DE LORENTZ</span>
+                    <span className="physics-pill-sym">SO(1,3)</span>
+                  </div>
+                  <div className="physics-sub-pill-body">
+                    <InlineMathText text={eventRigorAudit.lorentzInvarianceCheck} />
+                  </div>
+                </div>
+
+                <div className="physics-sub-pill physics-pill-thermo">
+                  <div className="physics-sub-pill-header">
+                    <span className="physics-pill-tag">TERMODINÂMICA RELATIVÍSTICA</span>
+                    <span className="physics-pill-sym">ΔS ≥ 0</span>
+                  </div>
+                  <div className="physics-sub-pill-body">
+                    <InlineMathText text={eventRigorAudit.thermodynamicAssessment} />
+                  </div>
+                  {eventRigorAudit.entropyDeltaFormula && (
+                    <div className="audit-formula-snippet">
+                      <MathFormula math={eventRigorAudit.entropyDeltaFormula} block className="eq-audit-katex" />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {eventRigorAudit.primaryAcademicSources.length > 0 && (
+                <div className="audit-card-sources">
+                  <div className="audit-sources-header">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z" />
+                      <path d="M6 6h10M6 10h10" />
+                    </svg>
+                    <span className="audit-sources-label">FONTE ACADÊMICA REGISTRADA (PEER-REVIEW)</span>
+                  </div>
+                  <div className="audit-source-link">
+                    <strong>{eventRigorAudit.primaryAcademicSources[0].author} ({formatHistoricalYear(eventRigorAudit.primaryAcademicSources[0].year)})</strong>
+                    <span className="source-citation-text"> — {eventRigorAudit.primaryAcademicSources[0].doiOrCitation}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
         <div className="inspector-meta-grid">
           <div className="meta-item">
             <span className="meta-label">{isLaymanMode ? 'ANO' : 'COORDENADA TEMPORAL'}</span>
-            <span className="meta-value meta-year">Ano {event.year}</span>
+            <span className="meta-value meta-year">{formatHistoricalYear(event.year)}</span>
           </div>
           <div className="meta-item">
             <span className="meta-label">{isLaymanMode ? 'STATUS DO TEMPO' : 'ESTADO MÉTRICO'}</span>
@@ -258,7 +345,7 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
               {causesList.map(c => (
                 <li key={c!.id}>
                   <span>{isLaymanMode ? getLaymanExplanation(c!.year, c!.title).simpleTitle : c!.title}</span>
-                  <span className="causal-year">(Ano {c!.year})</span>
+                  <span className="causal-year">({formatHistoricalYear(c!.year)})</span>
                 </li>
               ))}
             </ul>
@@ -278,7 +365,7 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
               {consequencesList.map(c => (
                 <li key={c!.id}>
                   <span>{isLaymanMode ? getLaymanExplanation(c!.year, c!.title).simpleTitle : c!.title}</span>
-                  <span className="causal-year">(Ano {c!.year})</span>
+                  <span className="causal-year">({formatHistoricalYear(c!.year)})</span>
                 </li>
               ))}
             </ul>

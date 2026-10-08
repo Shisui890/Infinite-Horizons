@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Dimension, Traveler, TemporalEvent } from '../../types/temporal';
 import type { HistoricalResearch } from '../../types/temporal';
 import { useLaymanMode } from '../../context/LaymanModeContext';
+import { formatHistoricalYear } from '../../utils/formatters';
 
 interface AddEventModalProps {
   dimensions: Dimension[];
@@ -152,7 +153,7 @@ export function AddEventModal({ dimensions, events, onClose, onAddEvent, onResea
               <option value="">{isLaymanMode ? 'Nenhum (Ponto de Partida Inicial)' : 'Nenhuma (Nó Inicial Independente)'}</option>
               {events.map(ev => (
                 <option key={ev.id} value={ev.id}>
-                  {ev.title} (Ano {ev.year})
+                  {ev.title} ({formatHistoricalYear(ev.year)})
                 </option>
               ))}
             </select>
@@ -259,7 +260,7 @@ export function AddTravelerModal({ dimensions, events, onClose, onAddTraveler }:
               <option value="">{isLaymanMode ? 'Nenhum' : 'Nenhum'}</option>
               {events.map(ev => (
                 <option key={ev.id} value={ev.id}>
-                  {ev.title} (Ano {ev.year})
+                  {ev.title} ({formatHistoricalYear(ev.year)})
                 </option>
               ))}
             </select>
@@ -343,7 +344,7 @@ export function TimeTravelModal({ travelers, events, onClose, onExecuteTravel }:
               <option value="">{isLaymanMode ? 'Apenas Observar (Sem mudar nada na história)' : 'Apenas Observação Relativística (Sem perturbação)'}</option>
               {events.map(ev => (
                 <option key={ev.id} value={ev.id}>
-                  {isLaymanMode ? `Alterar o Rumos de: ${ev.title} (Ano ${ev.year})` : `Perturbar / Aniquilar: ${ev.title} (Ano ${ev.year})`}
+                  {isLaymanMode ? `Alterar o Rumos de: ${ev.title} (${formatHistoricalYear(ev.year)})` : `Perturbar / Aniquilar: ${ev.title} (${formatHistoricalYear(ev.year)})`}
                 </option>
               ))}
             </select>

@@ -3,6 +3,46 @@ import { useLaymanMode } from '../../context/LaymanModeContext';
 import MathFormula from '../MathFormula';
 import { MinkowskiCalculus } from '../../engine/MinkowskiCalculus';
 
+function toSuperscript(num: number): string {
+  const digits: Record<string, string> = {
+    '-': '⁻',
+    '0': '⁰',
+    '1': '¹',
+    '2': '²',
+    '3': '³',
+    '4': '⁴',
+    '5': '⁵',
+    '6': '⁶',
+    '7': '⁷',
+    '8': '⁸',
+    '9': '⁹',
+  };
+  return num
+    .toString()
+    .split('')
+    .map(c => digits[c] || c)
+    .join('');
+}
+
+function formatScientific(val: number, unit: string = ''): string {
+  if (!Number.isFinite(val)) return `∞ ${unit}`.trim();
+  if (val === 0) return `0 ${unit}`.trim();
+  if (Math.abs(val) >= 1e6 || Math.abs(val) < 1e-3) {
+    const expStr = val.toExponential(2);
+    const [mantissa, exp] = expStr.split('e');
+    const expNum = parseInt(exp, 10);
+    return `${mantissa} × 10${toSuperscript(expNum)} ${unit}`.trim();
+  }
+  return `${val.toLocaleString('pt-BR', { maximumFractionDigits: 3 })} ${unit}`.trim();
+}
+
+function formatKm(km: number): string {
+  if (km >= 1e9) return `${(km / 1e9).toFixed(2)} bilhões km`;
+  if (km >= 1e6) return `${(km / 1e6).toFixed(2)} milhões km`;
+  if (km >= 1e3) return `${(km / 1e3).toLocaleString('pt-BR', { maximumFractionDigits: 1 })} mil km`;
+  return `${km.toLocaleString('pt-BR', { maximumFractionDigits: 1 })} km`;
+}
+
 export default function PhysicsCalculatorWidget() {
   const { isLaymanMode } = useLaymanMode();
   const [activeCalc, setActiveCalc] = useState<
@@ -145,7 +185,7 @@ export default function PhysicsCalculatorWidget() {
         {/* ========================================================= */}
         {activeCalc === 'special_relativity' && (
           <div className="calc-pane">
-            <MathFormula math="\Delta t' = \gamma \Delta t = \frac{\Delta t}{\sqrt{1 - v^2/c^2}}, \qquad L' = L \sqrt{1 - v^2/c^2}" block />
+            <MathFormula math="\Delta t' = \frac{\Delta t}{\sqrt{1 - v^2/c^2}}, \qquad L' = L \sqrt{1 - v^2/c^2}" block />
 
             <div className="calc-inputs-group">
               <label>
@@ -173,12 +213,12 @@ export default function PhysicsCalculatorWidget() {
                   <strong>{srDilationTimeHours.toFixed(2)}h na Terra</strong>
                 </div>
                 <div className="submetric-item">
-                  <span>{isLaymanMode ? 'Tamanho da Nave em Movimento:' : 'Contração de Comprimento:'}</span>
-                  <strong>{lengthContractionPercent.toFixed(1)}% do original</strong>
+                  <span>{isLaymanMode ? 'Comprimento em Movimento:' : 'Contração de Comprimento:'}</span>
+                  <strong>{lengthContractionPercent.toFixed(1)}% do repouso</strong>
                 </div>
                 <div className="submetric-item">
-                  <span>{isLaymanMode ? 'Energia Necessária:' : 'Energia Cinética (E_k/m c²):'}</span>
-                  <strong>{kineticEnergyRatio.toFixed(2)}× E₀</strong>
+                  <span>{isLaymanMode ? 'Energia Cinética Relativística:' : 'Energia Cinética E_k / (m c²):'}</span>
+                  <strong>+{kineticEnergyRatio.toFixed(3)} × E₀</strong>
                 </div>
               </div>
 
@@ -230,11 +270,7 @@ export default function PhysicsCalculatorWidget() {
               <div className="result-metric">
                 <span className="result-label">{isLaymanMode ? 'RAIO DO HORIZONTE DE EVENTOS' : 'RAIO DE SCHWARZSCHILD (rₛ)'}</span>
                 <strong className="result-value">
-                  {rsKm > 1e6
-                    ? `${(rsKm / 1e6).toFixed(2)} milhões km`
-                    : rsKm > 1000
-                    ? `${(rsKm / 1000).toFixed(1)} mil km`
-                    : `${rsKm.toFixed(2)} km`}
+                  {formatKm(rsKm)}
                 </strong>
               </div>
 
@@ -245,15 +281,15 @@ export default function PhysicsCalculatorWidget() {
                 </div>
                 <div className="submetric-item">
                   <span>{isLaymanMode ? 'Esfera de Fótons (Luz em Órbita):' : 'Esfera de Fótons (1.5 rₛ):'}</span>
-                  <strong>{rPhotonKm.toFixed(1)} km</strong>
+                  <strong>{formatKm(rPhotonKm)}</strong>
                 </div>
                 <div className="submetric-item">
                   <span>{isLaymanMode ? 'Órbita Estável Mais Próxima:' : 'ISCO (3.0 rₛ):'}</span>
-                  <strong>{rIscoKm.toFixed(1)} km</strong>
+                  <strong>{formatKm(rIscoKm)}</strong>
                 </div>
                 <div className="submetric-item">
                   <span>{isLaymanMode ? 'Velocidade Orbital Circular:' : 'Velocidade Orbital (v_orb):'}</span>
-                  <strong>{(orbitalVelocityFraction * 100).toFixed(1)}% c ({orbitalVelocityKmS.toFixed(0)} km/s)</strong>
+                  <strong>{(orbitalVelocityFraction * 100).toFixed(1)}% c ({orbitalVelocityKmS.toLocaleString('pt-BR', { maximumFractionDigits: 0 })} km/s)</strong>
                 </div>
               </div>
 
@@ -271,7 +307,7 @@ export default function PhysicsCalculatorWidget() {
         {/* ========================================================= */}
         {activeCalc === 'kerr' && (
           <div className="calc-pane">
-            <MathFormula math="r_+ = M + \sqrt{M^2 - a^2}, \qquad r_E(\theta) = M + \sqrt{M^2 - a^2\cos^2\theta}, \qquad \eta_{\text{Penrose}} \le 29.3\%" block />
+            <MathFormula math="r_+ = M + \sqrt{M^2 - a^2}, \qquad r_E(\theta) = M + \sqrt{M^2 - a^2\cos^2\theta}" block />
 
             <div className="calc-inputs-group">
               <label>
@@ -322,15 +358,15 @@ export default function PhysicsCalculatorWidget() {
               <div className="result-submetrics-grid">
                 <div className="submetric-item">
                   <span>{isLaymanMode ? 'Limite da Ergosfera r_E(θ):' : 'Superfície Limite Estático (Ergosfera):'}</span>
-                  <strong>{kerrResult.rErgosphereKm.toFixed(1)} km</strong>
+                  <strong>{formatKm(kerrResult.rErgosphereKm)}</strong>
                 </div>
                 <div className="submetric-item">
                   <span>{isLaymanMode ? 'Horizonte de Eventos Exterior (r+):' : 'Horizonte de Eventos (r+):'}</span>
-                  <strong>{kerrResult.rPlusKm.toFixed(1)} km</strong>
+                  <strong>{formatKm(kerrResult.rPlusKm)}</strong>
                 </div>
                 <div className="submetric-item">
                   <span>{isLaymanMode ? 'Horizonte de Cauchy Interior (r-):' : 'Horizonte de Cauchy (r-):'}</span>
-                  <strong>{kerrResult.rMinusKm.toFixed(1)} km</strong>
+                  <strong>{formatKm(kerrResult.rMinusKm)}</strong>
                 </div>
                 <div className="submetric-item">
                   <span>{isLaymanMode ? 'Arrasto do Espaço (Lense-Thirring):' : 'Frequência de Frame-Dragging (ω):'}</span>
@@ -352,7 +388,7 @@ export default function PhysicsCalculatorWidget() {
         {/* ========================================================= */}
         {activeCalc === 'hawking' && (
           <div className="calc-pane">
-            <MathFormula math="T_H = \frac{\hbar c^3}{8\pi G M k_B}, \qquad S_{\text{BH}} = \frac{k_B c^3 A}{4 G \hbar}, \qquad t_{\text{evap}} \approx \frac{5120\pi G^2 M^3}{\hbar c^4}" block />
+            <MathFormula math="T_H = \frac{\hbar c^3}{8\pi G M k_B}, \qquad S_{\text{BH}} = \frac{k_B c^3 A}{4 G \hbar}" block />
 
             <div className="calc-inputs-group">
               <label>
@@ -374,9 +410,7 @@ export default function PhysicsCalculatorWidget() {
               <div className="result-metric">
                 <span className="result-label">{isLaymanMode ? 'TEMPO PARA EVAPORAR COMPLETAMENTE' : 'TEMPO DE EVAPORAÇÃO DE HAWKING'}</span>
                 <strong className="result-value" style={{ color: 'var(--color-emerald)' }}>
-                  {hawkingResult.evaporationTimeYears > 1e12
-                    ? `${hawkingResult.evaporationTimeYears.toExponential(2)} anos`
-                    : `${hawkingResult.evaporationTimeYears.toFixed(2)} anos`}
+                  {formatScientific(hawkingResult.evaporationTimeYears, 'anos')}
                 </strong>
               </div>
 
@@ -384,22 +418,20 @@ export default function PhysicsCalculatorWidget() {
                 <div className="submetric-item">
                   <span>{isLaymanMode ? 'Temperatura de Radiação:' : 'Temperatura de Hawking (T_H):'}</span>
                   <strong>
-                    {hawkingResult.temperatureKelvin < 1e-4
-                      ? `${hawkingResult.temperatureKelvin.toExponential(2)} K`
-                      : `${hawkingResult.temperatureKelvin.toFixed(4)} K`}
+                    {formatScientific(hawkingResult.temperatureKelvin, 'K')}
                   </strong>
                 </div>
                 <div className="submetric-item">
                   <span>{isLaymanMode ? 'Informação Codificada no Horizonte:' : 'Entropia de Bekenstein (Bits):'}</span>
-                  <strong>{hawkingResult.entropyBits.toExponential(2)} bits</strong>
+                  <strong>{formatScientific(hawkingResult.entropyBits, 'bits')}</strong>
                 </div>
                 <div className="submetric-item">
                   <span>{isLaymanMode ? 'Área da Superfície Cósmica:' : 'Área do Horizonte (A):'}</span>
-                  <strong>{hawkingResult.horizonAreaM2.toExponential(2)} m²</strong>
+                  <strong>{formatScientific(hawkingResult.horizonAreaM2, 'm²')}</strong>
                 </div>
                 <div className="submetric-item">
                   <span>{isLaymanMode ? 'Emissão Quântica:' : 'Luminosidade Hawking (Watts):'}</span>
-                  <strong>{hawkingResult.luminosityWatts.toExponential(2)} W</strong>
+                  <strong>{formatScientific(hawkingResult.luminosityWatts, 'W')}</strong>
                 </div>
               </div>
 
@@ -417,7 +449,7 @@ export default function PhysicsCalculatorWidget() {
         {/* ========================================================= */}
         {activeCalc === 'lyapunov' && (
           <div className="calc-pane">
-            <MathFormula math="|\delta \mathbf{x}(t)| \approx |\delta \mathbf{x}_0| \, e^{\lambda t}, \qquad t_{\text{Lyapunov}} = \frac{1}{\lambda}" block />
+            <MathFormula math="|\delta \mathbf{x}(t)| \approx |\delta \mathbf{x}_0| \, e^{\lambda t}, \qquad t_{\text{Lyap}} = \frac{1}{\lambda}" block />
 
             <div className="calc-inputs-group">
               <label>
@@ -449,7 +481,7 @@ export default function PhysicsCalculatorWidget() {
               <div className="result-metric">
                 <span className="result-label">{isLaymanMode ? 'AMPLIAÇÃO DA MUDANÇA NO FUTURO' : 'AMPLIFICAÇÃO CAÓTICA'}</span>
                 <strong className="result-value">
-                  {divergence < 1000 ? `${divergence.toFixed(1)}× maior` : `${divergence.toExponential(2)}× maior`}
+                  {divergence < 1000 ? `${divergence.toFixed(1)}× maior` : formatScientific(divergence, '× maior')}
                 </strong>
               </div>
 
@@ -480,7 +512,7 @@ export default function PhysicsCalculatorWidget() {
         {/* ========================================================= */}
         {activeCalc === 'maxwell' && (
           <div className="calc-pane">
-            <MathFormula math="c = \frac{1}{\sqrt{\mu_0 \epsilon_0}}, \qquad u = \frac{1}{2}\epsilon_0 E^2 + \frac{B^2}{2\mu_0}, \qquad \mathbf{S} = \frac{1}{\mu_0} (\mathbf{E} \times \mathbf{B})" block />
+            <MathFormula math="c = \frac{1}{\sqrt{\mu_0 \epsilon_0}}, \qquad u = \frac{1}{2}\epsilon_0 E^2 + \frac{B^2}{2\mu_0}" block />
 
             <div className="calc-inputs-group">
               <label>
@@ -511,7 +543,7 @@ export default function PhysicsCalculatorWidget() {
             <div className="calc-result-box">
               <div className="result-metric">
                 <span className="result-label">{isLaymanMode ? 'VELOCIDADE EXATA DA LUZ CALCULADA' : 'VELOCIDADE DA LUZ DERIVADA (1/√(ε₀μ₀))'}</span>
-                <strong className="result-value">{(speedOfLightMaxwell / 1000).toFixed(0)} km/s</strong>
+                <strong className="result-value">{(speedOfLightMaxwell / 1000).toLocaleString('pt-BR', { maximumFractionDigits: 0 })} km/s</strong>
               </div>
 
               <div className="result-submetrics-grid">
@@ -540,7 +572,7 @@ export default function PhysicsCalculatorWidget() {
         {activeCalc === 'ether' && (
           <div className="calc-pane">
             <MathFormula
-              math="\Delta t \approx \frac{L v^2}{c^3}, \qquad \Delta N_{\text{clássico}} = \frac{2 L v^2}{\lambda c^2}, \qquad \Delta N_{\text{medido}} = 0.00 \pm 0.01"
+              math="\Delta t_{\text{éter}} \approx \frac{L v^2}{c^3}, \qquad \Delta N_{\text{clássico}} = \frac{2 L v^2}{\lambda c^2}"
               block
             />
 

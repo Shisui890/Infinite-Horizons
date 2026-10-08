@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useSimulationStore } from '../../store/useSimulationStore';
 import { useLaymanMode } from '../../context/LaymanModeContext';
 import { CosmicAudio } from '../../engine/CosmicAudioEngine';
+import { formatHistoricalYear } from '../../utils/formatters';
 
 export default function TimeScrubber() {
   const { isLaymanMode } = useLaymanMode();
@@ -49,7 +50,7 @@ export default function TimeScrubber() {
           <span className="scrubber-label">
             {isLaymanMode ? 'ANO DA LINHA DO TEMPO:' : 'MÁQUINA DO TEMPO:'}
           </span>
-          <strong className="scrubber-year">{timelineYear} AD</strong>
+          <strong className="scrubber-year">{formatHistoricalYear(timelineYear)}</strong>
         </div>
 
         <div className="scrubber-stats">
@@ -65,7 +66,7 @@ export default function TimeScrubber() {
       </div>
 
       <div className="time-scrubber-track-wrap">
-        <span className="scrubber-edge-year">{minYear}</span>
+        <span className="scrubber-edge-year">{formatHistoricalYear(minYear)}</span>
         <input
           type="range"
           min={minYear}
@@ -80,7 +81,7 @@ export default function TimeScrubber() {
           className="time-scrubber-slider"
           aria-label="Controle deslizante de navegação temporal"
         />
-        <span className="scrubber-edge-year">{maxYear}</span>
+        <span className="scrubber-edge-year">{formatHistoricalYear(maxYear)}</span>
       </div>
 
       <div className="time-scrubber-controls">

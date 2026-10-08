@@ -2,7 +2,8 @@ import { useState } from 'react';
 import type { TemporalEvent } from '../../types/temporal';
 import { MinkowskiCalculus } from '../../engine/MinkowskiCalculus';
 import { useLaymanMode } from '../../context/LaymanModeContext';
-import MathFormula from '../MathFormula';
+import MathFormula, { InlineMathText } from '../MathFormula';
+import { formatHistoricalYear } from '../../utils/formatters';
 
 interface Props {
   currentEvent: TemporalEvent;
@@ -49,7 +50,7 @@ export default function SpacetimeIntervalCard({ currentEvent, allEvents }: Props
         >
           {otherEvents.map(e => (
             <option key={e.id} value={e.id}>
-              vs. [{e.year}] {e.title.length > 26 ? e.title.slice(0, 24) + '…' : e.title}
+              vs. [{formatHistoricalYear(e.year)}] {e.title.length > 26 ? e.title.slice(0, 24) + '…' : e.title}
             </option>
           ))}
         </select>
@@ -73,7 +74,7 @@ export default function SpacetimeIntervalCard({ currentEvent, allEvents }: Props
           <strong className="st-metric-value" style={{ color: typeColor }}>
             {isLaymanMode
               ? (isTimelike ? 'Permitida' : isLightlike ? 'Limite da Luz' : 'Sem Contato')
-              : `${result.s2} al²`}
+              : `${result.s2 > 0 ? '+' : ''}${result.s2} al²`}
           </strong>
         </div>
         <div className="st-metric-item">
@@ -108,15 +109,15 @@ export default function SpacetimeIntervalCard({ currentEvent, allEvents }: Props
                 : 'Eventos Isolados (Sem Ligação Direta)')
             : result.causalStatusLabel}
         </span>
-        <p className="st-status-desc">
+        <div className="st-status-desc">
           {isLaymanMode
             ? (isTimelike
                 ? 'Houve tempo suficiente para a informação ou luz viajar de um evento até o outro. Portanto, o primeiro acontecimento pode sim ter causado o segundo com total consistência!'
                 : isLightlike
                 ? 'A influência viajou exatamente na velocidade máxima permitida no universo (300.000 km/s, a velocidade da luz).'
                 : 'Estes dois acontecimentos estão tão distantes no espaço e aconteceram com intervalo tão curto de tempo que nem mesmo um raio de luz conseguiria ligá-los a tempo. Um não pode ter sido a causa do outro.')
-            : result.scientificExplanation}
-        </p>
+            : <InlineMathText text={result.scientificExplanation} />}
+        </div>
       </div>
     </div>
   );
