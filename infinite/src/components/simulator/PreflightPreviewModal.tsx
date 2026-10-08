@@ -20,6 +20,7 @@ export default function PreflightPreviewModal() {
     setPreflightImpact,
     universeState,
     removeEvent,
+    updateEvent,
     startReplay,
     setUniverseState,
     setActiveDimensionId,
@@ -280,6 +281,8 @@ export default function PreflightPreviewModal() {
     );
     if (preflightImpact.action === 'erase') {
       removeEvent(preflightImpact.targetEventId);
+    } else {
+      updateEvent(preflightImpact.targetEventId, { status: EventStatus.ALTERED });
     }
     setPreflightImpact(null);
     startReplay(frames);
@@ -290,6 +293,8 @@ export default function PreflightPreviewModal() {
     logRealisticImpact();
     if (preflightImpact.action === 'erase') {
       removeEvent(preflightImpact.targetEventId);
+    } else {
+      updateEvent(preflightImpact.targetEventId, { status: EventStatus.ALTERED });
     }
     setPreflightImpact(null);
   }

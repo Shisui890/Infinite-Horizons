@@ -13,6 +13,7 @@ import { SimulationService } from '../engine/SimulationService';
 import { GraphEngine } from '../engine/GraphEngine';
 import { ParadoxEngine } from '../engine/ParadoxEngine';
 import { IntegrityEngine } from '../engine/IntegrityEngine';
+import { AITemporalService } from '../engine/AITemporalService';
 
 const SIMULATION_STORAGE_KEY = 'infinite-horizons:simulation';
 const THEME_STORAGE_KEY = 'infinite-horizons:theme';
@@ -540,6 +541,10 @@ export const useSimulationStore = create<SimulationStore>((set, get) => {
       const estimatedDrop = action === 'erase' ? 25 + descendants.length * 4 : 10 + descendants.length * 2;
       const predictedIntegrity = Math.max(0, universe.temporalIntegrity - estimatedDrop);
 
+      const counterfactualAnalysis = targetEvent
+        ? AITemporalService.generateCounterfactualAnalysis(targetEvent, universe, action)
+        : undefined;
+
       return {
         targetEventId,
         targetEventTitle: targetEvent?.title || 'Evento Desconhecido',
@@ -551,6 +556,7 @@ export const useSimulationStore = create<SimulationStore>((set, get) => {
         currentIntegrity: universe.temporalIntegrity,
         predictedIntegrity,
         criticalAnchorsAtRisk,
+        counterfactualAnalysis,
       };
     },
 

@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useLaymanMode } from '../../context/LaymanModeContext';
+import { useSimulationStore } from '../../store/useSimulationStore';
 import { getLaymanExplanation } from '../../utils/laymanContent';
 import type { TemporalEvent } from '../../types/temporal';
 import { EventStatus } from '../../types/temporal';
@@ -68,6 +69,11 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
     .filter((e): e is TemporalEvent => Boolean(e));
   const physics = AITemporalService.explainEventWithPhysics(event);
   const eventRigorAudit = useMemo(() => AITemporalService.auditEventScientificRigor(event), [event]);
+  const { universeState } = useSimulationStore();
+  const counterfactual = useMemo(
+    () => (event ? AITemporalService.generateCounterfactualAnalysis(event, universeState.universe) : null),
+    [event, universeState.universe]
+  );
 
   function handlePlayLigoSound() {
     setIsPlayingAudio(true);
@@ -371,6 +377,41 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
             </ul>
           )}
         </div>
+
+        {/* Counterfactual Hypothesis & Analysis Card */}
+        {counterfactual && (
+          <div className="counterfactual-dossier-card">
+            <div className="cf-dossier-header">
+              <span className="cf-dossier-badge">🏛️ E SE NÃO EXISTISSE?</span>
+              <span className="cf-dossier-title">Cenário Contrafactual</span>
+            </div>
+            <div className="cf-dossier-content">
+              <p className="cf-dossier-text">
+                <MathText text={counterfactual.whatIfNonExistent} />
+              </p>
+              <div className="cf-dossier-hypothesis">
+                <span className="cf-dossier-hypo-tag">RAMIFICAÇÃO ALTERNATIVA:</span>
+                <p>
+                  <MathText text={counterfactual.alternateHistoryHypothesis} />
+                </p>
+              </div>
+              {counterfactual.brokenDescendants.length > 0 && (
+                <div className="cf-dossier-descendants">
+                  <span className="cf-dossier-hypo-tag">
+                    CONSEQUÊNCIAS NO CONE DE LUZ ({counterfactual.brokenDescendants.length}):
+                  </span>
+                  <ul className="cf-dossier-list">
+                    {counterfactual.brokenDescendants.slice(0, 3).map((desc, idx) => (
+                      <li key={`${desc.title}-${desc.year}-${idx}`}>
+                        <strong>{desc.title} ({formatHistoricalYear(desc.year)})</strong>: {desc.consequenceIfMissing}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Action Controls */}
         <div className="inspector-actions">

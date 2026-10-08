@@ -17909,3 +17909,93 @@
     align-items: stretch;
   }
 }
+
+/* Event Inspector Counterfactual Dossier Card */
+.counterfactual-dossier-card {
+  background: rgba(13, 20, 38, 0.85);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin: 14px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: inset 0 0 16px rgba(56, 189, 248, 0.03);
+}
+
+.cf-dossier-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cf-dossier-badge {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.cf-dossier-title {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.cf-dossier-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cf-dossier-text {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: #cbd5e1;
+}
+
+.cf-dossier-hypothesis {
+  background: rgba(2, 6, 23, 0.5);
+  padding: 8px 10px;
+  border-radius: 6px;
+  border-left: 2px solid #a855f7;
+}
+
+.cf-dossier-hypothesis p {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: #ddd6fe;
+}
+
+.cf-dossier-hypo-tag {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #c084fc;
+  display: block;
+  margin-bottom: 4px;
+  letter-spacing: 0.04em;
+}
+
+.cf-dossier-descendants {
+  background: rgba(2, 6, 23, 0.5);
+  padding: 8px 10px;
+  border-radius: 6px;
+  border-left: 2px solid #f59e0b;
+}
+
+.cf-dossier-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 0.76rem;
+  color: #94a3b8;
+  line-height: 1.4;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
