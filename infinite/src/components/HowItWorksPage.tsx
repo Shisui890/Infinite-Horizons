@@ -1,10 +1,15 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { useLaymanMode } from '../context/LaymanModeContext';
 import MathFormula from './MathFormula';
+import CausalRippleWidget from './widgets/CausalRippleWidget';
+import MinkowskiLightconeWidget from './widgets/MinkowskiLightconeWidget';
+
+const KerrBlackHoleModal = lazy(() => import('./visualization/KerrBlackHoleModal'));
 
 interface Props {
   onBack: () => void;
   onStartSimulator: () => void;
+  onOpenKerrModal?: () => void;
 }
 
 type GuideTab =
@@ -14,9 +19,18 @@ type GuideTab =
   | 'advanced_tools'
   | 'theoretical_dossier';
 
-export default function HowItWorksPage({ onBack, onStartSimulator }: Props) {
+export default function HowItWorksPage({ onBack, onStartSimulator, onOpenKerrModal }: Props) {
   const { isLaymanMode, toggleLaymanMode } = useLaymanMode();
   const [activeTab, setActiveTab] = useState<GuideTab>('quickstart');
+  const [showInternalKerrModal, setShowInternalKerrModal] = useState<boolean>(false);
+  const [shortcutFeedback, setShortcutFeedback] = useState<string | null>(null);
+
+  function triggerShortcutTest(keyLabel: string, actionName: string) {
+    setShortcutFeedback(`Atalho testado [${keyLabel}]: ${actionName}`);
+    setTimeout(() => setShortcutFeedback(null), 2500);
+  }
+
+  const handleOpenKerr = onOpenKerrModal || (() => setShowInternalKerrModal(true));
 
   return (
     <div className="how-it-works-page">
@@ -207,37 +221,75 @@ export default function HowItWorksPage({ onBack, onStartSimulator }: Props) {
                 </ul>
               </div>
 
-              {/* Keyboard Shortcuts & Gestures Card */}
+              {/* Keyboard Shortcuts & Gestures Card (Interactive) */}
               <div className="instruction-card">
                 <div className="inst-header">
                   <span className="inst-step-num">ATALHOS & GESTOS</span>
-                  <h4>Teclas Rápidas & Ergonomia Mobile</h4>
+                  <h4>Teclas Rápidas & Ergonomia (Clique para Testar)</h4>
                 </div>
+                {shortcutFeedback && (
+                  <div className="shortcut-test-toast">
+                    <span className="toast-dot" />
+                    <span>{shortcutFeedback}</span>
+                  </div>
+                )}
                 <div className="shortcuts-showcase-grid">
-                  <div className="shortcut-box">
+                  <button
+                    type="button"
+                    className="shortcut-box shortcut-interactive"
+                    onClick={() => triggerShortcutTest('Ctrl+Z', 'Desfazer última alteração causal')}
+                  >
                     <div className="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>Z</kbd></div>
                     <span className="shortcut-label">Desfazer última alteração causal</span>
-                  </div>
-                  <div className="shortcut-box">
+                  </button>
+
+                  <button
+                    type="button"
+                    className="shortcut-box shortcut-interactive"
+                    onClick={() => triggerShortcutTest('Ctrl+Y', 'Refazer alteração histórica')}
+                  >
                     <div className="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>Y</kbd></div>
                     <span className="shortcut-label">Refazer alteração histórica</span>
-                  </div>
-                  <div className="shortcut-box">
+                  </button>
+
+                  <button
+                    type="button"
+                    className="shortcut-box shortcut-interactive"
+                    onClick={() => triggerShortcutTest('Espaço', 'Iniciar / Pausar Replay Temporal')}
+                  >
                     <div className="shortcut-keys"><kbd>Espaço</kbd></div>
                     <span className="shortcut-label">Iniciar / Pausar Replay Temporal</span>
-                  </div>
-                  <div className="shortcut-box">
+                  </button>
+
+                  <button
+                    type="button"
+                    className="shortcut-box shortcut-interactive"
+                    onClick={() => {
+                      toggleLaymanMode();
+                      triggerShortcutTest('M', 'Alternar Modo Didático / Rigoroso');
+                    }}
+                  >
                     <div className="shortcut-keys"><kbd>M</kbd></div>
                     <span className="shortcut-label">Alternar Modo Didático / Técnico</span>
-                  </div>
-                  <div className="shortcut-box">
+                  </button>
+
+                  <button
+                    type="button"
+                    className="shortcut-box shortcut-interactive"
+                    onClick={() => triggerShortcutTest('Esc', 'Fechar qualquer janela ou modal')}
+                  >
                     <div className="shortcut-keys"><kbd>Esc</kbd></div>
                     <span className="shortcut-label">Fechar qualquer janela / modal</span>
-                  </div>
-                  <div className="shortcut-box">
+                  </button>
+
+                  <button
+                    type="button"
+                    className="shortcut-box shortcut-interactive"
+                    onClick={() => triggerShortcutTest('Swipe', 'Navegação tátil fluida')}
+                  >
                     <div className="shortcut-keys"><kbd>Swipe</kbd> / <kbd>Toque</kbd></div>
                     <span className="shortcut-label">Navegação tátil fluida no mobile</span>
-                  </div>
+                  </button>
                 </div>
               </div>
             </div>
@@ -249,6 +301,9 @@ export default function HowItWorksPage({ onBack, onStartSimulator }: Props) {
         {/* ========================================================================= */}
         {activeTab === 'causal_engine' && (
           <div className="guide-instruction-layout">
+            {/* Interactive Causal Ripple Simulator Widget */}
+            <CausalRippleWidget />
+
             <div className="instruction-card">
               <div className="inst-header">
                 <span className="inst-step-num">PROCESSO 1</span>
@@ -529,6 +584,9 @@ export default function HowItWorksPage({ onBack, onStartSimulator }: Props) {
                 <li><strong>Intervalo Tipo-Luz (<MathFormula math="ds^2 = 0" />):</strong> Fronteira do horizonte de eventos percorrida por fótons e ondas gravitacionais (<MathFormula math="v = c" />).</li>
                 <li><strong>Intervalo Tipo-Espaço (<MathFormula math="ds^2 > 0" />):</strong> Eventos causalmente desconectados. Nenhuma informação pode viajar entre eles sem violar a causalidade relativística.</li>
               </ul>
+
+              {/* Interactive Minkowski Lightcone Widget */}
+              <MinkowskiLightconeWidget />
             </div>
 
             <div className="instruction-card">
@@ -569,6 +627,28 @@ export default function HowItWorksPage({ onBack, onStartSimulator }: Props) {
                 <li><MathFormula math="a = J / Mc" />: Parâmetro de spin angular adimensional do corpo celeste em rotação.</li>
                 <li><MathFormula math="S_{BH}" />: Entropia termodinâmica máxima proporcional à área bidimensional da superfície do horizonte.</li>
               </ul>
+
+              {/* Callout to open 3D Kerr Visualizer */}
+              <div className="kerr-showcase-callout">
+                <div className="kerr-callout-text">
+                  <span className="callout-badge">VISUALIZADOR 3D INTERATIVO</span>
+                  <h5>Explore a Lente Gravitacional de Kerr em Tempo Real</h5>
+                  <p>
+                    Manipule o parâmetro de spin <MathFormula math="a/M" />, visualize a ergosfera, o anel de fótons e o efeito Doppler relativístico com física de alta precisão.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  className="btn-trigger-kerr-modal"
+                  onClick={handleOpenKerr}
+                >
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                    <circle cx="12" cy="12" r="10" />
+                    <circle cx="12" cy="12" r="4" />
+                  </svg>
+                  <span>Abrir Simulador 3D de Kerr</span>
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -595,6 +675,13 @@ export default function HowItWorksPage({ onBack, onStartSimulator }: Props) {
           </div>
         </section>
       </div>
+
+      {/* Internal Kerr Modal */}
+      {showInternalKerrModal && (
+        <Suspense fallback={null}>
+          <KerrBlackHoleModal onClose={() => setShowInternalKerrModal(false)} />
+        </Suspense>
+      )}
     </div>
   );
 }

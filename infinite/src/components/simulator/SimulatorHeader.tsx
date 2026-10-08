@@ -21,6 +21,8 @@ interface Props {
   onOpenGuide?: () => void;
   onOpenShortcuts?: () => void;
   onStartTour?: () => void;
+  onOpenKerrVisualizer?: () => void;
+  onOpenAcademicPaper?: () => void;
   onReset: () => void;
   canUndo: boolean;
   canRedo: boolean;
@@ -44,6 +46,8 @@ export default function SimulatorHeader({
   onOpenGuide,
   onOpenShortcuts,
   onStartTour,
+  onOpenKerrVisualizer,
+  onOpenAcademicPaper,
   onReset,
   canUndo,
   canRedo,
@@ -191,6 +195,30 @@ export default function SimulatorHeader({
             <span className="btn-text-full">{isLaymanMode ? '3D' : t.cones3D}</span>
             <span className="btn-text-compact">3D</span>
           </button>
+
+          {onOpenKerrVisualizer && (
+            <button
+              type="button"
+              className="sim-btn-kerr"
+              onClick={onOpenKerrVisualizer}
+              title="Visualizador 3D de Métrica de Kerr & Lente Gravitacional"
+            >
+              <span className="btn-text-full">Kerr 3D</span>
+              <span className="btn-text-compact">Kerr</span>
+            </button>
+          )}
+
+          {onOpenAcademicPaper && (
+            <button
+              type="button"
+              className="sim-btn-academic-paper"
+              onClick={onOpenAcademicPaper}
+              title="Exportador de Artigo Científico (RevTeX / BibTeX / PDF)"
+            >
+              <span className="btn-text-full">Artigo</span>
+              <span className="btn-text-compact">Paper</span>
+            </button>
+          )}
 
           <button
             type="button"
@@ -360,17 +388,25 @@ export default function SimulatorHeader({
             className="sim-export-select"
             defaultValue=""
             onChange={event => {
-              if (event.target.value) onExport(event.target.value as 'json' | 'csv' | 'latex' | 'bibtex' | 'png' | 'pdf');
+              const val = event.target.value;
+              if (val === 'latex' || val === 'bibtex') {
+                if (onOpenAcademicPaper) {
+                  onOpenAcademicPaper();
+                  event.target.value = '';
+                  return;
+                }
+              }
+              if (val) onExport(val as 'json' | 'csv' | 'latex' | 'bibtex' | 'png' | 'pdf');
               event.target.value = '';
             }}
             aria-label="Exportar modelo"
           >
             <option value="">{t.export}</option>
+            <option value="latex">Artigo LaTeX & Prévia</option>
+            <option value="bibtex">Bibliografia BibTeX (.bib)</option>
+            <option value="pdf">Relatório PDF / Imprimir</option>
             <option value="json">JSON</option>
             <option value="csv">CSV</option>
-            <option value="latex">Artigo LaTeX (.tex)</option>
-            <option value="pdf">Relatório PDF / Imprimir</option>
-            <option value="bibtex">BibTeX (.bib)</option>
             <option value="png">Poster 4K</option>
           </select>
         </div>

@@ -42,6 +42,8 @@ const DimensionComparatorModal = lazy(() => import('./DimensionComparatorModal')
 const KeyboardShortcutsModal = lazy(() => import('./KeyboardShortcutsModal'));
 const InteractiveTourModal = lazy(() => import('./InteractiveTourModal'));
 const CausalBacktrackingModal = lazy(() => import('./CausalBacktrackingModal'));
+const KerrBlackHoleModal = lazy(() => import('../visualization/KerrBlackHoleModal'));
+const AcademicPaperExportModal = lazy(() => import('./AcademicPaperExportModal'));
 
 interface Props {
   onExit: () => void;
@@ -91,6 +93,8 @@ export default function SimulatorView({ onExit, onOpenGuide, initialState }: Pro
   const [showBacktrackingModal, setShowBacktrackingModal] = useState(false);
   const [showShortcutsModal, setShowShortcutsModal] = useState(false);
   const [showTourModal, setShowTourModal] = useState(false);
+  const [showKerrModal, setShowKerrModal] = useState(false);
+  const [showAcademicPaperModal, setShowAcademicPaperModal] = useState(false);
   const [shortcutToast, setShortcutToast] = useState<string | null>(null);
   const toastTimerRef = useRef<number | null>(null);
 
@@ -282,6 +286,11 @@ export default function SimulatorView({ onExit, onOpenGuide, initialState }: Pro
   ]);
 
   const handleExport = useCallback((format: 'json' | 'csv' | 'latex' | 'bibtex' | 'png' | 'pdf') => {
+    if (format === 'latex' || format === 'bibtex') {
+      setShowAcademicPaperModal(true);
+      return;
+    }
+
     if (format === 'pdf') {
       ScientificReportEngine.openPrintableReport(universe);
       triggerToast('Relatório PDF aberto para impressão');
@@ -296,19 +305,6 @@ export default function SimulatorView({ onExit, onOpenGuide, initialState }: Pro
         link.href = canvas.toDataURL('image/png');
         link.click();
       }
-      return;
-    }
-
-    if (format === 'latex') {
-      const latexCode = ScientificReportEngine.generateLaTeX(universe);
-      const blob = new Blob([latexCode], { type: 'application/x-latex;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `artigo_cientifico_${universe.id}.tex`;
-      link.click();
-      URL.revokeObjectURL(url);
-      triggerToast('Artigo LaTeX exportado (.tex)');
       return;
     }
 
@@ -494,6 +490,8 @@ export default function SimulatorView({ onExit, onOpenGuide, initialState }: Pro
         onOpenGuide={onOpenGuide}
         onOpenShortcuts={() => setShowShortcutsModal(true)}
         onStartTour={() => setShowTourModal(true)}
+        onOpenKerrVisualizer={() => setShowKerrModal(true)}
+        onOpenAcademicPaper={() => setShowAcademicPaperModal(true)}
         onReset={resetUniverse}
         canUndo={canUndo()}
         canRedo={canRedo()}
@@ -685,6 +683,23 @@ export default function SimulatorView({ onExit, onOpenGuide, initialState }: Pro
           <CausalBacktrackingModal
             isOpen={showBacktrackingModal}
             onClose={() => setShowBacktrackingModal(false)}
+          />
+        </Suspense>
+      )}
+
+      {/* Relativistic Kerr Black Hole 3D Visualizer Modal */}
+      {showKerrModal && (
+        <Suspense fallback={null}>
+          <KerrBlackHoleModal onClose={() => setShowKerrModal(false)} />
+        </Suspense>
+      )}
+
+      {/* Academic Paper Export Modal (RevTeX / BibTeX / PDF) */}
+      {showAcademicPaperModal && (
+        <Suspense fallback={null}>
+          <AcademicPaperExportModal
+            universe={universe}
+            onClose={() => setShowAcademicPaperModal(false)}
           />
         </Suspense>
       )}
