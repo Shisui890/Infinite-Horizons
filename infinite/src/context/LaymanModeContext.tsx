@@ -16,9 +16,10 @@ export function LaymanModeProvider({ children }: { children: React.ReactNode }) 
   const [isLaymanMode, setIsLaymanModeState] = useState<boolean>(() => {
     try {
       const stored = localStorage.getItem('infinite_horizons_layman_mode');
-      return stored === 'true';
+      // Modo Leigo / Didático ativado por padrão para que todos compreendam facilmente
+      return stored !== null ? stored !== 'false' : true;
     } catch {
-      return false;
+      return true;
     }
   });
 

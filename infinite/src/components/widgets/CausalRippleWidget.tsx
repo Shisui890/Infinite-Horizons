@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLaymanMode } from '../../context/LaymanModeContext';
 
 interface CausalNode {
   id: string;
@@ -28,6 +29,7 @@ const EDGES: { from: string; to: string }[] = [
 ];
 
 export default function CausalRippleWidget() {
+  const { isLaymanMode } = useLaymanMode();
   const [perturbedId, setPerturbedId] = useState<string | null>(null);
   const [affectedIds, setAffectedIds] = useState<string[]>([]);
   const [isStabilizing, setIsStabilizing] = useState<boolean>(false);
@@ -88,11 +90,13 @@ export default function CausalRippleWidget() {
         <div className="ripple-title-group">
           <span className="ripple-pill-badge">
             <span className="pill-dot" />
-            SIMULADOR INTERATIVO // PROPAGAÇÃO CAUSAL
+            {isLaymanMode ? 'TESTE PRÁTICO // EFEITO DOMINÓ NA HISTÓRIA' : 'SIMULADOR INTERATIVO // PROPAGAÇÃO CAUSAL'}
           </span>
-          <h4>Simulador do Efeito Borboleta & Conexões Geodésicas</h4>
+          <h4>{isLaymanMode ? 'Simulador do Efeito Borboleta: Veja o Que Acontece ao Mudar o Passado' : 'Simulador do Efeito Borboleta & Conexões Geodésicas'}</h4>
           <p>
-            Clique em qualquer nó histórico abaixo ou no botão para simular uma perturbação e observar as ondas de choque causais se propagarem no grafo:
+            {isLaymanMode
+              ? 'Clique em qualquer cientista abaixo para ver o que aconteceria se sua descoberta nunca tivesse existido. As setas amarelas e vermelhas mostram como as invenções seguintes seriam destruídas!'
+              : 'Clique em qualquer nó histórico abaixo ou no botão para simular uma perturbação e observar as ondas de choque causais se propagarem no grafo:'}
           </p>
         </div>
 
@@ -105,7 +109,7 @@ export default function CausalRippleWidget() {
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
               <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
             </svg>
-            <span>Perturbar Einstein (1905)</span>
+            <span>{isLaymanMode ? 'Apagar Descoberta de Einstein (1905)' : 'Perturbar Einstein (1905)'}</span>
           </button>
 
           <button
@@ -117,7 +121,7 @@ export default function CausalRippleWidget() {
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
             </svg>
-            <span>Restaurar Novikov</span>
+            <span>{isLaymanMode ? 'Restaurar Linha do Tempo Normal' : 'Restaurar Novikov'}</span>
           </button>
         </div>
       </div>
@@ -268,34 +272,34 @@ export default function CausalRippleWidget() {
       {/* Telemetry Dashboard Footer */}
       <div className="ripple-telemetry-bar">
         <div className="ripple-stat-item">
-          <span className="stat-label">INTEGRIDADE TEMPORAL</span>
+          <span className="stat-label">{isLaymanMode ? 'SAÚDE DO TEMPO' : 'INTEGRIDADE TEMPORAL'}</span>
           <strong className={integrity < 80 ? 'text-danger' : 'text-cyan'}>
             {integrity}%
           </strong>
         </div>
 
         <div className="ripple-stat-item">
-          <span className="stat-label">ENTROPIA CAUSAL (H)</span>
+          <span className="stat-label">{isLaymanMode ? 'NÍVEL DE CAOS' : 'ENTROPIA CAUSAL (H)'}</span>
           <strong className={entropy > 2 ? 'text-amber' : 'text-cyan'}>
-            {entropy} nats
+            {entropy} {isLaymanMode ? 'pts' : 'nats'}
           </strong>
         </div>
 
         <div className="ripple-stat-item">
-          <span className="stat-label">EXPOENTE DE LYAPUNOV (λ)</span>
+          <span className="stat-label">{isLaymanMode ? 'FORÇA DO IMPACTO' : 'EXPOENTE DE LYAPUNOV (λ)'}</span>
           <strong className={lyapunov > 0.1 ? 'text-amber' : 'text-cyan'}>
-            {lyapunov} ano⁻¹
+            {lyapunov} {isLaymanMode ? '/ano' : 'ano⁻¹'}
           </strong>
         </div>
 
         <div className="ripple-stat-item">
-          <span className="stat-label">STATUS DE NOVIKOV</span>
+          <span className="stat-label">{isLaymanMode ? 'ESTADO DA HISTÓRIA' : 'STATUS DE NOVIKOV'}</span>
           <strong className={perturbedId ? 'text-amber' : 'text-green'}>
             {isStabilizing
-              ? 'COLAPSANDO ONDAS...'
+              ? (isLaymanMode ? 'REPARANDO A HISTÓRIA...' : 'COLAPSANDO ONDAS...')
               : perturbedId
-              ? 'ONDA CAUSAL DISPARADA'
-              : 'CONTINUUM ESTÁVEL'}
+              ? (isLaymanMode ? 'EFEITO DOMINÓ DISPARADO' : 'ONDA CAUSAL DISPARADA')
+              : (isLaymanMode ? 'HISTÓRIA SEGURA E ESTÁVEL' : 'CONTINUUM ESTÁVEL')}
           </strong>
         </div>
       </div>

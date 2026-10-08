@@ -4,6 +4,7 @@ import { AcademicPaperExportService } from '../../engine/AcademicPaperExportServ
 import { ScientificReportEngine } from '../../engine/ScientificReportEngine';
 import MathFormula from '../MathFormula';
 import { formatHistoricalYear } from '../../utils/formatters';
+import { useLaymanMode } from '../../context/LaymanModeContext';
 
 interface Props {
   universe: Universe;
@@ -13,6 +14,7 @@ interface Props {
 type TabMode = 'preview' | 'latex' | 'bibtex';
 
 export default function AcademicPaperExportModal({ universe, onClose }: Props) {
+  const { isLaymanMode } = useLaymanMode();
   const [tab, setTab] = useState<TabMode>('preview');
   const [copyFeedback, setCopyFeedback] = useState<string | null>(null);
 
@@ -50,10 +52,10 @@ export default function AcademicPaperExportModal({ universe, onClose }: Props) {
           <div className="academic-header-left">
             <span className="academic-pill-badge">
               <span className="pill-dot" />
-              PHYSICAL REVIEW D // REVTEX 4-2 PREPRINT
+              {isLaymanMode ? 'DOCUMENTO FORMATADO PARA REVISTA CIENTÍFICA (REVTeX)' : 'PHYSICAL REVIEW D // REVTEX 4-2 PREPRINT'}
             </span>
             <h2 className="academic-modal-title">
-              Exportador de Artigo Científico: <em>{universe.name}</em>
+              {isLaymanMode ? 'Artigo Científico em Formato de Revista: ' : 'Exportador de Artigo Científico: '}<em>{universe.name}</em>
             </h2>
           </div>
 
@@ -86,6 +88,22 @@ export default function AcademicPaperExportModal({ universe, onClose }: Props) {
           </div>
         </header>
 
+        {isLaymanMode && (
+          <div className="layman-explanation-card" style={{ margin: '12px 20px 0', padding: '10px 14px', background: 'rgba(56, 189, 248, 0.08)', borderRadius: '8px', border: '1px solid rgba(56, 189, 248, 0.25)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="16" x2="12" y2="12" />
+                <line x1="12" y1="8" x2="12.01" y2="8" />
+              </svg>
+              <strong style={{ fontSize: '0.78rem', color: '#38bdf8', letterSpacing: '0.04em' }}>O QUE É ESTE DOCUMENTO?</strong>
+            </div>
+            <p style={{ margin: 0, fontSize: '0.76rem', color: '#cbd5e1', lineHeight: '1.4' }}>
+              Este é um <strong>artigo científico oficial</strong> gerado a partir da sua simulação, formatado exatamente no mesmo padrão que cientistas e universidades (como Harvard, MIT e Physical Review) usam para publicar novas descobertas na física!
+            </p>
+          </div>
+        )}
+
         {/* Tab Navigation & Action Bar */}
         <div className="academic-tab-bar">
           <div className="academic-tabs-group">
@@ -98,7 +116,7 @@ export default function AcademicPaperExportModal({ universe, onClose }: Props) {
                 <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
                 <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
               </svg>
-              <span>Prévia Formatada (Journal Layout)</span>
+              <span>{isLaymanMode ? 'Como Fica na Revista (Prévia)' : 'Prévia Formatada (Journal Layout)'}</span>
             </button>
 
             <button
@@ -110,7 +128,7 @@ export default function AcademicPaperExportModal({ universe, onClose }: Props) {
                 <polyline points="16 18 22 12 16 6" />
                 <polyline points="8 6 2 12 8 18" />
               </svg>
-              <span>Código LaTeX (.tex)</span>
+              <span>{isLaymanMode ? 'Código para Cientistas (LaTeX)' : 'Código LaTeX (.tex)'}</span>
             </button>
 
             <button
@@ -122,7 +140,7 @@ export default function AcademicPaperExportModal({ universe, onClose }: Props) {
                 <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
                 <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
               </svg>
-              <span>Bibliografia BibTeX (.bib)</span>
+              <span>{isLaymanMode ? 'Livros e Fontes Citadas (BibTeX)' : 'Bibliografia BibTeX (.bib)'}</span>
             </button>
           </div>
 

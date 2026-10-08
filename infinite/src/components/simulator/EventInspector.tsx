@@ -91,8 +91,11 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
         <span className="inspector-tag">
           {isLaymanMode ? 'GUIA DO VIAJANTE NO TEMPO' : 'DOSSIÊ DO NÓ CAUSAL'}
         </span>
-        <button type="button" className="sim-btn-close" onClick={onClose}>
-          ✕
+        <button type="button" className="sim-btn-close" onClick={onClose} aria-label="Fechar painel do evento">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
         </button>
       </div>
 
@@ -112,21 +115,20 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
           />
         </div>
 
-        {/* Auditoria Científica por IA & Rigor Epistêmico */}
+        {/* Auditoria Científica & Rigor Epistêmico das Fontes Primárias */}
         {eventRigorAudit && (
           <div className="inspector-ai-rigor-box">
             <button
               type="button"
               className={`btn-inspector-ai-rigor ${showAiRigorAudit ? 'active' : ''}`}
               onClick={() => setShowAiRigorAudit(!showAiRigorAudit)}
-              title="Verificar comitê de física teórica e validação empírica por IA"
+              title="Verificar fontes primárias acadêmicas, revisão por pares e comprovação documental"
             >
               <span className="btn-ai-rigor-left">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-                  <circle cx="12" cy="12" r="10" />
-                  <path d="M12 16v-4M12 8h.01" />
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                 </svg>
-                <span>{isLaymanMode ? 'Checagem Científica com IA' : 'Auditoria de Rigor por IA'}</span>
+                <span>{isLaymanMode ? 'Validação Científica & Fontes Primárias' : 'Auditoria Epistêmica & Revisão por Pares'}</span>
               </span>
               <span className="ai-rigor-pill">
                 {showAiRigorAudit ? 'Ocultar' : `${eventRigorAudit.verdictScore}% Rigor`}
@@ -297,11 +299,11 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
 
         {event.isAIAnomaly && (
           <div className="ai-anomaly-badge">
-            <span>{isLaymanMode ? 'HISTÓRIA ALTERADA POR INTELIGÊNCIA ARTIFICIAL' : 'ANOMALIA QUÂNTICA GERADA POR IA'}</span>
+            <span>{isLaymanMode ? 'CENÁRIO HISTÓRICO HIPOTÉTICO (SIMULAÇÃO)' : 'RAMIFICAÇÃO CONTRAFACTUAL MODELADA'}</span>
             <p>
               {isLaymanMode
-                ? 'Uma nova possibilidade gerada para testar o que aconteceria com o universo.'
-                : 'Bifurcação emergente gerada por perturbações no cone de luz.'}
+                ? 'Cenário contrafactual gerado para demonstrar as consequências de causa e efeito na história.'
+                : 'Bifurcação divergente no continuum espaço-temporal decorrente de perturbação geodésica.'}
             </p>
           </div>
         )}
@@ -388,7 +390,12 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
         {counterfactual && (
           <div className="counterfactual-dossier-card">
             <div className="cf-dossier-header">
-              <span className="cf-dossier-badge">🏛️ E SE NÃO EXISTISSE?</span>
+              <span className="cf-dossier-badge">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 21h18M3 10h18M5 10v11M9 10v11M15 10v11M19 10v11M12 2L2 7h20L12 2z"/>
+                </svg>
+                <span>E SE NÃO EXISTISSE?</span>
+              </span>
               <span className="cf-dossier-title">Cenário Contrafactual</span>
             </div>
             <div className="cf-dossier-content">
@@ -422,7 +429,7 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
         {/* Action Controls */}
         <div className="inspector-actions">
           <span className="actions-label">
-            {isLaymanMode ? 'MUDAR A HISTÓRIA & SIMULAR COM IA' : 'INTERVENÇÃO MÉTRICA & ORÁCULO DE IA'}
+            {isLaymanMode ? 'MUDAR A HISTÓRIA & CALCULAR CONSEQUÊNCIAS' : 'INTERVENÇÃO CAUSAL & MODELAGEM PREDITIVA'}
           </span>
           <div className="action-buttons-grid">
             <button
@@ -430,7 +437,7 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
               className="btn-action-alt btn-ai-action"
               onClick={() => onSimulateAI(event)}
             >
-              Simular Efeito Borboleta com IA
+              {isLaymanMode ? 'Calcular Efeito Borboleta na História' : 'Simular Divergência de Geodésica'}
             </button>
             <button
               type="button"

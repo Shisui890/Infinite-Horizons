@@ -55,16 +55,16 @@ export default function InteractiveTourModal({ isOpen, onClose, onOpenShortcuts 
       highlightTarget: '.timeline-canvas-container',
     },
     {
-      badge: 'PASSO 4 DE 5 • INTELIGÊNCIA ARTIFICIAL',
-      title: 'Crono-Oráculo de IA e Efeito Borboleta',
+      badge: 'PASSO 4 DE 5 • MOTOR DE VALIDAÇÃO HISTÓRICA',
+      title: 'Pesquisa Historiográfica & Fontes Primárias',
       description: (
         <>
-          O botão <strong>&quot;Oráculo IA&quot;</strong> na barra superior{' '}
+          O botão <strong>&quot;Oráculo Histórico&quot;</strong> na barra superior{' '}
           <span className="tour-kbd-pill">
             <span className="tour-kbd-label">ATALHO</span>
             <kbd className="tour-kbd-key">O</kbd>
           </span>{' '}
-          conecta você a um comitê científico com modelos de IA de ponta para calcular ramificações no multiverso, resolver paradoxos de Novikov e debater hipóteses.
+          conecta você à base historiográfica e científica para calcular ramificações no continuum, testar hipóteses contrafactuais e auditar fontes com rigor documental.
         </>
       ),
       highlightTarget: '.sim-btn-ai',
@@ -111,7 +111,10 @@ export default function InteractiveTourModal({ isOpen, onClose, onOpenShortcuts 
         <div className="tour-card-header">
           <span className="tour-step-badge">{step.badge}</span>
           <button type="button" className="sim-btn-close" onClick={onClose} aria-label="Pular Tour">
-            ✕
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
           </button>
         </div>
 

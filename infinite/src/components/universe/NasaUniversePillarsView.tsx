@@ -253,7 +253,11 @@ export default function NasaUniversePillarsView({ isLaymanMode }: Props) {
               <ul className="discoveries-list">
                 {activePillar.coreDiscoveries.map((disc, idx) => (
                   <li key={idx} className="discovery-item">
-                    <span className="disc-check" style={{ color: activePillar.color }}>✓</span>
+                    <span className="disc-check" style={{ color: activePillar.color }}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    </span>
                     <span className="disc-text"><MathText text={disc} /></span>
                   </li>
                 ))}

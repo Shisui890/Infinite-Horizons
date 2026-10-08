@@ -8,6 +8,7 @@ import {
 import { AITemporalService, type AIEpistemicAudit } from '../../engine/AITemporalService';
 import { formatHistoricalYear } from '../../utils/formatters';
 import MathFormula, { InlineMathText } from '../MathFormula';
+import { useLaymanMode } from '../../context/LaymanModeContext';
 
 interface Props {
   isOpen: boolean;
@@ -15,6 +16,7 @@ interface Props {
 }
 
 export default function CausalBacktrackingModal({ isOpen, onClose }: Props) {
+  const { isLaymanMode } = useLaymanMode();
   const { universeState, setUniverseState, setActiveDimensionId } = useSimulationStore();
   const universe = universeState.universe;
 
@@ -140,12 +142,16 @@ export default function CausalBacktrackingModal({ isOpen, onClose }: Props) {
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <h3 style={{ margin: 0, fontSize: '1.2rem', color: '#f8fafc', fontWeight: 700, letterSpacing: '-0.01em' }}>
-                  Engenharia Reversa Histórica
+                  {isLaymanMode ? 'Como Antecipar Grandes Invenções na História' : 'Engenharia Reversa Histórica'}
                 </h3>
-                <span className="bt-tech-badge">SOLVER RETROCAUSAL v2.5</span>
+                <span className="bt-tech-badge">
+                  {isLaymanMode ? 'LINHA DO TEMPO ACELERADA' : 'SOLVER RETROCAUSAL v2.5'}
+                </span>
               </div>
               <p className="modal-subtitle" style={{ margin: '4px 0 0', fontSize: '0.78rem', color: '#94a3b8' }}>
-                Cálculo determinístico das cadeias causais necessárias para antecipar marcos tecnológicos no passado
+                {isLaymanMode
+                  ? 'Descubra quais descobertas anteriores a humanidade precisaria ter feito para inventar algo séculos antes'
+                  : 'Cálculo determinístico das cadeias causais necessárias para antecipar marcos tecnológicos no passado'}
               </p>
             </div>
           </div>
@@ -164,14 +170,16 @@ export default function CausalBacktrackingModal({ isOpen, onClose }: Props) {
             <div className="picker-header-row">
               <div className="picker-title-wrap">
                 <span className="picker-dot" />
-                <span className="picker-label">SELECIONE O OBJETIVO CONTRAFACTUAL A ANTECIPAR:</span>
+                <span className="picker-label">
+                  {isLaymanMode ? 'ESCOLHA UMA INVENÇÃO PARA ANTECIPAR NO PASSADO:' : 'SELECIONE O OBJETIVO CONTRAFACTUAL A ANTECIPAR:'}
+                </span>
               </div>
               <button
                 type="button"
                 className="btn-toggle-custom"
                 onClick={() => setIsCustomMode(!isCustomMode)}
               >
-                {isCustomMode ? 'Usar Metas Acadêmicas Padrão' : '+ Definir Meta Personalizada'}
+                {isCustomMode ? (isLaymanMode ? 'Voltar para Invenções Prontas' : 'Usar Metas Acadêmicas Padrão') : (isLaymanMode ? '+ Criar Própria Invenção' : '+ Definir Meta Personalizada')}
               </button>
             </div>
 
@@ -336,10 +344,12 @@ export default function CausalBacktrackingModal({ isOpen, onClose }: Props) {
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
                   <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
                 </svg>
-                <span>Auditoria Epistêmica por IA (Rigor Científico & Fontes Primárias)</span>
+                <span>
+                  {isLaymanMode ? 'Validação Histórica & Fontes Primárias' : 'Auditoria Epistêmica & Fontes Históricas Primárias'}
+                </span>
               </span>
               <span className="ai-audit-status-badge">
-                {showAiAudit ? 'Ocultar Auditoria' : 'Consultar Comitê IA'}
+                {showAiAudit ? 'Ocultar Auditoria' : (isLaymanMode ? 'Verificar Viabilidade Histórica' : 'Auditar Viabilidade Histórica')}
               </span>
             </button>
 
@@ -411,7 +421,9 @@ export default function CausalBacktrackingModal({ isOpen, onClose }: Props) {
                     </div>
 
                     <div className="audit-inquiry-box">
-                      <span className="inquiry-box-title">Consultar Especialista de IA sobre Métodos de Época:</span>
+                      <span className="inquiry-box-title">
+                        {isLaymanMode ? 'Dúvidas Técnicas: Como Resolver na Época?' : 'Consultar Arquivos Históricos sobre Soluções Técnicas da Época:'}
+                      </span>
                       <div className="inquiry-chips-row">
                         <button
                           type="button"
@@ -460,7 +472,9 @@ export default function CausalBacktrackingModal({ isOpen, onClose }: Props) {
                       {inquiryAnswer && (
                         <div className="ai-inquiry-answer-box">
                           <div className="answer-header">
-                            <span className="answer-pill">PARECER TÉCNICO DO ESPECIALISTA</span>
+                            <span className="answer-pill">
+                              {isLaymanMode ? 'COMO A HUMANIDADE RESOLVERIA' : 'PARECER HISTÓRICO & TÉCNICO DOCUMENTADO'}
+                            </span>
                           </div>
                           <div className="answer-text">
                             <InlineMathText text={inquiryAnswer} />

@@ -395,14 +395,14 @@ export default function SimulatorView({ onExit, onOpenGuide, initialState }: Pro
 
   const handleSimulateAI = useCallback(async (event: TemporalEvent) => {
     setShowAIDrawer(true);
-    addLog(`Simulação com IA requisitada para "${event.title}"...`, 'info');
+    addLog(`Cálculo de dinâmica causal requisitado para "${event.title}"...`, 'info');
     try {
       const { result, updatedUniverse } = await AITemporalService.simulateUnexpectedButterflyEffect(universe, event);
       setLastAIResult(result);
       setUniverseState(prev => ({ ...prev, universe: updatedUniverse }));
       addLog(`Efeito Borboleta calculado com impacto de ${result.impactScore}%.`, 'success');
     } catch {
-      addLog('Falha ao calcular Efeito Borboleta pela IA.', 'error');
+      addLog('Falha ao processar simulação do Efeito Borboleta.', 'error');
     }
   }, [universe, setShowAIDrawer, setUniverseState, addLog]);
 

@@ -40,7 +40,7 @@ export function AddEventModal({ dimensions, events, onClose, onAddEvent, onResea
       return;
     }
     setIsResearching(true);
-    setResearchMessage('Pesquisando fundamentos com IA e bases científicas...');
+    setResearchMessage('Pesquisando fontes primárias e arquivos científicos comprovados...');
     try {
       const result = await onResearchHistoricalEvent(title);
       setTitle(result.title);
@@ -81,8 +81,11 @@ export function AddEventModal({ dimensions, events, onClose, onAddEvent, onResea
           <h2>
             {isLaymanMode ? '+ NOVO ACONTECIMENTO NA HISTÓRIA' : '+ NOVO NÓ CAUSAL NO ESPAÇO-TEMPO'}
           </h2>
-          <button type="button" className="btn-modal-close" onClick={onClose} aria-label="Fechar">
-            ✕
+          <button type="button" className="btn-modal-close" onClick={onClose} aria-label="Fechar modal">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
           </button>
         </div>
 
@@ -97,7 +100,7 @@ export function AddEventModal({ dimensions, events, onClose, onAddEvent, onResea
               required
             />
             <button type="button" className="research-event-button" onClick={handleHistoricalResearch} disabled={isResearching}>
-              {isResearching ? 'PESQUISANDO...' : (isLaymanMode ? 'PESQUISAR AUTOMATICAMENTE COM IA' : 'PESQUISAR COM IA & BASES CIENTÍFICAS')}
+              {isResearching ? 'CONSULTANDO ARQUIVOS...' : (isLaymanMode ? 'PESQUISAR FONTES PRIMÁRIAS' : 'CONSULTAR FONTES & ARQUIVOS REAIS')}
             </button>
             {researchMessage && <span className="research-event-message">{researchMessage}</span>}
           </label>
@@ -218,7 +221,10 @@ export function AddTravelerModal({ dimensions, events, onClose, onAddTraveler }:
             {isLaymanMode ? '+ NOVO VIAJANTE NO TEMPO' : '+ NOVA SONDA / OBSERVADOR RELATIVÍSTICO'}
           </h2>
           <button type="button" className="btn-modal-close" onClick={onClose} aria-label="Fechar">
-            ✕
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
           </button>
         </div>
 
@@ -313,7 +319,10 @@ export function TimeTravelModal({ travelers, events, onClose, onExecuteTravel }:
             {isLaymanMode ? 'FAZER UMA VIAGEM NO TEMPO' : 'INTERVENÇÃO MÉTRICA NO CONE DE LUZ'}
           </h2>
           <button type="button" className="btn-modal-close" onClick={onClose} aria-label="Fechar">
-            ✕
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
           </button>
         </div>
 
@@ -391,7 +400,10 @@ export function AddDimensionModal({ onClose, onAddDimension }: AddDimensionModal
             {isLaymanMode ? '+ CRIAR NOVA LINHA DO TEMPO' : '+ NOVA VARIEDADE DIMENSIONAL (11D)'}
           </h2>
           <button type="button" className="btn-modal-close" onClick={onClose} aria-label="Fechar">
-            ✕
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
           </button>
         </div>
 

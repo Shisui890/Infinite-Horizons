@@ -334,7 +334,7 @@ export default function HowItWorksPage({ onBack, onStartSimulator, onOpenKerrMod
                   <div>
                     <strong>Acione Intervenções Causa-Efeito:</strong>
                     <ul>
-                      <li><strong>Simular com IA:</strong> Calcula de imediato como a história mundial seria reescrita se este evento não tivesse ocorrido.</li>
+                      <li><strong>Calcular Efeito Borboleta:</strong> Modela de imediato como a história mundial seria reescrita se este evento não tivesse ocorrido, cruzando fontes históricas e lógica causal.</li>
                       <li><strong>Alterar Estado:</strong> Transforma o evento em estável, alternativo ou em risco de colapso.</li>
                       <li><strong>Apagar Evento:</strong> Exclui o acontecimento e abre o modal de Pré-visualização de Impacto Causal, exibindo quantas ramificações futuras serão deletadas.</li>
                     </ul>

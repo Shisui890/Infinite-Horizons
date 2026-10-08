@@ -39,14 +39,19 @@ export default function CreateUniverseModal({ onClose, onCreated }: Props) {
         <div className="modal-header">
           <div>
             <span className="modal-kicker">MOTOR DE GÊNESE FÍSICO-TEMPORAL</span>
-            <h2>SINTETIZAR REALIDADE COM IA</h2>
+            <h2>GERAR CONTINUUM TEMPORAL</h2>
           </div>
-          <button type="button" className="btn-modal-close" onClick={onClose} disabled={isCreating}>✕</button>
+          <button type="button" className="btn-modal-close" onClick={onClose} disabled={isCreating} aria-label="Fechar modal">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
         </div>
 
         <p className="universe-create-intro">
-          Defina um tema de física teórica ou hipótese cosmológica. A IA pesquisa os fundamentos,
-          estabelece os cones de luz causais e prepara uma realidade para você testar.
+          Defina um tema histórico ou hipótese cosmológica. O sistema pesquisa os fundamentos primários,
+          calcula as conexões de causa e efeito e prepara o continuum para exploração.
         </p>
 
         {/* Quick Shortcut Banner */}
@@ -116,7 +121,7 @@ export default function CreateUniverseModal({ onClose, onCreated }: Props) {
               Cancelar
             </button>
             <button type="submit" className="btn-submit-universe" disabled={isCreating}>
-              {isCreating ? 'Sintetizando...' : 'Sintetizar Universo com IA →'}
+              {isCreating ? 'Calculando Geodésicas...' : 'Construir Linha do Tempo Realista →'}
             </button>
           </div>
         </form>

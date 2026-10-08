@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import type { Universe, TemporalEvent, CausalEdge, Traveler } from '../../types/temporal';
 import { EventStatus, TravelerStatus, CausalRelation } from '../../types/temporal';
 import { LigoAudio } from '../../engine/LigoAudioService';
+import { useLaymanMode } from '../../context/LaymanModeContext';
 
 export interface Challenge {
   id: string;
@@ -324,6 +325,7 @@ interface Props {
 }
 
 export default function TemporalChallengesModal({ currentUniverse, onLoadChallenge, onClose }: Props) {
+  const { isLaymanMode } = useLaymanMode();
   const [selectedChallengeId, setSelectedChallengeId] = useState<string>(CHALLENGES[0].id);
 
   const selectedChallenge = CHALLENGES.find(c => c.id === selectedChallengeId) || CHALLENGES[0];
@@ -348,11 +350,18 @@ export default function TemporalChallengesModal({ currentUniverse, onLoadChallen
       <div className="modal-card challenges-modal">
         <div className="modal-header">
           <div>
-            <span className="conf-badge">LABORATÓRIO DE CRISES TEMPORAIS</span>
-            <h2>DESAFIOS & PUZZLES DE AUTOCONSISTÊNCIA DE NOVIKOV</h2>
+            <span className="conf-badge">
+              {isLaymanMode ? 'MISSÕES & ENIGMAS TEMPORAIS' : 'LABORATÓRIO DE CRISES TEMPORAIS'}
+            </span>
+            <h2>
+              {isLaymanMode ? 'ENIGMAS: RESOLVA PARADOXOS NO TEMPO' : 'DESAFIOS & PUZZLES DE AUTOCONSISTÊNCIA DE NOVIKOV'}
+            </h2>
           </div>
-          <button type="button" className="btn-modal-close" onClick={onClose}>
-            ✕
+          <button type="button" className="btn-modal-close" onClick={onClose} aria-label="Fechar">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
           </button>
         </div>
 

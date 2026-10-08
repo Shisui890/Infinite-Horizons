@@ -1,7 +1,9 @@
 import { useState, useId } from 'react';
 import MathFormula from '../MathFormula';
+import { useLaymanMode } from '../../context/LaymanModeContext';
 
 export default function MinkowskiLightconeWidget() {
+  const { isLaymanMode } = useLaymanMode();
   const [velocityFraction, setVelocityFraction] = useState<number>(0.65);
   const sliderId = useId();
 
@@ -44,11 +46,13 @@ export default function MinkowskiLightconeWidget() {
         <div className="lightcone-header-title">
           <span className="lightcone-pill-badge">
             <span className="pill-dot" />
-            DIAGRAMA ESPAÇO-TEMPO DE MINKOWSKI
+            {isLaymanMode ? 'POR QUE NADA SUPERA A LUZ? // VISÃO DIDÁTICA' : 'DIAGRAMA ESPAÇO-TEMPO DE MINKOWSKI'}
           </span>
-          <h4>Estrutura Causal Lorentziana & Cones de Luz</h4>
+          <h4>{isLaymanMode ? 'O Limite Cósmico de Velocidade e os Cones de Luz' : 'Estrutura Causal Lorentziana & Cones de Luz'}</h4>
           <p>
-            Ajuste a velocidade da partícula relativa a <MathFormula math="c" /> para visualizar em tempo real se a trajetória respeita o cone de causalidade relativística:
+            {isLaymanMode
+              ? 'Arraste a barra para alterar a velocidade e descubra por que Albert Einstein provou que ultrapassar a velocidade da luz causaria viagens no tempo incontroláveis:'
+              : 'Ajuste a velocidade da partícula relativa a c para visualizar em tempo real se a trajetória respeita o cone de causalidade relativística:'}
           </p>
         </div>
 
@@ -234,7 +238,9 @@ export default function MinkowskiLightconeWidget() {
         <div className="lightcone-controls-col">
           <div className="lightcone-slider-box">
             <div className="slider-label-header">
-              <label htmlFor={sliderId}>Velocidade da Partícula (<MathFormula math="v/c" />)</label>
+              <label htmlFor={sliderId}>
+                {isLaymanMode ? 'Velocidade da Partícula em Relação à Luz' : <>Velocidade da Partícula (<MathFormula math="v/c" />)</>}
+              </label>
               <strong style={{ color: statusColor }}>{v.toFixed(2)} c</strong>
             </div>
             <input
@@ -255,35 +261,46 @@ export default function MinkowskiLightconeWidget() {
           </div>
 
           <div className="lightcone-classification-box" style={{ borderColor: statusColor }}>
-            <span className="class-label">CLASSIFICAÇÃO DO INTERVALO:</span>
+            <span className="class-label">{isLaymanMode ? 'DIAGNÓSTICO DA FÍSICA:' : 'CLASSIFICAÇÃO DO INTERVALO:'}</span>
             <strong className="class-title" style={{ color: statusColor }}>
-              {intervalType}
+              {isLaymanMode
+                ? (isSubluminal ? 'VELOCIDADE SEGURA (ABAIXO DA LUZ)' : isLightSpeed ? 'FRONTEIRA EXATA (VELOCIDADE DA LUZ)' : 'VELOCIDADE PROIBIDA (MAIS RÁPIDA QUE A LUZ)')
+                : intervalType}
             </strong>
             <p className="class-desc">
-              {isSubluminal &&
-                'A partícula move-se estritamente dentro do cone de luz. O intervalo invariante é tipo-tempo (ds² < 0), assegurando causalidade estrita e transmissão de informação consistente.'}
-              {isLightSpeed &&
-                'A partícula viaja na velocidade exata da luz ao longo de uma geodésica nula (ds² = 0). O tempo próprio decorrido na trajetória é nulo (dτ = 0).'}
-              {isSuperluminal &&
-                'ALERTA: Velocidade superior a c viola a invariância de Lorentz. A partícula escapa para a região tipo-espaço (ds² > 0), abrindo curvas temporais fechadas e paradoxos de retrocausalidade.'}
+              {isSubluminal && (
+                isLaymanMode
+                  ? 'Comportamento normal e seguro no universo: a partícula viaja mais devagar que a velocidade da luz. A causa sempre acontece antes do efeito.'
+                  : 'A partícula move-se estritamente dentro do cone de luz. O intervalo invariante é tipo-tempo (ds² < 0), assegurando causalidade estrita e transmissão de informação consistente.'
+              )}
+              {isLightSpeed && (
+                isLaymanMode
+                  ? 'Velocidade limite absoluta da natureza: a partícula viaja na exata velocidade de um feixe de laser. Para ela, o tempo congela completamente!'
+                  : 'A partícula viaja na velocidade exata da luz ao longo de uma geodésica nula (ds² = 0). O tempo próprio decorrido na trajetória é nulo (dτ = 0).'
+              )}
+              {isSuperluminal && (
+                isLaymanMode
+                  ? 'ALERTA IMPOSSÍVEL NA REALIDADE: Viajar mais rápido que a luz faria a partícula retroceder no tempo para o passado, criando paradoxos onde o efeito ocorre antes da causa!'
+                  : 'ALERTA: Velocidade superior a c viola a invariância de Lorentz. A partícula escapa para a região tipo-espaço (ds² > 0), abrindo curvas temporais fechadas e paradoxos de retrocausalidade.'
+              )}
             </p>
           </div>
 
           <div className="lightcone-metrics-table">
             <div className="metric-row">
-              <span className="metric-name">Fator de Lorentz (<MathFormula math="\gamma" />):</span>
+              <span className="metric-name">{isLaymanMode ? 'Dilatação do Tempo:' : <>Fator de Lorentz (<MathFormula math="\gamma" />):</>}</span>
               <span className="metric-value">{gamma}</span>
             </div>
             <div className="metric-row">
-              <span className="metric-name">Intervalo Invariante (<MathFormula math="ds^2" />):</span>
+              <span className="metric-name">{isLaymanMode ? 'Intervalo no Espaço-Tempo:' : <>Intervalo Invariante (<MathFormula math="ds^2" />):</>}</span>
               <span className="metric-value" style={{ color: statusColor }}>
-                {isSubluminal ? '< 0 (Tipo-Tempo)' : isLightSpeed ? '= 0 (Nulo)' : '> 0 (Tipo-Espaço)'}
+                {isSubluminal ? (isLaymanMode ? 'Seguro (Tipo-Tempo)' : '< 0 (Tipo-Tempo)') : isLightSpeed ? (isLaymanMode ? 'Fóton (Luz)' : '= 0 (Nulo)') : (isLaymanMode ? 'Proibido (Tipo-Espaço)' : '> 0 (Tipo-Espaço)')}
               </span>
             </div>
             <div className="metric-row">
-              <span className="metric-name">Causalidade:</span>
+              <span className="metric-name">{isLaymanMode ? 'Causa e Efeito:' : 'Causalidade:'}</span>
               <span className="metric-value" style={{ color: statusColor }}>
-                {isSubluminal ? '100% Preservada' : isLightSpeed ? 'Fronteira Crítica' : 'Violação Causal'}
+                {isSubluminal ? (isLaymanMode ? '100% Protegida' : '100% Preservada') : isLightSpeed ? (isLaymanMode ? 'Limite Máximo da Luz' : 'Fronteira Crítica') : (isLaymanMode ? 'Quebra Causal (Paradoxo!)' : 'Violação Causal')}
               </span>
             </div>
           </div>

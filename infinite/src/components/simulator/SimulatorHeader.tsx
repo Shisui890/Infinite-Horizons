@@ -234,9 +234,9 @@ export default function SimulatorHeader({
             type="button"
             className="sim-btn-ai"
             onClick={onToggleAIDrawer}
-            title={isLaymanMode ? 'Conversar com a Inteligência Artificial sobre a história' : 'Abrir Oráculo de IA com Pesquisa Científica Primária'}
+            title={isLaymanMode ? 'Consultar Assistente Historiográfico & Científico' : 'Abrir Painel de Pesquisa Científica & Fontes Primárias'}
           >
-            {isLaymanMode ? 'Oráculo IA' : t.aiOracle}
+            {isLaymanMode ? 'Oráculo Histórico' : 'Pesquisa & Arquivos'}
           </button>
         </div>
 

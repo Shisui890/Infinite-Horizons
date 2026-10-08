@@ -53,7 +53,7 @@ export default function DimensionComparatorModal({ universe, onClose, onMergeDim
       id: `dim-fused-${Date.now()}`,
       universeId: universe.id,
       designation: `Ω-${dimensions.length + 1}`,
-      name: `Fusão: ${dimA.name.slice(0, 15)} ✕ ${dimB.name.slice(0, 15)}`,
+      name: `Fusão: ${dimA.name.slice(0, 15)} & ${dimB.name.slice(0, 15)}`,
       color: '#10b981',
       events: mergedEvents,
       integrity: Math.round((dimA.integrity + dimB.integrity) / 2),
@@ -83,7 +83,10 @@ export default function DimensionComparatorModal({ universe, onClose, onMergeDim
             </div>
           </div>
           <button type="button" className="sim-btn-close" onClick={onClose} aria-label="Fechar Modal">
-            ✕
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
           </button>
         </div>
 

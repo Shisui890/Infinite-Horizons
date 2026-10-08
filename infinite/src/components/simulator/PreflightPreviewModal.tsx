@@ -624,13 +624,13 @@ export default function PreflightPreviewModal() {
                         className="btn-ai-explain-deep"
                         onClick={handleEnhanceWithAI}
                         disabled={isLiveLoading}
-                        title="Acionar inteligência artificial para dedução aprofundada com fontes primárias"
+                        title="Consultar documentação histórica e dedução aprofundada com fontes primárias"
                       >
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                           <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
                         </svg>
                         <span>
-                          {isLiveLoading ? 'Consultando Fontes & Probabilidade...' : 'Explicar com IA: Cenário Mais Provável & Fontes'}
+                          {isLiveLoading ? 'Consultando Arquivos & Probabilidade...' : 'Auditar Fontes Primárias & Historiografia'}
                         </span>
                       </button>
                     </div>

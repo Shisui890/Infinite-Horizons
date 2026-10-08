@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useId, useMemo } from 'react';
 import MathFormula from '../MathFormula';
+import { useLaymanMode } from '../../context/LaymanModeContext';
 
 interface Props {
   onClose: () => void;
@@ -58,6 +59,7 @@ const PRESETS: KerrPreset[] = [
 ];
 
 export default function KerrBlackHoleModal({ onClose }: Props) {
+  const { isLaymanMode } = useLaymanMode();
   const [selectedPresetId, setSelectedPresetId] = useState<string>('sgra');
   const [spin, setSpin] = useState<number>(0.90);
   const [massSolar, setMassSolar] = useState<number>(4.3e6);
@@ -374,10 +376,10 @@ export default function KerrBlackHoleModal({ onClose }: Props) {
           <div className="kerr-header-left">
             <span className="kerr-pill-badge">
               <span className="pill-dot" />
-              RELATIVIDADE GERAL // MÉTRICA DE KERR (1963)
+              {isLaymanMode ? 'COMO FUNCIONA UM BURACO NEGRO GIRATÓRIO' : 'RELATIVIDADE GERAL // MÉTRICA DE KERR (1963)'}
             </span>
             <h2 className="kerr-modal-title">
-              Visualizador de Buraco Negro em Rotação & Lente Gravitacional
+              {isLaymanMode ? 'Laboratório Visual: O Espaço-Tempo Girando ao Redor do Buraco Negro' : 'Visualizador de Buraco Negro em Rotação & Lente Gravitacional'}
             </h2>
           </div>
 
@@ -459,13 +461,31 @@ export default function KerrBlackHoleModal({ onClose }: Props) {
 
           {/* Right Parameters & Mathematical Dashboard */}
           <div className="kerr-controls-panel">
+            {isLaymanMode && (
+              <div className="layman-explanation-card" style={{ marginBottom: '10px', padding: '10px 12px', background: 'rgba(56, 189, 248, 0.08)', borderRadius: '8px', border: '1px solid rgba(56, 189, 248, 0.25)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="16" x2="12" y2="12" />
+                    <line x1="12" y1="8" x2="12.01" y2="8" />
+                  </svg>
+                  <strong style={{ fontSize: '0.78rem', color: '#38bdf8', letterSpacing: '0.04em' }}>GUIA DO INICIANTE:</strong>
+                </div>
+                <p style={{ margin: 0, fontSize: '0.76rem', color: '#cbd5e1', lineHeight: '1.4' }}>
+                  Ao girar em alta velocidade, o buraco negro <strong>arrasta o próprio tecido do espaço e tempo</strong> ao seu redor como um redemoinho. O lado que gira na direção dos nossos olhos brilha muito mais forte (Efeito Doppler da luz).
+                </p>
+              </div>
+            )}
+
             {/* Interactive Sliders */}
             <div className="control-group-card">
-              <h4>Parâmetros Relativísticos de Kerr</h4>
+              <h4>{isLaymanMode ? 'Controles da Simulação' : 'Parâmetros Relativísticos de Kerr'}</h4>
 
               <div className="kerr-slider-field">
                 <div className="slider-label-row">
-                  <label htmlFor={spinSliderId}>Parâmetro de Spin Adimensional (<MathFormula math="a/M" />)</label>
+                  <label htmlFor={spinSliderId}>
+                    {isLaymanMode ? 'Velocidade de Giro (Spin)' : <>Parâmetro de Spin Adimensional (<MathFormula math="a/M" />)</>}
+                  </label>
                   <strong className="text-cyan">{spin.toFixed(3)}</strong>
                 </div>
                 <input
@@ -486,7 +506,9 @@ export default function KerrBlackHoleModal({ onClose }: Props) {
 
               <div className="kerr-slider-field">
                 <div className="slider-label-row">
-                  <label htmlFor={inclSliderId}>Ângulo de Inclinação (<MathFormula math="\theta" />)</label>
+                  <label htmlFor={inclSliderId}>
+                    {isLaymanMode ? 'Ângulo de Visão da Câmera' : <>Ângulo de Inclinação (<MathFormula math="\theta" />)</>}
+                  </label>
                   <strong className="text-amber">{inclinationDeg.toFixed(0)}°</strong>
                 </div>
                 <input
@@ -499,12 +521,16 @@ export default function KerrBlackHoleModal({ onClose }: Props) {
                   onChange={e => setInclinationDeg(parseInt(e.target.value, 10))}
                   className="kerr-slider"
                 />
-                <span className="slider-note">0° = Face-on (Polo) | 90° = Edge-on (Plano do Disco)</span>
+                <span className="slider-note">
+                  {isLaymanMode ? '0° = Visto de Cima (Polo) | 90° = Visto de Lado (Plano do Disco)' : '0° = Face-on (Polo) | 90° = Edge-on (Plano do Disco)'}
+                </span>
               </div>
 
               <div className="kerr-slider-field">
                 <div className="slider-label-row">
-                  <label htmlFor={lumSliderId}>Taxa de Acreção & Plasma</label>
+                  <label htmlFor={lumSliderId}>
+                    {isLaymanMode ? 'Brilho do Gás Incandescente' : 'Taxa de Acreção & Plasma'}
+                  </label>
                   <strong className="text-cyan">{accretionLuminosity.toFixed(1)}x</strong>
                 </div>
                 <input
@@ -527,7 +553,7 @@ export default function KerrBlackHoleModal({ onClose }: Props) {
                     checked={showErgosphere}
                     onChange={e => setShowErgosphere(e.target.checked)}
                   />
-                  <span>Ergosfera (<MathFormula math="r_E" />)</span>
+                  <span>{isLaymanMode ? 'Zona de Arraste (Ergosfera)' : <>Ergosfera (<MathFormula math="r_E" />)</>}</span>
                 </label>
 
                 <label className="kerr-toggle-label">
@@ -536,7 +562,7 @@ export default function KerrBlackHoleModal({ onClose }: Props) {
                     checked={showPhotonRing}
                     onChange={e => setShowPhotonRing(e.target.checked)}
                   />
-                  <span>Anel de Fótons</span>
+                  <span>{isLaymanMode ? 'Anel de Fótons (Luz Orbitando)' : 'Anel de Fótons'}</span>
                 </label>
 
                 <label className="kerr-toggle-label">
@@ -545,7 +571,7 @@ export default function KerrBlackHoleModal({ onClose }: Props) {
                     checked={enableDoppler}
                     onChange={e => setEnableDoppler(e.target.checked)}
                   />
-                  <span>Beaming Doppler</span>
+                  <span>{isLaymanMode ? 'Brilho Relativístico (Doppler)' : 'Beaming Doppler'}</span>
                 </label>
 
                 <label className="kerr-toggle-label">
@@ -554,14 +580,14 @@ export default function KerrBlackHoleModal({ onClose }: Props) {
                     checked={autoRotate}
                     onChange={e => setAutoRotate(e.target.checked)}
                   />
-                  <span>Giro Automático</span>
+                  <span>{isLaymanMode ? 'Girar Câmera' : 'Giro Automático'}</span>
                 </label>
               </div>
             </div>
 
             {/* Rigorous Math Formulas & Telemetry */}
             <div className="control-group-card">
-              <h4>Métrica & Termodinâmica Exata</h4>
+              <h4>{isLaymanMode ? 'O que a Física Calcula em Tempo Real' : 'Métrica & Termodinâmica Exata'}</h4>
 
               <div className="kerr-math-summary">
                 <div className="math-row">
