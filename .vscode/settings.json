@@ -19,5 +19,8 @@
         "git add": true,
         "git commit": true,
         "git push": true
-    }
+    },
+    "css.lint.vendorPrefix": "ignore",
+    "css.lint.unknownProperties": "ignore",
+    "css.lint.unknownVendorSpecificProperties": "ignore"
 }
