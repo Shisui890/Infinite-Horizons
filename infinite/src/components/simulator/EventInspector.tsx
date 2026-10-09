@@ -10,6 +10,7 @@ import MathFormula, { MathText, InlineMathText } from '../MathFormula';
 import PhysicsCalculatorWidget from './PhysicsCalculatorWidget';
 import ScientificStatusBadge from './ScientificStatusBadge';
 import SpacetimeIntervalCard from './SpacetimeIntervalCard';
+import GlossaryTerm from '../common/GlossaryTerm';
 import { formatHistoricalYear } from '../../utils/formatters';
 
 interface Props {
@@ -18,6 +19,9 @@ interface Props {
   onAlterEvent: (eventId: string, status: EventStatus) => void;
   onSimulateAI: (event: TemporalEvent) => void;
   onClose: () => void;
+  onOpenVintageNewspaper?: (year?: number, title?: string) => void;
+  onOpenSplitComparator?: (scenarioId?: string) => void;
+  onOpenCosmicAcoustics?: (signalId?: string) => void;
 }
 
 const STATUS_LABELS: Record<EventStatus, { label: string; color: string }> = {
@@ -34,12 +38,35 @@ function getStatusInfo(status: EventStatus) {
   return STATUS_LABELS[status] || { label: status, color: '#fff' };
 }
 
-export default function EventInspector({ event, events, onAlterEvent, onSimulateAI, onClose }: Props) {
+export default function EventInspector({
+  event,
+  events,
+  onAlterEvent,
+  onSimulateAI,
+  onClose,
+  onOpenVintageNewspaper,
+  onOpenSplitComparator,
+  onOpenCosmicAcoustics,
+}: Props) {
   const { isLaymanMode } = useLaymanMode();
   const { universeState } = useSimulationStore();
   const [showCalculator, setShowCalculator] = useState(false);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [showAiRigorAudit, setShowAiRigorAudit] = useState(false);
+  const [copiedCitation, setCopiedCitation] = useState(false);
+  const [copiedBibtex, setCopiedBibtex] = useState(false);
+
+  function handleCopyCitation(text: string) {
+    navigator.clipboard.writeText(text);
+    setCopiedCitation(true);
+    setTimeout(() => setCopiedCitation(false), 2000);
+  }
+
+  function handleCopyBibtex(bib: string) {
+    navigator.clipboard.writeText(bib);
+    setCopiedBibtex(true);
+    setTimeout(() => setCopiedBibtex(false), 2000);
+  }
 
   const eventRigorAudit = useMemo(
     () => (event ? AITemporalService.auditEventScientificRigor(event) : null),
@@ -115,6 +142,58 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
           />
         </div>
 
+        {/* Quick Action Tools: Jornal de Época, Antes & Depois (2026), Áudio do Cosmos */}
+        <div className="inspector-quick-tools-row">
+          {onOpenVintageNewspaper && (
+            <button
+              type="button"
+              className="btn-inspector-quick-tool tool-vintage"
+              onClick={() => onOpenVintageNewspaper(event.year, event.title)}
+              title="Ler a edição de jornal de época desta descoberta (Edição Real vs Contrafactual)"
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/>
+                <path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/>
+              </svg>
+              <span>Jornal {formatHistoricalYear(event.year)}</span>
+            </button>
+          )}
+
+          {onOpenSplitComparator && (
+            <button
+              type="button"
+              className="btn-inspector-quick-tool tool-split"
+              onClick={() => {
+                const scenarioId = event.year === 1865 ? 'maxwell' : event.year <= 1905 ? 'einstein' : 'quantum';
+                onOpenSplitComparator(scenarioId);
+              }}
+              title="Comparar o Século XXI real vs contrafactual com slider interativo"
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/>
+              </svg>
+              <span>Antes & Depois (2026)</span>
+            </button>
+          )}
+
+          {onOpenCosmicAcoustics && (
+            <button
+              type="button"
+              className="btn-inspector-quick-tool tool-audio"
+              onClick={() => {
+                const signalId = event.year >= 2015 ? 'gw150914' : event.year === 1965 ? 'cmb' : event.year === 1967 ? 'pulsar' : 'gw150914';
+                onOpenCosmicAcoustics(signalId);
+              }}
+              title="Abrir Laboratório de Acústica do Cosmos (Web Audio API & Osciloscópio)"
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M2 10v4"/><path d="M6 6v12"/><path d="M10 3v18"/><path d="M14 8v8"/><path d="M18 5v14"/><path d="M22 10v4"/>
+              </svg>
+              <span>Som do Cosmos</span>
+            </button>
+          )}
+        </div>
+
         {/* Auditoria Científica & Rigor Epistêmico das Fontes Primárias */}
         {eventRigorAudit && (
           <div className="inspector-ai-rigor-box">
@@ -156,7 +235,9 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
                 <div className="audit-card-physics-row">
                   <div className="physics-sub-pill physics-pill-lorentz">
                     <div className="physics-sub-pill-header">
-                      <span className="physics-pill-tag">INVARIÂNCIA DE LORENTZ</span>
+                      <span className="physics-pill-tag">
+                        <GlossaryTerm termId="invariancia_lorentz">INVARIÂNCIA DE LORENTZ</GlossaryTerm>
+                      </span>
                       <span className="physics-pill-sym">SO(1,3)</span>
                     </div>
                     <div className="physics-sub-pill-body">
@@ -166,7 +247,9 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
 
                   <div className="physics-sub-pill physics-pill-thermo">
                     <div className="physics-sub-pill-header">
-                      <span className="physics-pill-tag">TERMODINÂMICA RELATIVÍSTICA</span>
+                      <span className="physics-pill-tag">
+                        <GlossaryTerm termId="entropia">TERMODINÂMICA RELATIVÍSTICA</GlossaryTerm>
+                      </span>
                       <span className="physics-pill-sym">ΔS ≥ 0</span>
                     </div>
                     <div className="physics-sub-pill-body">
@@ -243,11 +326,102 @@ export default function EventInspector({ event, events, onAlterEvent, onSimulate
             </div>
           </div>
         ) : (
-          event.description && (
-            <p className="inspector-desc">
-              <MathText text={event.description} />
-            </p>
-          )
+          <>
+            {event.description && (
+              <p className="inspector-desc">
+                <MathText text={event.description} />
+              </p>
+            )}
+
+            {/* Dossiê para Estudos Acadêmicos & Universitários */}
+            <div className="academic-study-dossier">
+              <div className="academic-study-header">
+                <div className="academic-study-tag-group">
+                  <span className="academic-study-tag">CADERNO DE ESTUDOS UNIVERSITÁRIOS</span>
+                  <span className="academic-study-badge">FORMALISMO TENSORIAL</span>
+                </div>
+                <span style={{ fontSize: '0.68rem', color: '#94a3b8', fontFamily: 'monospace' }}>
+                  COORD: t={event.year} // ID: {event.id.slice(0, 8)}
+                </span>
+              </div>
+
+              <div className="academic-study-sections">
+                {/* Seção 1: Geometria Diferencial & Conexão de Levi-Civita */}
+                <div className="academic-study-section">
+                  <span className="academic-study-section-title">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/></svg>
+                    1. Geometria Diferencial & Geodésica Afim
+                  </span>
+                  <p className="academic-study-body">
+                    Na variedade pseudo-riemanniana <GlossaryTerm termId="geodesica">(\mathcal&#123;M&#125;, g)</GlossaryTerm>, a propagação de informação causal segue geodésicas que satisfazem o transporte paralelo do 4-vetor tangente velocidade <InlineMathText text="u^\nu \nabla_\nu u^\mu = 0" />. Os coeficientes da conexão afim (símbolos de Christoffel) são determinados unicamente pela métrica:
+                  </p>
+                  <div className="academic-formula-highlight">
+                    <MathFormula math="\Gamma^\mu_{\alpha\beta} = \frac{1}{2} g^{\mu\sigma} \big( \partial_\alpha g_{\beta\sigma} + \partial_\beta g_{\alpha\sigma} - \partial_\sigma g_{\alpha\beta} \big)" block />
+                  </div>
+                </div>
+
+                {/* Seção 2: Teorema de Noether & Leis de Conservação */}
+                <div className="academic-study-section">
+                  <span className="academic-study-section-title">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" strokeWidth="2"><path d="M12 2v20M2 12h20"/></svg>
+                    2. Simetrias de Noether & Vetores de Killing
+                  </span>
+                  <p className="academic-study-body">
+                    De acordo com o primeiro teorema de Emmy Noether, toda simetria contínua do funcional de ação implica uma corrente conservada <InlineMathText text="\nabla_\mu j^\mu = 0" />. A invariância sob translações temporais gerada pelo vetor de Killing <InlineMathText text="\xi^\mu = (\partial_t)^\mu" /> assegura que a energia relativística própria <InlineMathText text="E = -\xi_\mu p^\mu" /> seja uma constante de movimento ao longo da geodésica.
+                  </p>
+                  <div className="academic-formula-highlight">
+                    <MathFormula math="\mathcal{L}_\xi g_{\mu\nu} = \nabla_\mu \xi_\nu + \nabla_\nu \xi_\mu = 0 \implies \frac{d}{d\tau}(g_{\mu\nu} \xi^\mu u^\nu) = 0" block />
+                  </div>
+                </div>
+
+                {/* Seção 3: Conjectura de Censura & Horizonte de Cauchy */}
+                <div className="academic-study-section">
+                  <span className="academic-study-section-title">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    3. Condições de Energia & Proteção Cronológica
+                  </span>
+                  <p className="academic-study-body">
+                    A preservação da estrutura causal impede a criação descontrolada de Curvas Tipo-Tempo Fechadas (CTCs). Pelo <GlossaryTerm termId="novikov">Princípio de Autoconsistência de Novikov</GlossaryTerm>, a integral de caminho em variedades não-simplesmente conexas anula probabilidades de trajetórias que violem a autoconsistência. No regime semiclássico, o valor esperado do tensor energia-momento renormalizado satisfaz:
+                  </p>
+                  <div className="academic-formula-highlight">
+                    <MathFormula math="\lim_{x \to \partial \mathcal{H}^+} \langle \hat{T}_{\mu\nu}(x) \rangle_{\text{ren}} \to \infty \quad \big( \text{Hawking Chronology Protection, 1992} \big)" block />
+                  </div>
+                </div>
+
+                {/* Seção 4: Citação Canônica para Artigos e Monografias */}
+                <div className="academic-study-section">
+                  <span className="academic-study-section-title">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" strokeWidth="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/></svg>
+                    4. Ficha Bibliográfica para Citação (Monografia / TCC / Artigo)
+                  </span>
+                  <div className="academic-citation-box">
+                    <div className="citation-text">
+                      {event.academicCitation || `${event.title} (${event.year}). In: Infinite Horizons Archival Database of Theoretical Physics.`}
+                    </div>
+                    <div className="citation-buttons-row">
+                      <button
+                        type="button"
+                        className={`btn-copy-citation ${copiedCitation ? 'copied' : ''}`}
+                        onClick={() => handleCopyCitation(event.academicCitation || `${event.title} (${event.year})`)}
+                      >
+                        {copiedCitation ? 'Copiado em ABNT!' : 'Copiar ABNT'}
+                      </button>
+                      <button
+                        type="button"
+                        className={`btn-copy-citation ${copiedBibtex ? 'copied' : ''}`}
+                        onClick={() => {
+                          const bib = `@article{ih_${event.id},\n  title={${event.title}},\n  year={${event.year}},\n  note={Infinite Horizons Theoretical Physics Laboratory}\n}`;
+                          handleCopyBibtex(bib);
+                        }}
+                      >
+                        {copiedBibtex ? 'Copiado em BibTeX!' : 'Copiar BibTeX'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
         )}
 
         {(event.year === 2015 || event.title.toLowerCase().includes('ondas gravitacionais') || event.title.toLowerCase().includes('m87')) && (

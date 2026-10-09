@@ -23,6 +23,9 @@ interface Props {
   onStartTour?: () => void;
   onOpenKerrVisualizer?: () => void;
   onOpenAcademicPaper?: () => void;
+  onOpenCosmicAcoustics?: () => void;
+  onOpenSplitComparator?: () => void;
+  onOpenVintageNewspaper?: () => void;
   onReset: () => void;
   canUndo: boolean;
   canRedo: boolean;
@@ -48,6 +51,9 @@ export default function SimulatorHeader({
   onStartTour,
   onOpenKerrVisualizer,
   onOpenAcademicPaper,
+  onOpenCosmicAcoustics,
+  onOpenSplitComparator,
+  onOpenVintageNewspaper,
   onReset,
   canUndo,
   canRedo,
@@ -220,6 +226,42 @@ export default function SimulatorHeader({
             </button>
           )}
 
+          {onOpenCosmicAcoustics && (
+            <button
+              type="button"
+              className="sim-btn-acoustics"
+              onClick={onOpenCosmicAcoustics}
+              title={isLaymanMode ? 'Ouvir os sons do espaço (NASA, LIGO e Big Bang)' : 'Laboratório Acústico do Cosmos (Sonificação e Osciloscópio)'}
+            >
+              <span className="btn-text-full">{isLaymanMode ? 'Som Cósmico' : 'Acústica NASA'}</span>
+              <span className="btn-text-compact">Som</span>
+            </button>
+          )}
+
+          {onOpenSplitComparator && (
+            <button
+              type="button"
+              className="sim-btn-timeline-split"
+              onClick={onOpenSplitComparator}
+              title={isLaymanMode ? 'Ver como o mundo atual seria sem as grandes descobertas' : 'Comparador Século XXI: Real vs Contrafactual'}
+            >
+              <span className="btn-text-full">{isLaymanMode ? 'Antes & Depois' : 'Século XXI Split'}</span>
+              <span className="btn-text-compact">Split</span>
+            </button>
+          )}
+
+          {onOpenVintageNewspaper && (
+            <button
+              type="button"
+              className="sim-btn-vintage-newspaper"
+              onClick={onOpenVintageNewspaper}
+              title={isLaymanMode ? 'Ler jornais históricos da época com notícias da descoberta' : 'Jornal Histórico de Época (Edição Real vs Alternativa)'}
+            >
+              <span className="btn-text-full">{isLaymanMode ? 'Jornal Vintage' : 'Jornal Histórico'}</span>
+              <span className="btn-text-compact">Jornal</span>
+            </button>
+          )}
+
           <button
             type="button"
             className="sim-btn-backtracking"
@@ -236,7 +278,8 @@ export default function SimulatorHeader({
             onClick={onToggleAIDrawer}
             title={isLaymanMode ? 'Consultar Assistente Historiográfico & Científico' : 'Abrir Painel de Pesquisa Científica & Fontes Primárias'}
           >
-            {isLaymanMode ? 'Oráculo Histórico' : 'Pesquisa & Arquivos'}
+            <span className="btn-text-full">{isLaymanMode ? 'Oráculo Histórico' : 'Pesquisa & Arquivos'}</span>
+            <span className="btn-text-compact">Arquivos</span>
           </button>
         </div>
 
@@ -544,6 +587,70 @@ export default function SimulatorHeader({
                   <small>Comparar linhas temporais</small>
                 </div>
               </button>
+
+              {onOpenCosmicAcoustics && (
+                <button
+                  type="button"
+                  className="mobile-drawer-item"
+                  onClick={() => {
+                    setShowMobileMenu(false);
+                    onOpenCosmicAcoustics();
+                  }}
+                >
+                  <span className="drawer-icon-wrap">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M2 10v4"/><path d="M6 6v12"/><path d="M10 3v18"/><path d="M14 8v8"/><path d="M18 5v14"/><path d="M22 10v4"/>
+                    </svg>
+                  </span>
+                  <div className="drawer-item-text">
+                    <strong>Som Cósmico</strong>
+                    <small>NASA & osciloscópio</small>
+                  </div>
+                </button>
+              )}
+
+              {onOpenSplitComparator && (
+                <button
+                  type="button"
+                  className="mobile-drawer-item"
+                  onClick={() => {
+                    setShowMobileMenu(false);
+                    onOpenSplitComparator();
+                  }}
+                >
+                  <span className="drawer-icon-wrap">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="3" width="18" height="18" rx="2" /><line x1="12" y1="3" x2="12" y2="21" />
+                    </svg>
+                  </span>
+                  <div className="drawer-item-text">
+                    <strong>Antes & Depois</strong>
+                    <small>Século XXI contrafactual</small>
+                  </div>
+                </button>
+              )}
+
+              {onOpenVintageNewspaper && (
+                <button
+                  type="button"
+                  className="mobile-drawer-item"
+                  onClick={() => {
+                    setShowMobileMenu(false);
+                    onOpenVintageNewspaper();
+                  }}
+                >
+                  <span className="drawer-icon-wrap">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/>
+                      <path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/>
+                    </svg>
+                  </span>
+                  <div className="drawer-item-text">
+                    <strong>Jornal Vintage</strong>
+                    <small>Manchetes históricas</small>
+                  </div>
+                </button>
+              )}
 
               {onOpenBacktracking && (
                 <button

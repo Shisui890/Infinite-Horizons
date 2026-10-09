@@ -44,6 +44,9 @@ const InteractiveTourModal = lazy(() => import('./InteractiveTourModal'));
 const CausalBacktrackingModal = lazy(() => import('./CausalBacktrackingModal'));
 const KerrBlackHoleModal = lazy(() => import('../visualization/KerrBlackHoleModal'));
 const AcademicPaperExportModal = lazy(() => import('./AcademicPaperExportModal'));
+const CosmicAcousticsModal = lazy(() => import('./CosmicAcousticsModal'));
+const TimelineSplitComparatorModal = lazy(() => import('./TimelineSplitComparatorModal'));
+const VintageNewspaperModal = lazy(() => import('./VintageNewspaperModal'));
 
 interface Props {
   onExit: () => void;
@@ -95,6 +98,13 @@ export default function SimulatorView({ onExit, onOpenGuide, initialState }: Pro
   const [showTourModal, setShowTourModal] = useState(false);
   const [showKerrModal, setShowKerrModal] = useState(false);
   const [showAcademicPaperModal, setShowAcademicPaperModal] = useState(false);
+  const [showAcousticsModal, setShowAcousticsModal] = useState(false);
+  const [acousticsSignalId, setAcousticsSignalId] = useState<string | undefined>(undefined);
+  const [showSplitComparatorModal, setShowSplitComparatorModal] = useState(false);
+  const [splitScenarioId, setSplitScenarioId] = useState<string | undefined>(undefined);
+  const [showNewspaperModal, setShowNewspaperModal] = useState(false);
+  const [newspaperYear, setNewspaperYear] = useState<number | undefined>(undefined);
+  const [newspaperTitle, setNewspaperTitle] = useState<string | undefined>(undefined);
   const [shortcutToast, setShortcutToast] = useState<string | null>(null);
   const toastTimerRef = useRef<number | null>(null);
 
@@ -492,6 +502,19 @@ export default function SimulatorView({ onExit, onOpenGuide, initialState }: Pro
         onStartTour={() => setShowTourModal(true)}
         onOpenKerrVisualizer={() => setShowKerrModal(true)}
         onOpenAcademicPaper={() => setShowAcademicPaperModal(true)}
+        onOpenCosmicAcoustics={() => {
+          setAcousticsSignalId(undefined);
+          setShowAcousticsModal(true);
+        }}
+        onOpenSplitComparator={() => {
+          setSplitScenarioId(undefined);
+          setShowSplitComparatorModal(true);
+        }}
+        onOpenVintageNewspaper={() => {
+          setNewspaperYear(undefined);
+          setNewspaperTitle(undefined);
+          setShowNewspaperModal(true);
+        }}
         onReset={resetUniverse}
         canUndo={canUndo()}
         canRedo={canRedo()}
@@ -528,6 +551,19 @@ export default function SimulatorView({ onExit, onOpenGuide, initialState }: Pro
           onAlterEvent={handleAlterEvent}
           onSimulateAI={handleSimulateAI}
           onClose={handleCloseInspector}
+          onOpenVintageNewspaper={(year?: number, title?: string) => {
+            setNewspaperYear(year);
+            setNewspaperTitle(title);
+            setShowNewspaperModal(true);
+          }}
+          onOpenSplitComparator={(scenarioId?: string) => {
+            setSplitScenarioId(scenarioId);
+            setShowSplitComparatorModal(true);
+          }}
+          onOpenCosmicAcoustics={(signalId?: string) => {
+            setAcousticsSignalId(signalId);
+            setShowAcousticsModal(true);
+          }}
         />
 
         {/* AI Control Drawer */}
@@ -700,6 +736,37 @@ export default function SimulatorView({ onExit, onOpenGuide, initialState }: Pro
           <AcademicPaperExportModal
             universe={universe}
             onClose={() => setShowAcademicPaperModal(false)}
+          />
+        </Suspense>
+      )}
+
+      {/* Cosmic Acoustics / Sonification Modal */}
+      {showAcousticsModal && (
+        <Suspense fallback={null}>
+          <CosmicAcousticsModal
+            onClose={() => setShowAcousticsModal(false)}
+            initialSignalId={acousticsSignalId}
+          />
+        </Suspense>
+      )}
+
+      {/* Timeline Split-Screen Comparator (2026 Before & After) Modal */}
+      {showSplitComparatorModal && (
+        <Suspense fallback={null}>
+          <TimelineSplitComparatorModal
+            onClose={() => setShowSplitComparatorModal(false)}
+            initialScenarioId={splitScenarioId}
+          />
+        </Suspense>
+      )}
+
+      {/* Vintage Historical Counterfactual Newspaper Modal */}
+      {showNewspaperModal && (
+        <Suspense fallback={null}>
+          <VintageNewspaperModal
+            onClose={() => setShowNewspaperModal(false)}
+            eventYear={newspaperYear}
+            eventTitle={newspaperTitle}
           />
         </Suspense>
       )}
@@ -899,6 +966,62 @@ export default function SimulatorView({ onExit, onOpenGuide, initialState }: Pro
                 </span>
                 <span className="m-tool-name">Engenharia Reversa</span>
                 <span className="m-tool-sub">Backtracking causal</span>
+              </button>
+
+              <button
+                type="button"
+                className="m-tool-card"
+                onClick={() => {
+                  setAcousticsSignalId(undefined);
+                  setShowAcousticsModal(true);
+                  setMobileTab('canvas');
+                }}
+              >
+                <span className="m-tool-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M2 10v4"/><path d="M6 6v12"/><path d="M10 3v18"/><path d="M14 8v8"/><path d="M18 5v14"/><path d="M22 10v4"/>
+                  </svg>
+                </span>
+                <span className="m-tool-name">Som do Cosmos</span>
+                <span className="m-tool-sub">Acústica NASA & LIGO</span>
+              </button>
+
+              <button
+                type="button"
+                className="m-tool-card"
+                onClick={() => {
+                  setSplitScenarioId(undefined);
+                  setShowSplitComparatorModal(true);
+                  setMobileTab('canvas');
+                }}
+              >
+                <span className="m-tool-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" /><line x1="12" y1="3" x2="12" y2="21" />
+                  </svg>
+                </span>
+                <span className="m-tool-name">Antes & Depois</span>
+                <span className="m-tool-sub">Século XXI contrafactual</span>
+              </button>
+
+              <button
+                type="button"
+                className="m-tool-card"
+                onClick={() => {
+                  setNewspaperYear(undefined);
+                  setNewspaperTitle(undefined);
+                  setShowNewspaperModal(true);
+                  setMobileTab('canvas');
+                }}
+              >
+                <span className="m-tool-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/>
+                    <path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/>
+                  </svg>
+                </span>
+                <span className="m-tool-name">Jornal Vintage</span>
+                <span className="m-tool-sub">Manchetes de época</span>
               </button>
 
               {onOpenGuide && (

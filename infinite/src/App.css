@@ -1359,7 +1359,10 @@
 .sim-btn-monte-carlo,
 .sim-btn-conference,
 .sim-btn-3d,
-.sim-btn-backtracking {
+.sim-btn-backtracking,
+.sim-btn-acoustics,
+.sim-btn-timeline-split,
+.sim-btn-vintage-newspaper {
   font-family: var(--font-body);
   font-size: 0.72rem;
   font-weight: 500;
@@ -1377,6 +1380,24 @@
   color: #c084fc;
   background: rgba(168, 85, 247, 0.12);
   border-color: rgba(168, 85, 247, 0.3);
+}
+
+.sim-btn-acoustics:hover {
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+.sim-btn-timeline-split:hover {
+  color: #a78bfa;
+  background: rgba(167, 139, 250, 0.12);
+  border-color: rgba(167, 139, 250, 0.3);
+}
+
+.sim-btn-vintage-newspaper:hover {
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.3);
 }
 
 .sim-btn-monte-carlo:hover {
@@ -19326,4 +19347,1401 @@
   box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
   transform: translateY(-1px);
 }
+
+/* ==================================================================== */
+/* 1. GLOSSÁRIO CIENTÍFICO INTERATIVO (HOVER CARDS)                     */
+/* ==================================================================== */
+.glossary-term-wrap {
+  position: relative;
+  display: inline-block;
+  cursor: help;
+}
+
+.glossary-term-anchor {
+  border-bottom: 1.5px dashed rgba(56, 189, 248, 0.65);
+  color: #bae6fd;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.glossary-term-wrap:hover .glossary-term-anchor,
+.glossary-term-wrap:focus .glossary-term-anchor {
+  color: #38bdf8;
+  border-bottom-color: #38bdf8;
+  text-shadow: 0 0 8px rgba(56, 189, 248, 0.4);
+}
+
+.glossary-popover-card {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 330px;
+  max-width: 90vw;
+  background: rgba(10, 16, 29, 0.96);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 12px;
+  padding: 14px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), 0 0 20px rgba(56, 189, 248, 0.15);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: glossaryFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: left;
+  white-space: normal;
+  pointer-events: auto;
+}
+
+@keyframes glossaryFadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 6px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.glossary-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 8px;
+}
+
+.glossary-badge-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.glossary-cat-pill {
+  font-size: 0.62rem;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  color: #38bdf8;
+  text-transform: uppercase;
+}
+
+.glossary-term-title {
+  font-size: 0.88rem;
+  color: #f8fafc;
+  font-weight: 700;
+}
+
+.glossary-mode-switch-btns {
+  display: flex;
+  gap: 3px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 2px;
+  border-radius: 6px;
+}
+
+.btn-glossary-mode {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 3px 7px;
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-glossary-mode.active {
+  background: rgba(56, 189, 248, 0.25);
+  color: #38bdf8;
+}
+
+.glossary-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.glossary-desc-simple {
+  font-size: 0.78rem;
+  color: #e2e8f0;
+  line-height: 1.45;
+}
+
+.glossary-analogy-box {
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.analogy-header {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.7rem;
+  color: #fbbf24;
+}
+
+.analogy-text {
+  font-size: 0.74rem;
+  color: #fef3c7;
+  line-height: 1.4;
+}
+
+.glossary-academic-def {
+  font-size: 0.76rem;
+  color: #cbd5e1;
+  line-height: 1.45;
+}
+
+.glossary-formula-box {
+  background: rgba(0, 0, 0, 0.35);
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 0.8rem;
+}
+
+.glossary-tensor-spec {
+  font-size: 0.72rem;
+  color: #38bdf8;
+}
+
+.glossary-dimension-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  color: #94a3b8;
+}
+
+.glossary-paper-cite {
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 6px;
+  padding: 7px 9px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.paper-cite-lbl {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #34d399;
+}
+
+.paper-cite-text {
+  font-size: 0.7rem;
+  color: #a7f3d0;
+  line-height: 1.35;
+}
+
+.cite-doi {
+  display: block;
+  font-size: 0.64rem;
+  color: #6ee7b7;
+  margin-top: 2px;
+}
+
+/* ==================================================================== */
+/* 2. LABORATÓRIO ACÚSTICO ESPACIAL (COSMIC ACOUSTICS MODAL)             */
+/* ==================================================================== */
+.cosmic-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(3, 7, 18, 0.85);
+  backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.cosmic-modal-card {
+  width: 820px;
+  max-width: 95vw;
+  max-height: 90vh;
+  background: #090e1a;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 16px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 35px rgba(56, 189, 248, 0.15);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  gap: 16px;
+  padding: 24px;
+}
+
+.cosmic-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 14px;
+}
+
+.cosmic-pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #38bdf8;
+  letter-spacing: 0.05em;
+}
+
+.cosmic-modal-title {
+  margin: 4px 0 0;
+  font-size: 1.25rem;
+  color: #f8fafc;
+  font-weight: 700;
+}
+
+.btn-cosmic-close {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-cosmic-close:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
+  color: #ffffff;
+}
+
+.cosmic-signals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 10px;
+}
+
+.cosmic-signal-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cosmic-signal-card:hover {
+  background: rgba(56, 189, 248, 0.08);
+  border-color: rgba(56, 189, 248, 0.3);
+  transform: translateY(-2px);
+}
+
+.cosmic-signal-card.active {
+  background: rgba(56, 189, 248, 0.14);
+  border-color: #38bdf8;
+  box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+}
+
+.signal-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.signal-year-badge {
+  font-size: 0.65rem;
+  font-family: monospace;
+  font-weight: 700;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.15);
+  padding: 2px 5px;
+  border-radius: 4px;
+}
+
+.signal-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #64748b;
+}
+
+.signal-status-dot.pulsing {
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+  animation: pulseDot 1s infinite alternate;
+}
+
+.signal-card-name {
+  margin: 4px 0 0;
+  font-size: 0.84rem;
+  color: #f8fafc;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.signal-source-label {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  line-height: 1.25;
+}
+
+.signal-obs-meta {
+  font-size: 0.65rem;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.cosmic-player-stage {
+  background: #040711;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.oscilloscope-container {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(56, 189, 248, 0.2);
+}
+
+.oscilloscope-canvas {
+  width: 100%;
+  height: 110px;
+  display: block;
+}
+
+.oscilloscope-hud {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  display: flex;
+  gap: 12px;
+  font-size: 0.68rem;
+  font-family: monospace;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: #bae6fd;
+}
+
+.cosmic-controls-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.btn-cosmic-play-toggle {
+  background: linear-gradient(135deg, #00d4ff, #38bdf8);
+  color: #040711;
+  font-weight: 700;
+  font-size: 0.82rem;
+  padding: 9px 18px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  box-shadow: 0 0 16px rgba(0, 212, 255, 0.4);
+}
+
+.btn-cosmic-play-toggle:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 24px rgba(0, 212, 255, 0.6);
+}
+
+.btn-cosmic-play-toggle.playing {
+  background: linear-gradient(135deg, #f59e0b, #ef4444);
+  color: #ffffff;
+  box-shadow: 0 0 16px rgba(239, 68, 68, 0.4);
+}
+
+.cosmic-audio-options {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.loop-toggle-lbl {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: #cbd5e1;
+  cursor: pointer;
+}
+
+.volume-slider-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #94a3b8;
+}
+
+.cosmic-vol-slider {
+  width: 90px;
+  accent-color: #38bdf8;
+  cursor: pointer;
+}
+
+.vol-text {
+  font-size: 0.72rem;
+  font-family: monospace;
+  color: #cbd5e1;
+  width: 32px;
+}
+
+.cosmic-dossier-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dossier-card-meta-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding-bottom: 10px;
+}
+
+.meta-badge-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.meta-lbl {
+  font-size: 0.62rem;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.meta-val {
+  font-size: 0.76rem;
+  color: #e2e8f0;
+  font-weight: 500;
+}
+
+.dossier-desc-simple,
+.dossier-desc-academic {
+  margin: 6px 0 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: #cbd5e1;
+}
+
+.dossier-analogy-box {
+  background: rgba(56, 189, 248, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 8px;
+  padding: 10px;
+  margin-top: 8px;
+}
+
+.dossier-analogy-box strong {
+  font-size: 0.74rem;
+  color: #38bdf8;
+}
+
+.dossier-analogy-box p {
+  margin: 4px 0 0;
+  font-size: 0.78rem;
+  color: #e0f2fe;
+}
+
+.dossier-citation-box {
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: 8px;
+  padding: 10px;
+  margin-top: 8px;
+}
+
+.citation-head {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: #34d399;
+}
+
+.citation-text {
+  margin-top: 4px;
+  font-size: 0.76rem;
+  color: #a7f3d0;
+  line-height: 1.4;
+}
+
+.cite-doi-pill {
+  display: inline-block;
+  margin-left: 6px;
+  font-size: 0.68rem;
+  font-family: monospace;
+  color: #6ee7b7;
+}
+
+/* ==================================================================== */
+/* 3. COMPARADOR SPLIT-SCREEN "ANTES & DEPOIS" (TIMELINE SPLIT)         */
+/* ==================================================================== */
+.split-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.88);
+  backdrop-filter: blur(14px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.split-modal-card {
+  width: 900px;
+  max-width: 96vw;
+  max-height: 92vh;
+  background: #090e1c;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  border-radius: 16px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  gap: 14px;
+  padding: 24px;
+}
+
+.split-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 12px;
+}
+
+.split-pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #38bdf8;
+  letter-spacing: 0.05em;
+}
+
+.split-modal-title {
+  margin: 4px 0 0;
+  font-size: 1.25rem;
+  color: #f8fafc;
+  font-weight: 700;
+}
+
+.btn-split-close {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-split-close:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
+  color: #ffffff;
+}
+
+.split-scenarios-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.scenarios-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 0.04em;
+}
+
+.scenarios-pills-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.scenario-pill-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: #94a3b8;
+  font-size: 0.78rem;
+  transition: all 0.2s ease;
+}
+
+.scenario-pill-btn:hover {
+  background: rgba(56, 189, 248, 0.08);
+  border-color: rgba(56, 189, 248, 0.3);
+  color: #f1f5f9;
+}
+
+.scenario-pill-btn.active {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: #38bdf8;
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+}
+
+.pill-year {
+  font-family: monospace;
+  font-weight: 700;
+  color: #38bdf8;
+}
+
+.split-drag-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.72rem;
+  color: #94a3b8;
+  background: rgba(56, 189, 248, 0.06);
+  padding: 6px;
+  border-radius: 6px;
+  border: 1px dashed rgba(56, 189, 248, 0.25);
+}
+
+.split-slider-stage {
+  position: relative;
+  height: 380px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  user-select: none;
+  cursor: col-resize;
+  background: #020617;
+}
+
+.split-half-panel {
+  position: absolute;
+  inset: 0;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow: hidden;
+}
+
+.panel-real {
+  background: linear-gradient(135deg, rgba(14, 116, 144, 0.2), rgba(15, 23, 42, 0.95));
+}
+
+.panel-counterfactual {
+  background: linear-gradient(135deg, rgba(185, 28, 28, 0.2), rgba(15, 23, 42, 0.95));
+}
+
+.panel-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 3px 8px;
+  border-radius: 6px;
+  width: fit-content;
+}
+
+.cyan-badge {
+  background: rgba(0, 212, 255, 0.15);
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  color: #00d4ff;
+}
+
+.red-badge {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+}
+
+.panel-headline {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.cyan-text { color: #38bdf8; }
+.red-text { color: #f87171; }
+
+.panel-desc {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #cbd5e1;
+  line-height: 1.45;
+}
+
+.panel-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.metric-pill {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 6px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.metric-lbl {
+  font-size: 0.58rem;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.metric-val {
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.panel-bullets-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bullet-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.76rem;
+  line-height: 1.35;
+}
+
+.cyan-bullet { color: #bae6fd; }
+.red-bullet { color: #fecaca; }
+
+.bullet-sym {
+  font-weight: 700;
+}
+
+.split-divider-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: #38bdf8;
+  box-shadow: 0 0 14px #38bdf8;
+  transform: translateX(-50%);
+  z-index: 10;
+  pointer-events: none;
+}
+
+.split-handle-grip {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #38bdf8;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 18px rgba(56, 189, 248, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.split-academic-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.split-academic-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #34d399;
+}
+
+.split-academic-body {
+  margin: 0;
+  font-size: 0.76rem;
+  color: #cbd5e1;
+  line-height: 1.4;
+}
+
+.split-cite-row {
+  margin-top: 4px;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 0.7rem;
+  color: #94a3b8;
+}
+
+.split-cite-lbl {
+  font-weight: 700;
+  color: #10b981;
+}
+
+.split-cite-val {
+  color: #a7f3d0;
+}
+
+.split-doi {
+  margin-left: 6px;
+  font-family: monospace;
+  color: #6ee7b7;
+}
+
+/* ==================================================================== */
+/* 4. JORNAL DE ÉPOCA CONTRAFACTUAL (VINTAGE NEWSPAPER MODAL)            */
+/* ==================================================================== */
+.newspaper-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 10, 5, 0.88);
+  backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.newspaper-modal-card {
+  width: 820px;
+  max-width: 95vw;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+}
+
+.newspaper-control-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  background: rgba(20, 16, 12, 0.95);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  padding: 8px 12px;
+  border-radius: 10px;
+}
+
+.newspaper-edition-toggle {
+  display: flex;
+  gap: 4px;
+}
+
+.btn-paper-edition {
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.05);
+  color: #d6d3d1;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-paper-edition.active-real {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: #10b981;
+  color: #a7f3d0;
+}
+
+.btn-paper-edition.active-counter {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
+  color: #fca5a5;
+}
+
+.newspaper-year-selector {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.paper-sel-lbl {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #a8a29e;
+}
+
+.btn-paper-year {
+  font-size: 0.72rem;
+  font-family: monospace;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: transparent;
+  color: #d6d3d1;
+  cursor: pointer;
+}
+
+.btn-paper-year.active {
+  background: #f59e0b;
+  color: #1c1917;
+  border-color: #f59e0b;
+}
+
+.btn-paper-close {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #a8a29e;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.btn-paper-close:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ffffff;
+}
+
+/* Folha de Jornal Vintage Envelhecida */
+.vintage-newsprint-sheet {
+  position: relative;
+  background: #fbf8ee;
+  color: #1c1917;
+  padding: 30px;
+  border-radius: 4px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), inset 0 0 80px rgba(180, 140, 90, 0.2);
+  border: 1px solid #d6cfb8;
+  font-family: Georgia, 'Times New Roman', serif;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.vintage-newsprint-sheet.counterfactual-ink {
+  background: #f8f1e5;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), inset 0 0 80px rgba(160, 60, 50, 0.15);
+}
+
+.newsprint-archival-stamp {
+  position: absolute;
+  top: 18px;
+  right: 24px;
+  border: 2px dashed #b91c1c;
+  color: #b91c1c;
+  padding: 4px 8px;
+  font-family: monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  transform: rotate(-3deg);
+  opacity: 0.85;
+}
+
+.newsprint-masthead {
+  text-align: center;
+  border-bottom: 2px solid #292524;
+  padding-bottom: 12px;
+}
+
+.masthead-meta-top {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #57534e;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid #78716c;
+  padding-bottom: 4px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.masthead-title {
+  margin: 0;
+  font-size: 2.1rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  color: #1c1917;
+  font-family: 'Times New Roman', Georgia, serif;
+  text-transform: uppercase;
+}
+
+.masthead-ornament-line {
+  position: relative;
+  height: 1px;
+  background: #292524;
+  margin-top: 8px;
+}
+
+.ornament-diamond {
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 9px;
+  height: 9px;
+  background: #292524;
+}
+
+.newsprint-headline-section {
+  text-align: center;
+  border-bottom: 1px solid #78716c;
+  padding-bottom: 12px;
+}
+
+.headline-main {
+  margin: 0;
+  font-size: 1.45rem;
+  font-weight: 900;
+  line-height: 1.25;
+  color: #0c0a09;
+}
+
+.headline-sub {
+  margin: 6px 0 0;
+  font-size: 0.95rem;
+  font-style: italic;
+  font-weight: 500;
+  color: #44403c;
+}
+
+.newsprint-columns-grid {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: 20px;
+}
+
+.newsprint-lead-paragraph {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  text-align: justify;
+  color: #292524;
+}
+
+.newsprint-dropcap {
+  float: left;
+  font-size: 3.2rem;
+  line-height: 0.85;
+  padding-right: 8px;
+  padding-top: 4px;
+  font-weight: 900;
+  color: #1c1917;
+  font-family: 'Times New Roman', Georgia, serif;
+}
+
+.col-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-left: 1px solid #d6cfb8;
+  padding-left: 16px;
+}
+
+.newsprint-woodcut-box {
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid #a8a29e;
+  padding: 10px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.woodcut-caption {
+  font-size: 0.68rem;
+  font-style: italic;
+  color: #57534e;
+  line-height: 1.3;
+}
+
+.newsprint-quote-box {
+  margin: 0;
+  border-left: 3px solid #78716c;
+  padding-left: 10px;
+  font-style: italic;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: #44403c;
+}
+
+.newsprint-academic-footer {
+  border-top: 2px solid #292524;
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: #44403c;
+}
+
+.footer-academic-badge strong {
+  color: #1c1917;
+  letter-spacing: 0.04em;
+}
+
+.footer-academic-badge p {
+  margin: 2px 0 0;
+  line-height: 1.4;
+}
+
+.footer-citation-line {
+  font-family: monospace;
+  font-size: 0.7rem;
+  color: #57534e;
+}
+
+/* ===== INSPECTOR QUICK ACTION BUTTONS ===== */
+.inspector-quick-tools-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0 16px 0;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md);
+}
+
+.btn-inspector-quick-tool {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.btn-inspector-quick-tool:hover {
+  background: rgba(0, 212, 255, 0.12);
+  color: #00d4ff;
+  border-color: rgba(0, 212, 255, 0.35);
+  transform: translateY(-1px);
+}
+
+.btn-inspector-quick-tool.tool-vintage:hover {
+  background: rgba(217, 119, 6, 0.15);
+  color: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+.btn-inspector-quick-tool.tool-split:hover {
+  background: rgba(168, 85, 247, 0.15);
+  color: #c084fc;
+  border-color: rgba(168, 85, 247, 0.4);
+}
+
+.btn-inspector-quick-tool.tool-audio:hover {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+/* ===== ACADEMIC STUDY DOSSIER (MODO ACADÊMICO DE ESTUDO) ===== */
+.academic-study-dossier {
+  margin: 18px 0;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.85) 0%, rgba(10, 15, 30, 0.95) 100%);
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  border-left: 4px solid #38bdf8;
+  border-radius: var(--radius-md);
+  padding: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.academic-study-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+}
+
+.academic-study-tag-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.academic-study-tag {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  color: #38bdf8;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.academic-study-badge {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(56, 189, 248, 0.15);
+  color: #7dd3fc;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.academic-study-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.academic-study-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.academic-study-section-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+  text-transform: uppercase;
+}
+
+.academic-study-body {
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: #cbd5e1;
+  text-align: justify;
+}
+
+.academic-formula-highlight {
+  margin: 6px 0;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: var(--radius-sm);
+  overflow-x: auto;
+}
+
+.academic-citation-box {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.citation-text {
+  font-size: 0.74rem;
+  line-height: 1.45;
+  color: #e2e8f0;
+  font-family: var(--font-mono);
+}
+
+.citation-buttons-row {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-copy-citation {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-copy-citation:hover {
+  background: rgba(56, 189, 248, 0.25);
+  color: #ffffff;
+  border-color: #38bdf8;
+}
+
+.btn-copy-citation.copied {
+  background: rgba(16, 185, 129, 0.25);
+  color: #34d399;
+  border-color: #10b981;
+}
+
+
 
