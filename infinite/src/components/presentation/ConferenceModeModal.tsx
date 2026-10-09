@@ -75,7 +75,7 @@ const FORMULAS_BY_YEAR: Record<number, FormulaDetail> = {
   },
   1998: {
     latex: 'H^2(z) = H_0^2 \\left[ \\Omega_m (1+z)^3 + \\Omega_r (1+z)^4 + \\Omega_k (1+z)^2 + \\Omega_\\Lambda \\right]',
-    label: 'Equação de Friedmann com Constante Cosmológica \\Lambda',
+    label: 'Equação de Friedmann com Constante Cosmológica Λ (Lambda)',
     laymanLabel: 'A Expansão Acelerada pela Energia Escura',
     laymanMeaning: 'Calcula a velocidade com que o universo se expande. O termo final (Ω_Λ) representa a Energia Escura, a força invisível que está afastando as galáxias cada vez mais rápido.',
   },

@@ -114,7 +114,21 @@ function parseInlineTokens(text: string): InlineToken[] {
  * Render inline markdown tokens (bold, italic, KaTeX, inline code, links)
  */
 export function InlineMathText({ text, className = '' }: { text: string; className?: string }) {
-  const tokens = useMemo(() => parseInlineTokens(text), [text]);
+  const isPureFormula = useMemo(() => {
+    if (!text || text.includes('$') || text.includes('**') || text.includes('`')) return false;
+    const hasLatexCmd = /\\[a-zA-Z]+/.test(text);
+    const hasProseWords = /[a-záàâãéêíóôõúç]{3,}\s+[a-záàâãéêíóôõúç]{3,}/i.test(text);
+    return hasLatexCmd && !hasProseWords;
+  }, [text]);
+
+  const tokens = useMemo(() => {
+    if (isPureFormula) return [];
+    return parseInlineTokens(text);
+  }, [text, isPureFormula]);
+
+  if (isPureFormula) {
+    return <MathFormula math={text} block={false} className={className} />;
+  }
 
   const renderToken = (tok: InlineToken, i: number): React.ReactNode => {
     switch (tok.type) {

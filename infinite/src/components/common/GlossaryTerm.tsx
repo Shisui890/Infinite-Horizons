@@ -141,7 +141,7 @@ export default function GlossaryTerm({ termId, children, fallbackTerm }: Props) 
 
               {entry.academic.tensorNotation && (
                 <span className="glossary-tensor-spec">
-                  <code>{entry.academic.tensorNotation}</code>
+                  <MathFormula math={entry.academic.tensorNotation} block={false} />
                 </span>
               )}
 

@@ -353,7 +353,7 @@ export default function EventInspector({
                     1. Geometria Diferencial & Geodésica Afim
                   </span>
                   <p className="academic-study-body">
-                    Na variedade pseudo-riemanniana <GlossaryTerm termId="geodesica">(\mathcal&#123;M&#125;, g)</GlossaryTerm>, a propagação de informação causal segue geodésicas que satisfazem o transporte paralelo do 4-vetor tangente velocidade <InlineMathText text="u^\nu \nabla_\nu u^\mu = 0" />. Os coeficientes da conexão afim (símbolos de Christoffel) são determinados unicamente pela métrica:
+                    Na variedade pseudo-riemanniana <GlossaryTerm termId="geodesica"><MathFormula math="(\mathcal{M}, g)" /></GlossaryTerm>, a propagação de informação causal segue geodésicas que satisfazem o transporte paralelo do 4-vetor tangente velocidade <MathFormula math="u^\nu \nabla_\nu u^\mu = 0" />. Os coeficientes da conexão afim (símbolos de Christoffel) são determinados unicamente pela métrica:
                   </p>
                   <div className="academic-formula-highlight">
                     <MathFormula math="\Gamma^\mu_{\alpha\beta} = \frac{1}{2} g^{\mu\sigma} \big( \partial_\alpha g_{\beta\sigma} + \partial_\beta g_{\alpha\sigma} - \partial_\sigma g_{\alpha\beta} \big)" block />
@@ -367,7 +367,7 @@ export default function EventInspector({
                     2. Simetrias de Noether & Vetores de Killing
                   </span>
                   <p className="academic-study-body">
-                    De acordo com o primeiro teorema de Emmy Noether, toda simetria contínua do funcional de ação implica uma corrente conservada <InlineMathText text="\nabla_\mu j^\mu = 0" />. A invariância sob translações temporais gerada pelo vetor de Killing <InlineMathText text="\xi^\mu = (\partial_t)^\mu" /> assegura que a energia relativística própria <InlineMathText text="E = -\xi_\mu p^\mu" /> seja uma constante de movimento ao longo da geodésica.
+                    De acordo com o primeiro teorema de Emmy Noether, toda simetria contínua do funcional de ação implica uma corrente conservada <MathFormula math="\nabla_\mu j^\mu = 0" />. A invariância sob translações temporais gerada pelo vetor de Killing <MathFormula math="\xi^\mu = (\partial_t)^\mu" /> assegura que a energia relativística própria <MathFormula math="E = -\xi_\mu p^\mu" /> seja uma constante de movimento ao longo da geodésica.
                   </p>
                   <div className="academic-formula-highlight">
                     <MathFormula math="\mathcal{L}_\xi g_{\mu\nu} = \nabla_\mu \xi_\nu + \nabla_\nu \xi_\mu = 0 \implies \frac{d}{d\tau}(g_{\mu\nu} \xi^\mu u^\nu) = 0" block />
