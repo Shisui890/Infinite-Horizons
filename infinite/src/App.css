@@ -19132,6 +19132,16 @@
   line-height: 1.5;
 }
 
+.academic-paper-sheet .math-formula,
+.academic-paper-sheet .math-formula .katex {
+  color: #111111 !important;
+}
+
+.academic-paper-sheet .math-block {
+  margin: 8px 0;
+  text-align: center;
+}
+
 .paper-journal-banner {
   display: flex;
   justify-content: space-between;
@@ -19207,7 +19217,7 @@
 .paper-two-col-body {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 28px;
+  gap: 32px;
   font-size: 0.86rem;
   line-height: 1.55;
 }
@@ -19216,6 +19226,16 @@
   .paper-two-col-body {
     grid-template-columns: 1fr;
   }
+}
+
+.paper-col {
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+.paper-col p {
+  margin: 0 0 10px;
+  line-height: 1.6;
 }
 
 .paper-sec-heading {
@@ -19233,6 +19253,8 @@
   text-align: center;
   margin: 10px 0;
   padding: 6px 0;
+  overflow-x: auto;
+  max-width: 100%;
 }
 
 .paper-data-table {
@@ -19240,32 +19262,83 @@
   border-collapse: collapse;
   font-size: 0.78rem;
   margin: 12px 0;
+  table-layout: auto;
 }
 
 .paper-data-table th {
   border-top: 1.5px solid #111111;
-  border-bottom: 1px solid #111111;
+  border-bottom: 1.5px solid #111111;
   padding: 5px 6px;
   text-align: left;
   font-family: Arial, sans-serif;
+  background: #f8fafc;
 }
 
 .paper-data-table td {
   border-bottom: 1px solid #e5e5e5;
-  padding: 4px 6px;
+  padding: 5px 6px;
+  vertical-align: middle;
+}
+
+.paper-events-table td:first-child {
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
 }
 
 .paper-status-tag {
-  font-family: monospace;
-  font-size: 0.7rem;
-  padding: 1px 5px;
+  display: inline-block;
+  font-family: Arial, sans-serif;
+  font-size: 0.68rem;
+  padding: 2px 6px;
   border-radius: 3px;
-  font-weight: 600;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
-.status-active, .status-estável {
+.paper-status-tag.status-stable,
+.paper-status-tag.status-estável {
   background: #dcfce7;
-  color: #15803d;
+  color: #166534;
+  border: 1px solid #86efac;
+}
+
+.paper-status-tag.status-altered,
+.paper-status-tag.status-alterado {
+  background: #fef9c3;
+  color: #854d0e;
+  border: 1px solid #fde047;
+}
+
+.paper-status-tag.status-unstable,
+.paper-status-tag.status-instável {
+  background: #ffedd5;
+  color: #9a3412;
+  border: 1px solid #fdba74;
+}
+
+.paper-status-tag.status-collapsed,
+.paper-status-tag.status-colapsado,
+.paper-status-tag.status-erased,
+.paper-status-tag.status-apagado {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+
+.paper-status-tag.status-paradoxical,
+.paper-status-tag.status-paradoxo {
+  background: #f3e8ff;
+  color: #6b21a8;
+  border: 1px solid #d8b4fe;
+}
+
+.paper-status-tag.status-diverged,
+.paper-status-tag.status-divergente {
+  background: #e0e7ff;
+  color: #3730a3;
+  border: 1px solid #a5b4fc;
 }
 
 .paper-ref-list {
@@ -20479,7 +20552,7 @@
   margin: 0;
   font-size: 0.9rem;
   line-height: 1.6;
-  text-align: justify;
+  text-align: left;
   color: #292524;
 }
 
@@ -20682,7 +20755,8 @@
   font-size: 0.82rem;
   line-height: 1.55;
   color: #cbd5e1;
-  text-align: justify;
+  text-align: left;
+  overflow-wrap: break-word;
 }
 
 .academic-formula-highlight {

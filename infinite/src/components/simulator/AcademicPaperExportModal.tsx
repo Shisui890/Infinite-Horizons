@@ -13,6 +13,16 @@ interface Props {
 
 type TabMode = 'preview' | 'latex' | 'bibtex';
 
+const STATUS_LABELS: Record<string, string> = {
+  stable: 'Estável',
+  altered: 'Alterado',
+  unstable: 'Instável',
+  collapsed: 'Colapsado',
+  paradoxical: 'Paradoxal',
+  erased: 'Apagado',
+  diverged: 'Divergente',
+};
+
 export default function AcademicPaperExportModal({ universe, onClose }: Props) {
   const { isLaymanMode } = useLaymanMode();
   const [tab, setTab] = useState<TabMode>('preview');
@@ -297,11 +307,25 @@ export default function AcademicPaperExportModal({ universe, onClose }: Props) {
                   <p>
                     O índice global obtido para o continuum ativo é <MathFormula math={`I_N = ${metrics.novikovIndex}`} />.
                   </p>
+
+                  <h3 className="paper-sec-heading">IV. MÉTRICA DE KERR & TERMODINÂMICA</h3>
+                  <p>
+                    Para corpos celestes em rotação estacionária com simetria axial, a geometria externa da variedade é regida pela métrica de Kerr:
+                  </p>
+                  <div className="paper-formula-box">
+                    <MathFormula math="ds^2 = -\left(1 - \frac{2Mr}{\rho^2}\right) dt^2 - \frac{4aMr\sin^2\theta}{\rho^2} dt\,d\phi + \frac{\rho^2}{\Delta} dr^2 + \rho^2 d\theta^2 + \Sigma\sin^2\theta d\phi^2" block />
+                  </div>
+                  <p>
+                    A área do horizonte de eventos exterior <MathFormula math="r_+ = M + \sqrt{M^2 - a^2}" /> e a correspondente entropia de Bekenstein-Hawking satisfazem:
+                  </p>
+                  <div className="paper-formula-box">
+                    <MathFormula math="A = 4\pi (r_+^2 + a^2), \qquad S_{\text{BH}} = \frac{k_B c^3 A}{4 G \hbar}" block />
+                  </div>
                 </div>
 
                 {/* Column 2 */}
                 <div className="paper-col">
-                  <h3 className="paper-sec-heading">IV. TELEMETRIA DA SIMULAÇÃO</h3>
+                  <h3 className="paper-sec-heading">V. TELEMETRIA DA SIMULAÇÃO</h3>
                   <table className="paper-data-table">
                     <thead>
                       <tr>
@@ -312,15 +336,15 @@ export default function AcademicPaperExportModal({ universe, onClose }: Props) {
                     <tbody>
                       <tr>
                         <td>Nós Históricos Registrados (<MathFormula math="N" />)</td>
-                        <td>{metrics.totalEvents}</td>
+                        <td><strong>{metrics.totalEvents}</strong></td>
                       </tr>
                       <tr>
                         <td>Geodésicas Causais (<MathFormula math="E" />)</td>
-                        <td>{metrics.totalEdges}</td>
+                        <td><strong>{metrics.totalEdges}</strong></td>
                       </tr>
                       <tr>
                         <td>Variedades Dimensionais</td>
-                        <td>{metrics.dimensionsCount}</td>
+                        <td><strong>{metrics.dimensionsCount}</strong></td>
                       </tr>
                       <tr>
                         <td>Integridade Temporal</td>
@@ -328,56 +352,65 @@ export default function AcademicPaperExportModal({ universe, onClose }: Props) {
                       </tr>
                       <tr>
                         <td>CTCs / Paradoxos Ativos</td>
-                        <td>{metrics.paradoxCount}</td>
+                        <td><strong>{metrics.paradoxCount}</strong></td>
                       </tr>
                       <tr>
                         <td>Expoente de Lyapunov (<MathFormula math="\lambda" />)</td>
-                        <td>{metrics.lyapunovExponent} ano⁻¹</td>
+                        <td><strong>{metrics.lyapunovExponent}</strong> ano⁻¹</td>
                       </tr>
                       <tr>
-                        <td>Entropia Kolmogorov-Sinai</td>
-                        <td>{metrics.kolmogorovEntropy} nats/ano</td>
+                        <td>Entropia Kolmogorov-Sinai (<MathFormula math="h_{\text{KS}}" />)</td>
+                        <td><strong>{metrics.kolmogorovEntropy}</strong> nats/ano</td>
                       </tr>
                       <tr>
                         <td>Índice de Novikov (<MathFormula math="I_N" />)</td>
-                        <td>{metrics.novikovIndex}</td>
+                        <td><strong>{metrics.novikovIndex}</strong></td>
                       </tr>
                       <tr>
                         <td>Distância Geodésica Média</td>
-                        <td>{metrics.avgGeodesicDistance} anos</td>
+                        <td><strong>{metrics.avgGeodesicDistance}</strong> anos</td>
                       </tr>
                       <tr>
                         <td>Densidade Topológica (<MathFormula math="\rho" />)</td>
-                        <td>{metrics.networkDensity}</td>
+                        <td><strong>{metrics.networkDensity}</strong></td>
                       </tr>
                     </tbody>
                   </table>
 
-                  <h3 className="paper-sec-heading">V. AMOSTRAGEM DE SINGULARIDADES</h3>
+                  <h3 className="paper-sec-heading">VI. AMOSTRAGEM DE SINGULARIDADES</h3>
                   <table className="paper-data-table paper-events-table">
                     <thead>
                       <tr>
-                        <th>Ano</th>
+                        <th style={{ width: '85px' }}>Ano</th>
                         <th>Marco Histórico</th>
-                        <th>Status</th>
+                        <th style={{ width: '95px', textAlign: 'center' }}>Estado</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {allEvents.slice(0, 8).map(ev => (
-                        <tr key={ev.id}>
-                          <td><strong>{formatHistoricalYear(ev.year)}</strong></td>
-                          <td>{ev.title}</td>
-                          <td>
-                            <span className={`paper-status-tag status-${ev.status.toLowerCase()}`}>
-                              {ev.status}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
+                      {allEvents.slice(0, 8).map(ev => {
+                        const statusKey = ev.status.toLowerCase();
+                        const statusLabel = STATUS_LABELS[statusKey] || ev.status;
+                        return (
+                          <tr key={ev.id}>
+                            <td><strong>{formatHistoricalYear(ev.year)}</strong></td>
+                            <td>{ev.title}</td>
+                            <td style={{ textAlign: 'center' }}>
+                              <span className={`paper-status-tag status-${statusKey}`}>
+                                {statusLabel}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
 
-                  <h3 className="paper-sec-heading">VI. REFERÊNCIAS CITADAS</h3>
+                  <h3 className="paper-sec-heading">VII. DISCUSSÃO & CONCLUSÕES</h3>
+                  <p>
+                    A integridade temporal de <strong>{metrics.temporalIntegrity}%</strong> obtida no continuum <em>{universe.name}</em> comprova a estabilidade do fluxo causal contra perturbações não-lineares, corroborando a hipótese de proteção cronológica de Hawking em variedades assintoticamente planas.
+                  </p>
+
+                  <h3 className="paper-sec-heading">VIII. REFERÊNCIAS CITADAS</h3>
                   <ol className="paper-ref-list">
                     <li>A. A. Michelson, E. W. Morley, <em>Am. J. Sci.</em> <strong>34</strong>, 333 (1887).</li>
                     <li>A. Einstein, <em>Sitzungsber. Preuss. Akad. Wiss.</em>, 844 (1915).</li>

@@ -70,7 +70,21 @@ A Tabela~\\ref{tab:events} documenta os principais nós temporais registrados no
 \\toprule
 \\textbf{Ano (AD)} & \\textbf{Evento Histórico / Marco Físico} & \\textbf{Categoria} & \\textbf{Importância} & \\textbf{Estado} \\\\
 \\midrule
-${allEvents.slice(0, 15).map(e => `${e.year} & ${e.title.replace(/&/g, '\\&')} & ${e.category} & ${e.importance}/100 & ${e.status} \\\\`).join('\n')}
+${allEvents.slice(0, 15).map(e => {
+  const safeTitle = e.title.replace(/&/g, '\\&').replace(/_/g, ' ').replace(/%/g, '\\%').replace(/#/g, '\\#');
+  const safeCat = e.category.replace(/&/g, '\\&').replace(/_/g, ' ');
+  const statusMap: Record<string, string> = {
+    stable: 'Estável',
+    altered: 'Alterado',
+    unstable: 'Instável',
+    collapsed: 'Colapsado',
+    paradoxical: 'Paradoxal',
+    erased: 'Apagado',
+    diverged: 'Divergente',
+  };
+  const safeStatus = statusMap[e.status.toLowerCase()] || e.status;
+  return `${e.year} & ${safeTitle} & ${safeCat} & ${e.importance}/100 & ${safeStatus} \\\\`;
+}).join('\n')}
 \\bottomrule
 \\end{tabular}
 \\end{table*}
@@ -259,7 +273,7 @@ A simulação comprova a estabilidade do continuum sob perturbações não-linea
 
   <div class="section-title">1. Formulação Métrica & Princípios de Relatividade</div>
   <p>
-    A velocidade invariante da luz ($c = 299.792\\,\\text{km/s}$) atua como limite assintótico para todas as transmissões de informação no grafo acíclico direcionado (DAG). Com base na superação da hipótese do éter luminífero demonstrada pelo experimento de Michelson-Morley (1887) e formalizada por Einstein (1905), o tensor métrico obedece às equações de campo relativísticas com perturbações atenuadas pelo princípio de Novikov:
+    A velocidade invariante da luz (<em>c</em> ≈ 299.792 km/s) atua como limite assintótico para todas as transmissões de informação no grafo acíclico direcionado (DAG). Com base na superação da hipótese do éter luminífero demonstrada pelo experimento de Michelson-Morley (1887) e formalizada por Einstein (1905), o tensor métrico obedece às equações de campo relativísticas com perturbações atenuadas pelo princípio de Novikov:
   </p>
   <div class="formula-box">
     ds² = -c² dt² + dx² + dy² + dz² &nbsp;&nbsp;|&nbsp;&nbsp; ΔS_total ≥ 0
@@ -273,19 +287,30 @@ A simulação comprova a estabilidade do continuum sob perturbações não-linea
         <th>Denominação do Evento</th>
         <th>Categoria</th>
         <th>Importância</th>
-        <th>Status</th>
+        <th>Estado</th>
       </tr>
     </thead>
     <tbody>
-      ${allEvents.map(e => `
+      ${allEvents.map(e => {
+        const statusMap: Record<string, string> = {
+          stable: 'ESTÁVEL',
+          altered: 'ALTERADO',
+          unstable: 'INSTÁVEL',
+          collapsed: 'COLAPSADO',
+          paradoxical: 'PARADOXAL',
+          erased: 'APAGADO',
+          diverged: 'DIVERGENTE',
+        };
+        const statusLabel = statusMap[e.status.toLowerCase()] || e.status.toUpperCase();
+        return `
         <tr>
           <td><strong>${e.year}</strong></td>
           <td>${e.title}</td>
           <td>${e.category}</td>
           <td>${e.importance}/100</td>
-          <td>${e.status.toUpperCase()}</td>
-        </tr>
-      `).join('')}
+          <td>${statusLabel}</td>
+        </tr>`;
+      }).join('')}
     </tbody>
   </table>
 

@@ -66,11 +66,23 @@ export class AcademicPaperExportService {
     const allEvents = universe.dimensions.flatMap(d => d.events).sort((a, b) => a.year - b.year);
     const sampleEvents = allEvents.slice(0, 12);
 
+    const statusMap: Record<string, string> = {
+      stable: 'Estável',
+      altered: 'Alterado',
+      unstable: 'Instável',
+      collapsed: 'Colapsado',
+      paradoxical: 'Paradoxal',
+      erased: 'Apagado',
+      diverged: 'Divergente',
+    };
+
     const eventRows = sampleEvents
       .map(e => {
         const yearFormatted = e.year < 0 ? `${Math.abs(e.year)} a.C.` : `${e.year} d.C.`;
-        const titleSafe = e.title.replace(/&/g, '\\&').replace(/_/g, ' ');
-        return `${yearFormatted} & ${titleSafe} & ${e.category} & ${e.importance}/100 & ${e.status} \\\\`;
+        const titleSafe = e.title.replace(/&/g, '\\&').replace(/_/g, ' ').replace(/%/g, '\\%').replace(/#/g, '\\#');
+        const catSafe = e.category.replace(/&/g, '\\&').replace(/_/g, ' ');
+        const statusLabel = statusMap[e.status.toLowerCase()] || e.status;
+        return `${yearFormatted} & ${titleSafe} & ${catSafe} & ${e.importance}/100 & ${statusLabel} \\\\`;
       })
       .join('\n');
 
