@@ -223,8 +223,8 @@ export default function Minkowski3DModal({ universe, onClose }: Props) {
   }, [universe, viewMode]);
 
   return (
-    <div className="minkowski-modal-backdrop">
-      <div className="minkowski-modal-container">
+    <div className="minkowski-modal-backdrop" onClick={onClose}>
+      <div className="minkowski-modal-container" onClick={e => e.stopPropagation()}>
         <div className="minkowski-header">
           <div>
             <span className="minkowski-badge">VISUALIZAÇÃO ESPAÇO-TEMPORAL 3D</span>

@@ -237,9 +237,14 @@ export default function LandingPage({ onStartSimulator, onOpenGuide, onOpenOurUn
           </div>
           <div className="footer-divider" />
           <div className="footer-bottom">
-            <p className="footer-copy">
-              &copy; {new Date().getFullYear()} Infinite Horizons. Rigor Científico, Causalidade Relativística e Exploração Dimensional.
-            </p>
+            <div className="footer-credits-group">
+              <p className="footer-copy">
+                &copy; {new Date().getFullYear()} Infinite Horizons. Rigor Científico, Causalidade Relativística e Exploração Dimensional.
+              </p>
+              <p className="footer-authors">
+                Feito por <strong>Cauã G Madeira</strong>, <strong>Allan D Abreu</strong>, <strong>Murilo L Peasks</strong> — <span className="footer-class-badge">1°B</span>
+              </p>
+            </div>
             <div className="footer-links">
               <a href="#concept-section">Fundamentação</a>
               <a href="#features-section">Recursos</a>

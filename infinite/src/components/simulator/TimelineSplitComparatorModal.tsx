@@ -181,20 +181,39 @@ export default function TimelineSplitComparatorModal({ onClose, initialScenarioI
 
   const scenario = COMPARISON_SCENARIOS.find(s => s.id === selectedId) || COMPARISON_SCENARIOS[0];
 
-  const handlePointerDown = () => {
+  const updateSliderFromClientX = useCallback((clientX: number) => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    if (rect.width <= 0) return;
+    const x = Math.max(0, Math.min(rect.width, clientX - rect.left));
+    const percent = Math.round((x / rect.width) * 100);
+    setSliderPos(Math.max(25, Math.min(75, percent)));
+  }, []);
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     isDragging.current = true;
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {
+      // Fallback if pointer capture is unsupported
+    }
+    updateSliderFromClientX(e.clientX);
   };
 
   const handlePointerMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
-    if (!isDragging.current || !containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    const x = Math.max(0, Math.min(rect.width, e.clientX - rect.left));
-    const percent = Math.round((x / rect.width) * 100);
-    setSliderPos(percent);
-  }, []);
+    if (!isDragging.current) return;
+    updateSliderFromClientX(e.clientX);
+  }, [updateSliderFromClientX]);
 
-  const handlePointerUp = () => {
+  const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
     isDragging.current = false;
+    try {
+      if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+      }
+    } catch {
+      // Ignore release errors
+    }
   };
 
   return (
@@ -264,46 +283,12 @@ export default function TimelineSplitComparatorModal({ onClose, initialScenarioI
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
-          onPointerLeave={handlePointerUp}
+          onPointerCancel={handlePointerUp}
         >
-          {/* LADO DIREITO: HISTÓRIA CONTRAFACTUAL (SEM A DESCOBERTA) */}
-          <div className="split-half-panel panel-counterfactual">
-            <div className="panel-badge red-badge">
-              <span className="panel-status-dot red-dot" />
-              <span>SÉCULO XXI SEM A DESCOBERTA (ALTERADO)</span>
-            </div>
-            <h3 className="panel-headline red-text">{scenario.counterfactual2026.headline}</h3>
-            <p className="panel-desc">{scenario.counterfactual2026.description}</p>
-
-            <div className="panel-metrics-grid">
-              <div className="metric-pill">
-                <span className="metric-lbl">AVANÇO TECNOLÓGICO</span>
-                <strong className="metric-val red-text">{scenario.counterfactual2026.techLevelScore}%</strong>
-              </div>
-              <div className="metric-pill">
-                <span className="metric-lbl">CONECTIVIDADE GLOBAL</span>
-                <strong className="metric-val red-text">{scenario.counterfactual2026.connectivityScore}%</strong>
-              </div>
-              <div className="metric-pill">
-                <span className="metric-lbl">ENERGIA & POTÊNCIA</span>
-                <strong className="metric-val red-text">{scenario.counterfactual2026.energyScore}%</strong>
-              </div>
-            </div>
-
-            <ul className="panel-bullets-list">
-              {scenario.counterfactual2026.bulletPoints.map((bp, i) => (
-                <li key={i} className="bullet-item red-bullet">
-                  <span className="bullet-sym">✕</span>
-                  <span>{bp}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* LADO ESQUERDO COM CLIP-PATH: HISTÓRIA REAL (COM A DESCOBERTA) */}
+          {/* LADO ESQUERDO: HISTÓRIA REAL (COM A DESCOBERTA) */}
           <div
             className="split-half-panel panel-real"
-            style={{ clipPath: `inset(0 ${100 - sliderPos}% 0 0)` }}
+            style={{ width: `${sliderPos}%`, flex: `0 0 ${sliderPos}%` }}
           >
             <div className="panel-badge cyan-badge">
               <span className="panel-status-dot cyan-dot" />
@@ -331,6 +316,43 @@ export default function TimelineSplitComparatorModal({ onClose, initialScenarioI
               {scenario.realWorld2026.bulletPoints.map((bp, i) => (
                 <li key={i} className="bullet-item cyan-bullet">
                   <span className="bullet-sym">✓</span>
+                  <span>{bp}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* LADO DIREITO: HISTÓRIA CONTRAFACTUAL (SEM A DESCOBERTA) */}
+          <div
+            className="split-half-panel panel-counterfactual"
+            style={{ width: `${100 - sliderPos}%`, flex: `1 1 0%` }}
+          >
+            <div className="panel-badge red-badge">
+              <span className="panel-status-dot red-dot" />
+              <span>SÉCULO XXI SEM A DESCOBERTA (ALTERADO)</span>
+            </div>
+            <h3 className="panel-headline red-text">{scenario.counterfactual2026.headline}</h3>
+            <p className="panel-desc">{scenario.counterfactual2026.description}</p>
+
+            <div className="panel-metrics-grid">
+              <div className="metric-pill">
+                <span className="metric-lbl">AVANÇO TECNOLÓGICO</span>
+                <strong className="metric-val red-text">{scenario.counterfactual2026.techLevelScore}%</strong>
+              </div>
+              <div className="metric-pill">
+                <span className="metric-lbl">CONECTIVIDADE GLOBAL</span>
+                <strong className="metric-val red-text">{scenario.counterfactual2026.connectivityScore}%</strong>
+              </div>
+              <div className="metric-pill">
+                <span className="metric-lbl">ENERGIA & POTÊNCIA</span>
+                <strong className="metric-val red-text">{scenario.counterfactual2026.energyScore}%</strong>
+              </div>
+            </div>
+
+            <ul className="panel-bullets-list">
+              {scenario.counterfactual2026.bulletPoints.map((bp, i) => (
+                <li key={i} className="bullet-item red-bullet">
+                  <span className="bullet-sym">✕</span>
                   <span>{bp}</span>
                 </li>
               ))}

@@ -125,8 +125,8 @@ export default function CausalBacktrackingModal({ isOpen, onClose }: Props) {
   }
 
   return (
-    <div className="modal-overlay sim-modal-overlay">
-      <div className="modal-card backtracking-modal" role="dialog" aria-modal="true">
+    <div className="modal-overlay sim-modal-overlay" onClick={onClose}>
+      <div className="modal-card backtracking-modal" role="dialog" aria-modal="true" onClick={e => e.stopPropagation()}>
         {/* Header Fixo */}
         <div className="modal-header backtracking-header">
           <div className="modal-title-group">
