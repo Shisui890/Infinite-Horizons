@@ -91,29 +91,43 @@ export default function NavballInstrument({
       }
     }
 
-    // 2. Prograde Marker (Vector velocity direction)
-    // Angle of velocity vector in flight plane
+    // 2. Prograde & Retrograde Markers (Vector velocity direction & braking vector)
     const totalSpeed = Math.sqrt(vxMS * vxMS + vyMS * vyMS);
     if (totalSpeed > 2) {
       const flightPathAngleDeg = (Math.atan2(vyMS, vxMS) * 180) / Math.PI;
-      // Offset relative to craft heading
       const progPitchDiff = flightPathAngleDeg - pitchDeg;
-      const progY = cy - (progPitchDiff / 90) * (r * 0.7);
+      const maxMarkerOffset = r - 12;
+      const progY = Math.min(cy + maxMarkerOffset, Math.max(cy - maxMarkerOffset, cy - (progPitchDiff / 90) * (r * 0.7)));
+      const retroY = Math.min(cy + maxMarkerOffset, Math.max(cy - maxMarkerOffset, cy + (progPitchDiff / 90) * (r * 0.7)));
 
       ctx.save();
-      ctx.strokeStyle = '#22c55e'; // Green prograde marker
+      // Prograde marker (Green circle with 3 fins)
+      ctx.strokeStyle = '#22c55e';
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.arc(cx, progY, 8, 0, Math.PI * 2);
+      ctx.arc(cx, progY, 7, 0, Math.PI * 2);
       ctx.stroke();
-      // Prograde fins
       ctx.beginPath();
-      ctx.moveTo(cx, progY - 8);
-      ctx.lineTo(cx, progY - 13);
-      ctx.moveTo(cx - 8, progY);
-      ctx.lineTo(cx - 13, progY);
-      ctx.moveTo(cx + 8, progY);
-      ctx.lineTo(cx + 13, progY);
+      ctx.moveTo(cx, progY - 7);
+      ctx.lineTo(cx, progY - 12);
+      ctx.moveTo(cx - 7, progY);
+      ctx.lineTo(cx - 12, progY);
+      ctx.moveTo(cx + 7, progY);
+      ctx.lineTo(cx + 12, progY);
+      ctx.stroke();
+
+      // Retrograde marker (Coral circle with inner X, offset horizontally slightly if overlapping)
+      const retroX = Math.abs(retroY - progY) < 16 ? cx + 18 : cx;
+      ctx.strokeStyle = 'rgba(244, 63, 94, 0.85)';
+      ctx.lineWidth = 1.6;
+      ctx.beginPath();
+      ctx.arc(retroX, retroY, 6, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(retroX - 4, retroY - 4);
+      ctx.lineTo(retroX + 4, retroY + 4);
+      ctx.moveTo(retroX + 4, retroY - 4);
+      ctx.lineTo(retroX - 4, retroY + 4);
       ctx.stroke();
       ctx.restore();
     }
@@ -161,7 +175,7 @@ export default function NavballInstrument({
     <div className="navball-instrument-container">
       <div className="navball-header">
         <span className="navball-title">NAVBALL // ATITUDE DE VOO</span>
-        <span className="navball-sub">PITCH: {pitchDeg.toFixed(1)}°</span>
+        <span className="navball-sub">PITCH: {pitchDeg.toFixed(1)}° • AZM: {headingDeg}°</span>
       </div>
       <div className="navball-canvas-wrap">
         <canvas

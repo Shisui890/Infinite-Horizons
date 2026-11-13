@@ -57,6 +57,25 @@ export default function BlackHoleGraphic() {
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const animFrameRef = useRef<number | null>(null);
+  const particlesRef = useRef<Array<{
+    radius: number;
+    angle: number;
+    speed: number;
+    size: number;
+    brightness: number;
+    hueOffset: number;
+  }> | null>(null);
+
+  if (!particlesRef.current) {
+    particlesRef.current = Array.from({ length: 400 }, () => ({
+      radius: 55 + Math.random() * 110,
+      angle: Math.random() * Math.PI * 2,
+      speed: 0.015 + Math.random() * 0.035,
+      size: 1 + Math.random() * 2.2,
+      brightness: 0.4 + Math.random() * 0.6,
+      hueOffset: Math.random() * 30 - 15,
+    }));
+  }
 
   const spinId = useId();
   const inclinationId = useId();
@@ -69,15 +88,7 @@ export default function BlackHoleGraphic() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const numParticles = 400;
-    const particles = Array.from({ length: numParticles }, () => ({
-      radius: 55 + Math.random() * 110,
-      angle: Math.random() * Math.PI * 2,
-      speed: 0.015 + Math.random() * 0.035,
-      size: 1 + Math.random() * 2.2,
-      brightness: 0.4 + Math.random() * 0.6,
-      hueOffset: Math.random() * 30 - 15,
-    }));
+    const particles = particlesRef.current!;
 
     function render() {
       if (!canvas || !ctx) return;

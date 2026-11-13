@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import InteractiveBackground from './components/InteractiveBackground';
 import LandingPage from './components/LandingPage';
 import SimulatorView from './components/simulator/SimulatorView';
@@ -37,6 +37,10 @@ function App() {
   );
   const [showCreateUniverse, setShowCreateUniverse] = useState(false);
   const [generatedState, setGeneratedState] = useState<{ universe: Universe; logs: SimulationLog[] } | null>(initialShared);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+  }, [view]);
 
   return (
     <LaymanModeProvider>

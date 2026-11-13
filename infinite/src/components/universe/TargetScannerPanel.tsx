@@ -36,14 +36,17 @@ export default function TargetScannerPanel({ body, onOpenAerospaceSim }: Props) 
 
   const details = getBodyDetails(body.id);
 
-  // Play audio blip whenever target changes
+  // Play audio blip whenever target changes & reset tab if atmosphere tab is unavailable
   useEffect(() => {
+    if (activeTab === 'atmosphere' && (!body.atmosphere || body.atmosphere.length === 0)) {
+      setActiveTab('visualizer');
+    }
     try {
       CosmicAudio.playNodeSelect(90);
     } catch {
       // Audio fallback
     }
-  }, [body.id]);
+  }, [body.id, body.atmosphere, activeTab]);
 
   return (
     <div className="ed-scanner-panel">

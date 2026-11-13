@@ -74,21 +74,28 @@ export default function AerospaceFlightSimulator({ isLaymanMode = false }: Props
   };
 
   // Trigger stage jettison (SPACEBAR / Staging button)
-  const handleStageTrigger = () => {
+  const handleStageTrigger = useCallback(() => {
     setFlightState(prev => AerospacePhysicsEngine.triggerStageJettison(prev, selectedRocket));
-  };
+  }, [selectedRocket]);
 
   // Keyboard controls listener (Space = stage, Z = full throttle, X = cut-off)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-      if (e.code === 'Space') {
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement ||
+        e.target instanceof HTMLButtonElement ||
+        e.target instanceof HTMLSelectElement
+      ) {
+        return;
+      }
+      if (e.code === 'Space' && isRunning && !flightState.hasCrashed) {
         e.preventDefault();
         handleStageTrigger();
-      } else if (e.code === 'KeyZ') {
+      } else if (e.code === 'KeyZ' && isRunning) {
         setThrottleInput(1.0);
         setFlightState(prev => ({ ...prev, throttle: 1.0 }));
-      } else if (e.code === 'KeyX') {
+      } else if (e.code === 'KeyX' && isRunning) {
         setThrottleInput(0);
         setFlightState(prev => ({ ...prev, throttle: 0 }));
       }
@@ -96,7 +103,7 @@ export default function AerospaceFlightSimulator({ isLaymanMode = false }: Props
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedRocket]);
+  }, [handleStageTrigger, isRunning, flightState.hasCrashed]);
 
   // Main Simulation Loop
   useEffect(() => {
@@ -104,6 +111,10 @@ export default function AerospaceFlightSimulator({ isLaymanMode = false }: Props
 
     const interval = setInterval(() => {
       setFlightState(prev => {
+        if (prev.hasCrashed) {
+          setIsRunning(false);
+          return prev;
+        }
         const dt = (0.05 * timeWarp);
         const updated = AerospacePhysicsEngine.stepFlightSimulation(
           { ...prev, throttle: throttleInput, pitchAngleDeg: autoGravityTurn ? prev.pitchAngleDeg : manualPitch },
@@ -111,7 +122,9 @@ export default function AerospaceFlightSimulator({ isLaymanMode = false }: Props
           dt,
           autoGravityTurn
         );
-
+        if (updated.hasCrashed) {
+          setIsRunning(false);
+        }
         return updated;
       });
     }, 50);

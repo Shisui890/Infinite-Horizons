@@ -84,14 +84,37 @@ const NEWSPAPERS: Record<number, NewspaperArticle> = {
   },
 };
 
-export default function VintageNewspaperModal({ onClose, eventYear = 1905 }: Props) {
+function createDynamicArticle(year: number, title?: string): NewspaperArticle {
+  const cleanTitle = (title || `Descoberta Científica de ${formatHistoricalYear(year)}`).toUpperCase();
+  const formattedYr = formatHistoricalYear(year);
+  return {
+    masthead: 'THE INTERNATIONAL SCIENTIFIC CHRONICLE',
+    location: 'Genebra / Londres / Nova York',
+    editionDate: `Edição Especial — Ano de ${formattedYr}`,
+    priceTag: 'Edição Histórica Documental',
+    headlineReal: `MARCO HISTÓRICO EM ${formattedYr}: ${cleanTitle} TRANSFORMA A CIÊNCIA MUNDIAL`,
+    subheadlineReal: `Comunidade científica internacional confirma o impacto estrutural de "${title || 'nova descoberta'}" no avanço tecnológico e físico.`,
+    leadArticleReal: `Em sessão solene realizada neste ano de ${formattedYr}, pesquisadores e filósofos naturais registraram formalmente o marco "${title || 'Descoberta Científica'}". As observações empíricas e formulações matemáticas associadas a este evento estabeleceram uma nova ponte causal no conhecimento humano, permitindo que futuras gerações de cientistas expandam os limites da engenharia, da astrofísica e da física fundamental.`,
+    columnistQuoteReal: `"Cada grande descoberta em ${formattedYr} atua como um pilar indispensável para os séculos seguintes da civilização." — Boletim da Sociedade Internacional de Física.`,
+    headlineCounterfactual: `IMPASSE EM ${formattedYr}: ${cleanTitle} SOFRE RUPTURA E É ARQUIVADA SEM CONSENSO`,
+    subheadlineCounterfactual: `Ausência de validação experimental e cortes de financiamento interrompem o desenvolvimento de "${title || 'pesquisa fundamental'}".`,
+    leadArticleCounterfactual: `Em um revés inesperado para a ciência de ${formattedYr}, os trabalhos referentes a "${title || 'Descoberta Científica'}" foram suspensos indefinidamente pelas academias internacionais. Sem a consolidação deste elo causal, todas as tecnologias e teorias dependentes desta descoberta enfrentam agora um gargalo histórico severo, alterando profundamente o rumo tecnológico do século seguinte.`,
+    columnistQuoteCounterfactual: `"Sem a síntese esperada neste ano de ${formattedYr}, permaneceremos décadas presos aos paradigmas anteriores." — Crônica de História da Ciência.`,
+    woodcutCaption: `Registro iconográfico de época (${formattedYr}): Instrumentação científica e notas de laboratório.`,
+    archivalStamp: `ARQUIVO HISTÓRICO INTERNACIONAL // PROTOCOLO ${formattedYr}-DOC`,
+    academicHistoriographyNote: `O marco "${title || formattedYr}" constitui um nó de alta centralidade na rede causal da história da ciência. Sua remoção contrafactual propaga instabilidade para todas as descobertas posteriores conectadas na variedade temporal.`,
+    primaryArchiveSource: `Registro Documental Consolidado (${formattedYr}) — Arquivo Histórico de Ciência & Física Teórica.`,
+  };
+}
+
+export default function VintageNewspaperModal({ onClose, eventYear = 1905, eventTitle }: Props) {
   const { isLaymanMode } = useLaymanMode();
-  const [selectedYear, setSelectedYear] = useState<number>(
-    NEWSPAPERS[eventYear] ? eventYear : 1905
-  );
+  const availableYears = Array.from(new Set([1865, 1905, 1915, ...(eventYear ? [eventYear] : [])])).sort((a, b) => a - b);
+  const [selectedYear, setSelectedYear] = useState<number>(eventYear || 1905);
   const [viewEdition, setViewEdition] = useState<'real' | 'counterfactual'>('real');
 
-  const article: NewspaperArticle = NEWSPAPERS[selectedYear] || NEWSPAPERS[1905];
+  const article: NewspaperArticle =
+    NEWSPAPERS[selectedYear] || createDynamicArticle(selectedYear, selectedYear === eventYear ? eventTitle : undefined);
 
   return (
     <div className="newspaper-modal-overlay" onClick={onClose} role="dialog" aria-modal="true">
@@ -117,7 +140,7 @@ export default function VintageNewspaperModal({ onClose, eventYear = 1905 }: Pro
 
           <div className="newspaper-year-selector">
             <span className="paper-sel-lbl">ANO DO JORNAL:</span>
-            {[1865, 1905, 1915].map(yr => (
+            {availableYears.map(yr => (
               <button
                 key={yr}
                 type="button"

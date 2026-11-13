@@ -20,7 +20,6 @@ import EventInspector from './EventInspector';
 import ParadoxConsole from './ParadoxConsole';
 import TimeScrubber from './TimeScrubber';
 import ReplayControls from './ReplayControls';
-import { exportToBibTeX } from '../../utils/exportAcademic';
 import { formatHistoricalYear } from '../../utils/formatters';
 import {
   AddEventModal,
@@ -47,6 +46,8 @@ const AcademicPaperExportModal = lazy(() => import('./AcademicPaperExportModal')
 const CosmicAcousticsModal = lazy(() => import('./CosmicAcousticsModal'));
 const TimelineSplitComparatorModal = lazy(() => import('./TimelineSplitComparatorModal'));
 const VintageNewspaperModal = lazy(() => import('./VintageNewspaperModal'));
+const TemporalChallengesModal = lazy(() => import('./TemporalChallengesModal'));
+const TemporalCLIModal = lazy(() => import('./TemporalCLIModal'));
 
 interface Props {
   onExit: () => void;
@@ -86,6 +87,9 @@ export default function SimulatorView({ onExit, onOpenGuide, initialState }: Pro
     setShowTimeTravel,
     showAddDimension,
     setShowAddDimension,
+    showCLIModal,
+    setShowCLIModal,
+    preflightImpact,
     calculatePreflight,
     setPreflightImpact,
     resetUniverse,
@@ -105,6 +109,7 @@ export default function SimulatorView({ onExit, onOpenGuide, initialState }: Pro
   const [showNewspaperModal, setShowNewspaperModal] = useState(false);
   const [newspaperYear, setNewspaperYear] = useState<number | undefined>(undefined);
   const [newspaperTitle, setNewspaperTitle] = useState<string | undefined>(undefined);
+  const [showChallengesModal, setShowChallengesModal] = useState(false);
   const [shortcutToast, setShortcutToast] = useState<string | null>(null);
   const toastTimerRef = useRef<number | null>(null);
 
@@ -148,6 +153,55 @@ export default function SimulatorView({ onExit, onOpenGuide, initialState }: Pro
       ) {
         return;
       }
+
+      // Escape: Close all active modals/drawers
+      if (e.code === 'Escape') {
+        setShowShortcutsModal(false);
+        setShowTourModal(false);
+        setShowConferenceMode(false);
+        setShowMinkowski3D(false);
+        setShowMonteCarlo(false);
+        setShowAIDrawer(false);
+        setShowAddEvent(false);
+        setShowAddTraveler(false);
+        setShowTimeTravel(false);
+        setShowAddDimension(false);
+        setShowComparatorModal(false);
+        setShowBacktrackingModal(false);
+        setShowKerrModal(false);
+        setShowAcademicPaperModal(false);
+        setShowAcousticsModal(false);
+        setShowSplitComparatorModal(false);
+        setShowNewspaperModal(false);
+        setShowChallengesModal(false);
+        setShowCLIModal(false);
+        setPreflightImpact(null);
+        setSelectedEventId(null);
+        return;
+      }
+
+      const anyModalOpen =
+        showConferenceMode ||
+        showMinkowski3D ||
+        showMonteCarlo ||
+        showAddEvent ||
+        showAddTraveler ||
+        showTimeTravel ||
+        showAddDimension ||
+        showComparatorModal ||
+        showBacktrackingModal ||
+        showShortcutsModal ||
+        showTourModal ||
+        showKerrModal ||
+        showAcademicPaperModal ||
+        showAcousticsModal ||
+        showSplitComparatorModal ||
+        showNewspaperModal ||
+        showChallengesModal ||
+        showCLIModal ||
+        Boolean(preflightImpact);
+
+      if (anyModalOpen) return;
 
       // Undo / Redo
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
@@ -202,23 +256,6 @@ export default function SimulatorView({ onExit, onOpenGuide, initialState }: Pro
         return;
       }
 
-      // Escape: Close all active modals/drawers
-      if (e.code === 'Escape') {
-        setShowShortcutsModal(false);
-        setShowTourModal(false);
-        setShowConferenceMode(false);
-        setShowMinkowski3D(false);
-        setShowMonteCarlo(false);
-        setShowAIDrawer(false);
-        setShowAddEvent(false);
-        setShowAddTraveler(false);
-        setShowTimeTravel(false);
-        setShowAddDimension(false);
-        setShowComparatorModal(false);
-        setSelectedEventId(null);
-        return;
-      }
-
       // O: Toggle AI Oracle Drawer
       if (e.code === 'KeyO' && !e.ctrlKey && !e.metaKey && !e.altKey) {
         e.preventDefault();
@@ -258,7 +295,7 @@ export default function SimulatorView({ onExit, onOpenGuide, initialState }: Pro
       // H: Toggle Heatmap
       if (e.code === 'KeyH' && !e.ctrlKey && !e.metaKey && !e.altKey) {
         e.preventDefault();
-        const heatBtn = document.querySelector('.btn-canvas-hud') as HTMLButtonElement | null;
+        const heatBtn = document.querySelector('.btn-canvas-heatmap') as HTMLButtonElement | null;
         if (heatBtn) heatBtn.click();
         triggerToast('Mapa de Calor Alternado');
         return;
@@ -282,13 +319,34 @@ export default function SimulatorView({ onExit, onOpenGuide, initialState }: Pro
     redo,
     showAIDrawer,
     setShowAIDrawer,
+    showConferenceMode,
     setShowConferenceMode,
+    showMinkowski3D,
     setShowMinkowski3D,
+    showMonteCarlo,
     setShowMonteCarlo,
+    showAddEvent,
     setShowAddEvent,
+    showAddTraveler,
     setShowAddTraveler,
+    showTimeTravel,
     setShowTimeTravel,
+    showAddDimension,
     setShowAddDimension,
+    showComparatorModal,
+    showBacktrackingModal,
+    showShortcutsModal,
+    showTourModal,
+    showKerrModal,
+    showAcademicPaperModal,
+    showAcousticsModal,
+    showSplitComparatorModal,
+    showNewspaperModal,
+    showChallengesModal,
+    showCLIModal,
+    setShowCLIModal,
+    preflightImpact,
+    setPreflightImpact,
     setSelectedEventId,
     toggleLaymanMode,
     isLaymanMode,
@@ -336,10 +394,6 @@ export default function SimulatorView({ onExit, onOpenGuide, initialState }: Pro
       ].join('\n');
       mimeType = 'text/csv';
       fileExtension = 'csv';
-    } else if (format === 'bibtex') {
-      content = exportToBibTeX(universe);
-      mimeType = 'text/plain';
-      fileExtension = 'bib';
     }
 
     const blob = new Blob([content], { type: mimeType });
@@ -417,8 +471,51 @@ export default function SimulatorView({ onExit, onOpenGuide, initialState }: Pro
   }, [universe, setShowAIDrawer, setUniverseState, addLog]);
 
   const handleApplyAIResolution = useCallback((resolution: AIParadoxResolution) => {
-    addLog(`Resolução de IA aplicada: ${resolution.title}`, 'success');
-  }, [addLog]);
+    setUniverseState(prev => {
+      const u = prev.universe;
+      const restoredDimensions = u.dimensions.map(dim => ({
+        ...dim,
+        integrity: 100,
+        events: dim.events.map(ev => ({
+          ...ev,
+          status: EventStatus.STABLE,
+          isAnchor: resolution.actionType === 'anchor_event' && ev.status !== EventStatus.STABLE ? true : ev.isAnchor,
+        })),
+      }));
+
+      let finalDimensions = restoredDimensions;
+      if (resolution.actionType === 'create_branch') {
+        const branchIdx = u.dimensions.length + 1;
+        const baseDim = restoredDimensions[0];
+        if (baseDim) {
+          finalDimensions = [
+            ...restoredDimensions,
+            {
+              ...baseDim,
+              id: `dim-everett-${Date.now()}`,
+              name: `Ramo de Everett ${branchIdx}`,
+              designation: `Ψ-0${branchIdx}`,
+              color: '#a855f7',
+              integrity: 100,
+            },
+          ];
+        }
+      }
+
+      return {
+        ...prev,
+        universe: {
+          ...u,
+          dimensions: finalDimensions,
+          paradoxes: [],
+          temporalIntegrity: 100,
+        },
+      };
+    });
+    CosmicAudio.playOracleChime();
+    triggerToast(`Resolução Aplicada: ${resolution.title}`);
+    addLog(`Resolução de IA aplicada ao continuum: ${resolution.title}`, 'success');
+  }, [setUniverseState, triggerToast, addLog]);
 
   const handleResearchHistoricalEvent = useCallback(async (query: string): Promise<HistoricalResearch> => {
     addLog(`Pesquisando fontes primárias para "${query}"...`, 'info');
@@ -474,8 +571,15 @@ export default function SimulatorView({ onExit, onOpenGuide, initialState }: Pro
     alterTargetEventId?: string;
   }) => {
     useSimulationStore.getState().timeTravel(data.travelerId, activeDimensionId, data.destinationYear, 'Salto Relativístico');
-    addLog(`Salto de geodésica executado para o ano ${formatHistoricalYear(data.destinationYear)}.`, 'warning');
-  }, [activeDimensionId, addLog]);
+    if (data.alterTargetEventId) {
+      const currentUniv = useSimulationStore.getState().universeState.universe;
+      const { updatedUniverse } = SimulationService.alterEvent(currentUniv, data.alterTargetEventId, EventStatus.ALTERED);
+      setUniverseState(prev => ({ ...prev, universe: updatedUniverse }));
+      addLog(`Salto executado para ${formatHistoricalYear(data.destinationYear)} com perturbação no evento ${data.alterTargetEventId}.`, 'warning');
+    } else {
+      addLog(`Salto de geodésica executado para o ano ${formatHistoricalYear(data.destinationYear)}.`, 'warning');
+    }
+  }, [activeDimensionId, setUniverseState, addLog]);
 
   const handleAddDimension = useCallback((data: { name: string; designation: string; color: string }) => {
     useSimulationStore.getState().addDimension(data.name, data.designation, data.color);
@@ -515,6 +619,8 @@ export default function SimulatorView({ onExit, onOpenGuide, initialState }: Pro
           setNewspaperTitle(undefined);
           setShowNewspaperModal(true);
         }}
+        onOpenChallenges={() => setShowChallengesModal(true)}
+        onOpenCLI={() => setShowCLIModal(true)}
         onReset={resetUniverse}
         canUndo={canUndo()}
         canRedo={canRedo()}
@@ -771,6 +877,39 @@ export default function SimulatorView({ onExit, onOpenGuide, initialState }: Pro
         </Suspense>
       )}
 
+      {/* Temporal Challenges & Novikov Crisis Puzzles Modal */}
+      {showChallengesModal && (
+        <Suspense fallback={null}>
+          <TemporalChallengesModal
+            currentUniverse={universe}
+            onLoadChallenge={challengeUniverse => {
+              setUniverseState({
+                universe: challengeUniverse,
+                logs: [
+                  {
+                    id: `log-chal-${Date.now()}`,
+                    timestamp: new Date().toLocaleTimeString('pt-BR'),
+                    message: `Cenário de Crise Carregado: "${challengeUniverse.name}"`,
+                    type: 'warning',
+                  },
+                ],
+              });
+              if (challengeUniverse.dimensions[0]) {
+                setActiveDimensionId(challengeUniverse.dimensions[0].id);
+              }
+            }}
+            onClose={() => setShowChallengesModal(false)}
+          />
+        </Suspense>
+      )}
+
+      {/* Temporal CLI Terminal Modal */}
+      {showCLIModal && (
+        <Suspense fallback={null}>
+          <TemporalCLIModal />
+        </Suspense>
+      )}
+
       {/* HUD Toast for Keyboard Actions */}
       {shortcutToast && (
         <div className="shortcut-toast-pill" role="status" aria-live="polite">
@@ -888,6 +1027,42 @@ export default function SimulatorView({ onExit, onOpenGuide, initialState }: Pro
                 </span>
                 <span className="m-tool-name">Cones 3D</span>
                 <span className="m-tool-sub">Espaço-tempo tridimensional</span>
+              </button>
+
+              <button
+                type="button"
+                className="m-tool-card"
+                onClick={() => {
+                  setShowKerrModal(true);
+                  setMobileTab('canvas');
+                }}
+              >
+                <span className="m-tool-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c084fc" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <circle cx="12" cy="12" r="4" />
+                  </svg>
+                </span>
+                <span className="m-tool-name">Kerr 3D</span>
+                <span className="m-tool-sub">Buraco negro & lente</span>
+              </button>
+
+              <button
+                type="button"
+                className="m-tool-card"
+                onClick={() => {
+                  setShowAcademicPaperModal(true);
+                  setMobileTab('canvas');
+                }}
+              >
+                <span className="m-tool-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                  </svg>
+                </span>
+                <span className="m-tool-name">Artigo Científico</span>
+                <span className="m-tool-sub">RevTeX, BibTeX & PDF</span>
               </button>
 
               <button
@@ -1022,6 +1197,41 @@ export default function SimulatorView({ onExit, onOpenGuide, initialState }: Pro
                 </span>
                 <span className="m-tool-name">Jornal Vintage</span>
                 <span className="m-tool-sub">Manchetes de época</span>
+              </button>
+
+              <button
+                type="button"
+                className="m-tool-card"
+                onClick={() => {
+                  setShowChallengesModal(true);
+                  setMobileTab('canvas');
+                }}
+              >
+                <span className="m-tool-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                  </svg>
+                </span>
+                <span className="m-tool-name">Desafios</span>
+                <span className="m-tool-sub">Crises de Novikov</span>
+              </button>
+
+              <button
+                type="button"
+                className="m-tool-card"
+                onClick={() => {
+                  setShowCLIModal(true);
+                  setMobileTab('canvas');
+                }}
+              >
+                <span className="m-tool-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="4 17 10 11 4 5" />
+                    <line x1="12" y1="19" x2="20" y2="19" />
+                  </svg>
+                </span>
+                <span className="m-tool-name">Terminal CLI</span>
+                <span className="m-tool-sub">Console de comandos</span>
               </button>
 
               {onOpenGuide && (

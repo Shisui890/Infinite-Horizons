@@ -49,6 +49,7 @@ export default function StellarOrreryCanvas({
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const isDraggingRef = useRef(false);
+  const hasDraggedRef = useRef(false);
   const dragStartRef = useRef({ x: 0, y: 0 });
   const panStartRef = useRef({ x: 0, y: 0 });
 
@@ -58,8 +59,22 @@ export default function StellarOrreryCanvas({
     setPan({ x: 0, y: 0 });
   }, [sector]);
 
+  // Attach non-passive wheel listener to prevent page scroll while zooming the star chart
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const onWheelNative = (e: WheelEvent) => {
+      e.preventDefault();
+      const delta = e.deltaY > 0 ? 0.9 : 1.1;
+      setZoom(prev => Math.min(3.5, Math.max(0.6, prev * delta)));
+    };
+    canvas.addEventListener('wheel', onWheelNative, { passive: false });
+    return () => canvas.removeEventListener('wheel', onWheelNative);
+  }, []);
+
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
     isDraggingRef.current = true;
+    hasDraggedRef.current = false;
     dragStartRef.current = { x: e.clientX, y: e.clientY };
     panStartRef.current = { ...pan };
   };
@@ -72,6 +87,9 @@ export default function StellarOrreryCanvas({
       if (isDraggingRef.current) {
         const dx = e.clientX - dragStartRef.current.x;
         const dy = e.clientY - dragStartRef.current.y;
+        if (Math.hypot(dx, dy) > 4) {
+          hasDraggedRef.current = true;
+        }
         setPan({
           x: panStartRef.current.x + dx,
           y: panStartRef.current.y + dy,
@@ -80,8 +98,10 @@ export default function StellarOrreryCanvas({
       }
 
       const rect = canvas.getBoundingClientRect();
-      const mouseX = e.clientX - rect.left;
-      const mouseY = e.clientY - rect.top;
+      const scaleX = rect.width > 0 ? canvas.width / rect.width : 1;
+      const scaleY = rect.height > 0 ? canvas.height / rect.height : 1;
+      const mouseX = (e.clientX - rect.left) * scaleX;
+      const mouseY = (e.clientY - rect.top) * scaleY;
       const cx = canvas.width / 2 + pan.x;
       const cy = canvas.height / 2 + pan.y;
       const scale = Math.min(canvas.width, canvas.height) * 0.42 * zoom;
@@ -108,12 +128,18 @@ export default function StellarOrreryCanvas({
   };
 
   const handleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (hasDraggedRef.current) {
+      hasDraggedRef.current = false;
+      return;
+    }
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const rect = canvas.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
+    const scaleX = rect.width > 0 ? canvas.width / rect.width : 1;
+    const scaleY = rect.height > 0 ? canvas.height / rect.height : 1;
+    const mouseX = (e.clientX - rect.left) * scaleX;
+    const mouseY = (e.clientY - rect.top) * scaleY;
     const cx = canvas.width / 2 + pan.x;
     const cy = canvas.height / 2 + pan.y;
     const scale = Math.min(canvas.width, canvas.height) * 0.42 * zoom;
@@ -127,12 +153,6 @@ export default function StellarOrreryCanvas({
         break;
       }
     }
-  };
-
-  const handleWheel = (e: React.WheelEvent<HTMLCanvasElement>) => {
-    e.preventDefault();
-    const delta = e.deltaY > 0 ? 0.9 : 1.1;
-    setZoom(prev => Math.min(3.5, Math.max(0.6, prev * delta)));
   };
 
   // Main Canvas Render Loop
@@ -406,7 +426,6 @@ export default function StellarOrreryCanvas({
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
           onClick={handleClick}
-          onWheel={handleWheel}
         />
 
         <div className="ed-canvas-tip">

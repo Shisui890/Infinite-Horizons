@@ -653,7 +653,7 @@ ${seed ? `Semente Factual Compacta: ${seed}\n` : ''}Responda de forma rigorosa, 
                   >
                     {universe.paradoxes.map(p => (
                       <option key={p.id} value={p.id}>
-                        {p.title} (Severidade {p.severity}%)
+                        {p.title} (Severidade: {String(p.severity).toUpperCase()})
                       </option>
                     ))}
                   </select>

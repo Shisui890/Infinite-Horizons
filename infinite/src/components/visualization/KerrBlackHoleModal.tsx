@@ -74,6 +74,34 @@ export default function KerrBlackHoleModal({ onClose }: Props) {
   const rotationAngleRef = useRef<number>(0);
   const isDraggingRef = useRef<boolean>(false);
   const lastMousePosRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const diskNodesRef = useRef<Array<{
+    radiusUnit: number;
+    angle: number;
+    speed: number;
+    size: number;
+    temperature: number;
+  }> | null>(null);
+
+  if (!diskNodesRef.current) {
+    diskNodesRef.current = Array.from({ length: 650 }, () => {
+      const radiusUnit = 2.4 + Math.random() * 6.5;
+      return {
+        radiusUnit,
+        angle: Math.random() * Math.PI * 2,
+        speed: 0.028 / Math.sqrt(radiusUnit),
+        size: 1.2 + Math.random() * 2.8,
+        temperature: 0.4 + Math.random() * 0.6,
+      };
+    });
+  }
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
 
   const spinSliderId = useId();
   const inclSliderId = useId();
@@ -149,19 +177,7 @@ export default function KerrBlackHoleModal({ onClose }: Props) {
     if (!ctx) return;
 
     let animId: number;
-
-    // Initialize Accretion Disk Plasma Nodes
-    const numNodes = 650;
-    const diskNodes = Array.from({ length: numNodes }, () => {
-      const radiusUnit = 2.4 + Math.random() * 6.5; // in multiples of r_horizon
-      return {
-        radiusUnit,
-        angle: Math.random() * Math.PI * 2,
-        speed: 0.028 / Math.sqrt(radiusUnit),
-        size: 1.2 + Math.random() * 2.8,
-        temperature: 0.4 + Math.random() * 0.6,
-      };
-    });
+    const diskNodes = diskNodesRef.current!;
 
     function render() {
       if (!canvas || !ctx) return;

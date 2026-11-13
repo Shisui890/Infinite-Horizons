@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLaymanMode } from '../../context/LaymanModeContext';
 
 interface CausalNode {
@@ -36,6 +36,13 @@ export default function CausalRippleWidget() {
   const [entropy, setEntropy] = useState<number>(1.24);
   const [lyapunov, setLyapunov] = useState<number>(0.042);
   const [integrity, setIntegrity] = useState<number>(100);
+  const restoreTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (restoreTimerRef.current) clearTimeout(restoreTimerRef.current);
+    };
+  }, []);
 
   // Compute downstream nodes
   function getDownstream(nodeId: string): string[] {
@@ -54,6 +61,10 @@ export default function CausalRippleWidget() {
   }
 
   function handlePerturb(nodeId: string) {
+    if (restoreTimerRef.current) {
+      clearTimeout(restoreTimerRef.current);
+      restoreTimerRef.current = null;
+    }
     setIsStabilizing(false);
     setPerturbedId(nodeId);
     const downstream = getDownstream(nodeId);
@@ -64,14 +75,16 @@ export default function CausalRippleWidget() {
   }
 
   function handleRestoreNovikov() {
+    if (restoreTimerRef.current) clearTimeout(restoreTimerRef.current);
     setIsStabilizing(true);
     setEntropy(1.24);
     setLyapunov(0.042);
     setIntegrity(100);
-    setTimeout(() => {
+    restoreTimerRef.current = window.setTimeout(() => {
       setPerturbedId(null);
       setAffectedIds([]);
       setIsStabilizing(false);
+      restoreTimerRef.current = null;
     }, 1200);
   }
 

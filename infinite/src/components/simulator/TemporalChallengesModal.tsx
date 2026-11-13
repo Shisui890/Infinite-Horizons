@@ -346,8 +346,8 @@ export default function TemporalChallengesModal({ currentUniverse, onLoadChallen
   }, [isCompleted, currentUniverse]);
 
   return (
-    <div className="modal-backdrop">
-      <div className="modal-card challenges-modal">
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal-card challenges-modal" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <div>
             <span className="conf-badge">

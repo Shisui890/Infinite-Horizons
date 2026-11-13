@@ -164,7 +164,7 @@ export default function EventInspector({
               type="button"
               className="btn-inspector-quick-tool tool-split"
               onClick={() => {
-                const scenarioId = event.year === 1865 ? 'maxwell' : event.year <= 1905 ? 'einstein' : 'quantum';
+                const scenarioId = event.year === 1865 ? 'maxwell' : event.year <= 1915 ? 'einstein_sr' : 'quantum_epr';
                 onOpenSplitComparator(scenarioId);
               }}
               title="Comparar o Século XXI real vs contrafactual com slider interativo"

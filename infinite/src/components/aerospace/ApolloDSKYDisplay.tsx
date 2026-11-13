@@ -18,6 +18,7 @@ interface Props {
   r1Label?: string;
   r2Label?: string;
   r3Label?: string;
+  hasError?: boolean;
 }
 
 export default function ApolloDSKYDisplay({
@@ -30,6 +31,7 @@ export default function ApolloDSKYDisplay({
   r1Label = 'APOAPSIS (KM)',
   r2Label = 'PERIAPSIS (KM)',
   r3Label = 'VELOCIDADE (M/S)',
+  hasError = false,
 }: Props) {
   const [uplinkActive] = useState(true);
 
@@ -48,9 +50,9 @@ export default function ApolloDSKYDisplay({
             UPLINK ACTY
           </div>
           <div className="annunc-lamp">NO ATT</div>
-          <div className="annunc-lamp active-green">STBY</div>
+          <div className="annunc-lamp active-green">COMP ACTY</div>
           <div className="annunc-lamp">KEY REL</div>
-          <div className="annunc-lamp active-green">OPR ERR</div>
+          <div className={`annunc-lamp ${hasError ? 'active-amber' : ''}`}>OPR ERR</div>
           <div className="annunc-lamp">PRIO DISP</div>
         </div>
 

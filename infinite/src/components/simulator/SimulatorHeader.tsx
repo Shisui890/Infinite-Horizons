@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useLaymanMode } from '../../context/LaymanModeContext';
 import { Universe } from '../../types/temporal';
 import { getStoredLanguage, setStoredLanguage, DICTIONARY } from '../../utils/i18n';
@@ -26,6 +26,8 @@ interface Props {
   onOpenCosmicAcoustics?: () => void;
   onOpenSplitComparator?: () => void;
   onOpenVintageNewspaper?: () => void;
+  onOpenChallenges?: () => void;
+  onOpenCLI?: () => void;
   onReset: () => void;
   canUndo: boolean;
   canRedo: boolean;
@@ -54,6 +56,8 @@ export default function SimulatorHeader({
   onOpenCosmicAcoustics,
   onOpenSplitComparator,
   onOpenVintageNewspaper,
+  onOpenChallenges,
+  onOpenCLI,
   onReset,
   canUndo,
   canRedo,
@@ -66,6 +70,47 @@ export default function SimulatorHeader({
   const [copiedToast, setCopiedToast] = useState(false);
   const [isAudioMuted, setIsAudioMuted] = useState(CosmicAudio.isMuted());
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+
+  const scrollTrackRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const updateScrollState = useCallback(() => {
+    const el = scrollTrackRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 4);
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+  }, []);
+
+  useEffect(() => {
+    updateScrollState();
+    const el = scrollTrackRef.current;
+    window.addEventListener('resize', updateScrollState);
+    let ro: ResizeObserver | null = null;
+    if (el && typeof ResizeObserver !== 'undefined') {
+      ro = new ResizeObserver(() => updateScrollState());
+      ro.observe(el);
+    }
+    return () => {
+      window.removeEventListener('resize', updateScrollState);
+      if (ro) ro.disconnect();
+    };
+  }, [updateScrollState, isLaymanMode, lang]);
+
+  function scrollHeaderBy(delta: number) {
+    const el = scrollTrackRef.current;
+    if (!el) return;
+    el.scrollBy({ left: delta, behavior: 'smooth' });
+  }
+
+  function handleHeaderWheel(e: React.WheelEvent<HTMLDivElement>) {
+    const el = scrollTrackRef.current;
+    if (!el) return;
+    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+      el.scrollLeft += e.deltaY;
+      updateScrollState();
+    }
+  }
 
   function toggleAudio() {
     const nextMuted = CosmicAudio.toggleMute();
@@ -130,7 +175,7 @@ export default function SimulatorHeader({
         {paradoxCount > 0 ? (
           <div className="sim-paradox-badge sim-paradox-badge-active">
             <span className="badge-pulse-dot" />
-            <span>{paradoxCount} {isLaymanMode ? 'PARADOXO' : 'CTC'}</span>
+            <span>{paradoxCount} {isLaymanMode ? t.paradoxes : 'CTC'}</span>
           </div>
         ) : (
           <div className="sim-paradox-badge sim-paradox-badge-clean">
@@ -139,320 +184,361 @@ export default function SimulatorHeader({
         )}
       </div>
 
-      {/* 3. Right Action Groups */}
+      {/* 3. Right Action Groups with Horizontal Scroll & Navigation Arrows */}
       <div className="sim-header-right">
-        {/* Language & Layman Mode Switchers */}
-        <div className="header-btn-group">
-          <button
-            type="button"
-            className="sim-btn-lang-toggle"
-            onClick={toggleLanguage}
-            title="Alternar Idioma (Português / English)"
-          >
-            {lang.toUpperCase()}
-          </button>
-          <button
-            type="button"
-            className={`sim-btn-layman ${isLaymanMode ? 'active-layman' : ''}`}
-            onClick={toggleLaymanMode}
-            title={isLaymanMode ? 'Voltar para o Modo Acadêmico Rigoroso' : 'Ativar Modo Simplificado para Leigos'}
-          >
-            {isLaymanMode ? t.layman : t.academic}
-          </button>
-        </div>
+        <button
+          type="button"
+          className={`sim-header-scroll-btn scroll-left ${canScrollLeft ? 'visible' : ''}`}
+          onClick={() => scrollHeaderBy(-240)}
+          disabled={!canScrollLeft}
+          title={lang === 'pt' ? 'Rolar ferramentas para a esquerda' : 'Scroll tools left'}
+          aria-label="Scroll left"
+        >
+          ‹
+        </button>
 
-        {/* Presentation & Visual Modes Group */}
-        <div className="header-btn-group">
-          <button
-            type="button"
-            className="sim-btn-splitview"
-            onClick={onOpenComparator}
-            title={isLaymanMode ? 'Comparar duas versões da história lado a lado' : 'Abrir Comparador de Dimensões em Split-View'}
-          >
-            <span className="btn-text-full">{isLaymanMode ? 'Comparar' : t.splitView}</span>
-            <span className="btn-text-compact">Split</span>
-          </button>
-
-          <button
-            type="button"
-            className="sim-btn-monte-carlo"
-            onClick={onOpenMonteCarlo}
-            title={isLaymanMode ? 'Testar milhares de futuros possíveis com o computador' : 'Executar Simulação Estocástica de Monte Carlo'}
-          >
-            {isLaymanMode ? 'Monte Carlo' : t.monteCarlo}
-          </button>
-
-          <button
-            type="button"
-            className="sim-btn-conference"
-            onClick={onOpenConferenceMode}
-            title={isLaymanMode ? 'Abrir Apresentação Fácil de Slides' : 'Abrir Modo Apresentação de Slides Acadêmico'}
-          >
-            <span className="btn-text-full">{isLaymanMode ? 'Slides' : t.presentation}</span>
-            <span className="btn-text-compact">Slides</span>
-          </button>
-
-          <button
-            type="button"
-            className="sim-btn-3d"
-            onClick={onOpenMinkowski3D}
-            title={isLaymanMode ? 'Ver em 3D como o tempo e o espaço se conectam' : 'Visualizar Cones de Luz 3D de Minkowski'}
-          >
-            <span className="btn-text-full">{isLaymanMode ? '3D' : t.cones3D}</span>
-            <span className="btn-text-compact">3D</span>
-          </button>
-
-          {onOpenKerrVisualizer && (
+        <div
+          ref={scrollTrackRef}
+          className="sim-header-scroll-track"
+          onScroll={updateScrollState}
+          onWheel={handleHeaderWheel}
+        >
+          {/* Language & Layman Mode Switchers */}
+          <div className="header-btn-group">
             <button
               type="button"
-              className="sim-btn-kerr"
-              onClick={onOpenKerrVisualizer}
-              title="Visualizador 3D de Métrica de Kerr & Lente Gravitacional"
+              className="sim-btn-lang-toggle"
+              onClick={toggleLanguage}
+              title="Alternar Idioma (Português / English)"
             >
-              <span className="btn-text-full">Kerr 3D</span>
-              <span className="btn-text-compact">Kerr</span>
+              {lang.toUpperCase()}
             </button>
-          )}
-
-          {onOpenAcademicPaper && (
             <button
               type="button"
-              className="sim-btn-academic-paper"
-              onClick={onOpenAcademicPaper}
-              title="Exportador de Artigo Científico (RevTeX / BibTeX / PDF)"
+              className={`sim-btn-layman ${isLaymanMode ? 'active-layman' : ''}`}
+              onClick={toggleLaymanMode}
+              title={isLaymanMode ? 'Voltar para o Modo Acadêmico Rigoroso' : 'Ativar Modo Simplificado para Leigos'}
             >
-              <span className="btn-text-full">Artigo</span>
-              <span className="btn-text-compact">Paper</span>
+              {isLaymanMode ? t.layman : t.academic}
             </button>
-          )}
+          </div>
 
-          {onOpenCosmicAcoustics && (
+          {/* Presentation & Visual Modes Group */}
+          <div className="header-btn-group">
             <button
               type="button"
-              className="sim-btn-acoustics"
-              onClick={onOpenCosmicAcoustics}
-              title={isLaymanMode ? 'Ouvir os sons do espaço (NASA, LIGO e Big Bang)' : 'Laboratório Acústico do Cosmos (Sonificação e Osciloscópio)'}
+              className="sim-btn-splitview"
+              onClick={onOpenComparator}
+              title={isLaymanMode ? 'Comparar duas versões da história lado a lado' : 'Abrir Comparador de Dimensões em Split-View'}
             >
-              <span className="btn-text-full">{isLaymanMode ? 'Som Cósmico' : 'Acústica NASA'}</span>
-              <span className="btn-text-compact">Som</span>
+              {isLaymanMode ? t.compareLayman : t.splitView}
             </button>
-          )}
 
-          {onOpenSplitComparator && (
             <button
               type="button"
-              className="sim-btn-timeline-split"
-              onClick={onOpenSplitComparator}
-              title={isLaymanMode ? 'Ver como o mundo atual seria sem as grandes descobertas' : 'Comparador Século XXI: Real vs Contrafactual'}
+              className="sim-btn-monte-carlo"
+              onClick={onOpenMonteCarlo}
+              title={isLaymanMode ? 'Testar milhares de futuros possíveis com o computador' : 'Executar Simulação Estocástica de Monte Carlo'}
             >
-              <span className="btn-text-full">{isLaymanMode ? 'Antes & Depois' : 'Século XXI Split'}</span>
-              <span className="btn-text-compact">Split</span>
+              {t.monteCarlo}
             </button>
-          )}
 
-          {onOpenVintageNewspaper && (
             <button
               type="button"
-              className="sim-btn-vintage-newspaper"
-              onClick={onOpenVintageNewspaper}
-              title={isLaymanMode ? 'Ler jornais históricos da época com notícias da descoberta' : 'Jornal Histórico de Época (Edição Real vs Alternativa)'}
+              className="sim-btn-conference"
+              onClick={onOpenConferenceMode}
+              title={isLaymanMode ? 'Abrir Apresentação Fácil de Slides' : 'Abrir Modo Apresentação de Slides Acadêmico'}
             >
-              <span className="btn-text-full">{isLaymanMode ? 'Jornal Vintage' : 'Jornal Histórico'}</span>
-              <span className="btn-text-compact">Jornal</span>
+              {isLaymanMode ? t.slides : t.presentation}
             </button>
-          )}
 
-          <button
-            type="button"
-            className="sim-btn-backtracking"
-            onClick={onOpenBacktracking}
-            title={isLaymanMode ? 'Descobrir como adiantar tecnologias no passado' : 'Engenharia Reversa Histórica (Causal Backtracking)'}
-          >
-            <span className="btn-text-full">{isLaymanMode ? 'Engenharia Reversa' : 'Backtracking'}</span>
-            <span className="btn-text-compact">Retro</span>
-          </button>
+            <button
+              type="button"
+              className="sim-btn-3d"
+              onClick={onOpenMinkowski3D}
+              title={isLaymanMode ? 'Ver em 3D como o tempo e o espaço se conectam' : 'Visualizar Cones de Luz 3D de Minkowski'}
+            >
+              {isLaymanMode ? t.view3DLayman : t.cones3D}
+            </button>
 
-          <button
-            type="button"
-            className="sim-btn-ai"
-            onClick={onToggleAIDrawer}
-            title={isLaymanMode ? 'Consultar Assistente Historiográfico & Científico' : 'Abrir Painel de Pesquisa Científica & Fontes Primárias'}
-          >
-            <span className="btn-text-full">{isLaymanMode ? 'Oráculo Histórico' : 'Pesquisa & Arquivos'}</span>
-            <span className="btn-text-compact">Arquivos</span>
-          </button>
-        </div>
-
-        {/* Physics Entity Actions */}
-        <div className="header-btn-group">
-          <button
-            type="button"
-            className="sim-btn-action"
-            onClick={onOpenAddEvent}
-            title={isLaymanMode ? 'Adicionar um novo acontecimento na linha do tempo' : 'Adicionar Nó de Geodésica'}
-          >
-            {isLaymanMode ? '+ Evento' : t.addNode}
-          </button>
-          <button
-            type="button"
-            className="sim-btn-action"
-            onClick={onOpenAddTraveler}
-            title={isLaymanMode ? 'Criar um novo viajante no tempo' : 'Registrar Sonda / Observador'}
-          >
-            {isLaymanMode ? '+ Viajante' : t.addObserver}
-          </button>
-          <button
-            type="button"
-            className="sim-btn-action sim-btn-travel"
-            onClick={onOpenTimeTravel}
-            title={isLaymanMode ? 'Fazer uma viagem no tempo para o passado ou futuro' : 'Realizar Salto Temporal Relativístico'}
-          >
-            {isLaymanMode ? 'Salto' : t.intervention}
-          </button>
-        </div>
-
-        {/* Utilities Group & Share Link */}
-        <div className="header-btn-group">
-          <button
-            type="button"
-            className="sim-btn-share"
-            onClick={handleShare}
-            title="Copiar Link Compartilhável do Universo"
-          >
-            {copiedToast ? 'Copiado!' : 'Link'}
-          </button>
-          <button
-            type="button"
-            className="sim-btn-icon-util"
-            onClick={onUndo}
-            disabled={!canUndo}
-            title="Desfazer alteração (Ctrl+Z)"
-          >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 7v6h6" />
-              <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13" />
-            </svg>
-          </button>
-          <button
-            type="button"
-            className="sim-btn-icon-util"
-            onClick={onRedo}
-            disabled={!canRedo}
-            title="Refazer alteração (Ctrl+Y)"
-          >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 7v6h-6" />
-              <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13" />
-            </svg>
-          </button>
-          {/* Audio Synthesizer Toggle */}
-          <button
-            type="button"
-            className={`sim-btn-icon-util ${!isAudioMuted ? 'active-audio' : ''}`}
-            onClick={toggleAudio}
-            title={isAudioMuted ? 'Ativar Efeitos Sonoros Cósmicos' : 'Silenciar Áudio Cósmico'}
-            aria-label="Controle de Áudio Cósmico"
-          >
-            {isAudioMuted ? (
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="1" y1="1" x2="23" y2="23" />
-                <path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6" />
-                <path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23" />
-                <line x1="12" y1="19" x2="12" y2="23" />
-                <line x1="8" y1="23" x2="16" y2="23" />
-              </svg>
-            ) : (
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-                <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
-                <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
-              </svg>
+            {onOpenKerrVisualizer && (
+              <button
+                type="button"
+                className="sim-btn-kerr"
+                onClick={onOpenKerrVisualizer}
+                title="Visualizador 3D de Métrica de Kerr & Lente Gravitacional"
+              >
+                {t.kerr3D}
+              </button>
             )}
-          </button>
 
-          {/* Keyboard Shortcuts Cheatsheet */}
-          {onOpenShortcuts && (
+            {onOpenAcademicPaper && (
+              <button
+                type="button"
+                className="sim-btn-academic-paper"
+                onClick={onOpenAcademicPaper}
+                title="Exportador de Artigo Científico (RevTeX / BibTeX / PDF)"
+              >
+                {t.academicPaper}
+              </button>
+            )}
+
+            {onOpenCosmicAcoustics && (
+              <button
+                type="button"
+                className="sim-btn-acoustics"
+                onClick={onOpenCosmicAcoustics}
+                title={isLaymanMode ? 'Ouvir os sons do espaço (NASA, LIGO e Big Bang)' : 'Laboratório Acústico do Cosmos (Sonificação e Osciloscópio)'}
+              >
+                {isLaymanMode ? t.cosmicSoundLayman : t.cosmicAcoustics}
+              </button>
+            )}
+
+            {onOpenSplitComparator && (
+              <button
+                type="button"
+                className="sim-btn-timeline-split"
+                onClick={onOpenSplitComparator}
+                title={isLaymanMode ? 'Ver como o mundo atual seria sem as grandes descobertas' : 'Comparador Século XXI: Real vs Contrafactual'}
+              >
+                {isLaymanMode ? t.beforeAfterLayman : t.timelineSplit}
+              </button>
+            )}
+
+            {onOpenVintageNewspaper && (
+              <button
+                type="button"
+                className="sim-btn-vintage-newspaper"
+                onClick={onOpenVintageNewspaper}
+                title={isLaymanMode ? 'Ler jornais históricos da época com notícias da descoberta' : 'Jornal Histórico de Época (Edição Real vs Alternativa)'}
+              >
+                {isLaymanMode ? t.vintageNewsLayman : t.vintageNewspaper}
+              </button>
+            )}
+
+            <button
+              type="button"
+              className="sim-btn-backtracking"
+              onClick={onOpenBacktracking}
+              title={isLaymanMode ? 'Descobrir como adiantar tecnologias no passado' : 'Engenharia Reversa Histórica (Causal Backtracking)'}
+            >
+              {isLaymanMode ? t.reverseEngLayman : t.backtracking}
+            </button>
+
+            {onOpenChallenges && (
+              <button
+                type="button"
+                className="sim-btn-challenges"
+                onClick={onOpenChallenges}
+                title={isLaymanMode ? 'Missões e Enigmas: Resolva paradoxos temporais' : 'Laboratório de Crises & Desafios de Novikov'}
+              >
+                {t.challenges}
+              </button>
+            )}
+
+            {onOpenCLI && (
+              <button
+                type="button"
+                className="sim-btn-cli"
+                onClick={onOpenCLI}
+                title="Abrir Terminal de Linha de Comando Temporal (CLI)"
+              >
+                {t.cliTerminal}
+              </button>
+            )}
+
+            <button
+              type="button"
+              className="sim-btn-ai"
+              onClick={onToggleAIDrawer}
+              title={isLaymanMode ? 'Consultar Assistente Historiográfico & Científico' : 'Abrir Painel de Pesquisa Científica & Fontes Primárias'}
+            >
+              {isLaymanMode ? t.aiOracle : t.researchArchives}
+            </button>
+          </div>
+
+          {/* Physics Entity Actions */}
+          <div className="header-btn-group">
+            <button
+              type="button"
+              className="sim-btn-action"
+              onClick={onOpenAddEvent}
+              title={isLaymanMode ? 'Adicionar um novo acontecimento na linha do tempo' : 'Adicionar Nó de Geodésica'}
+            >
+              {isLaymanMode ? t.addEventLayman : t.addNode}
+            </button>
+            <button
+              type="button"
+              className="sim-btn-action"
+              onClick={onOpenAddTraveler}
+              title={isLaymanMode ? 'Criar um novo viajante no tempo' : 'Registrar Sonda / Observador'}
+            >
+              {isLaymanMode ? t.addTravelerLayman : t.addObserver}
+            </button>
+            <button
+              type="button"
+              className="sim-btn-action sim-btn-travel"
+              onClick={onOpenTimeTravel}
+              title={isLaymanMode ? 'Fazer uma viagem no tempo para o passado ou futuro' : 'Realizar Salto Temporal Relativístico'}
+            >
+              {isLaymanMode ? t.jumpLayman : t.intervention}
+            </button>
+          </div>
+
+          {/* Utilities Group & Share Link */}
+          <div className="header-btn-group">
+            <button
+              type="button"
+              className="sim-btn-share"
+              onClick={handleShare}
+              title={t.shareLink}
+            >
+              {copiedToast ? t.copied : t.linkShort}
+            </button>
+            <button
+              type="button"
+              className="sim-btn-icon-util"
+              onClick={onUndo}
+              disabled={!canUndo}
+              title="Desfazer alteração (Ctrl+Z)"
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 7v6h6" />
+                <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              className="sim-btn-icon-util"
+              onClick={onRedo}
+              disabled={!canRedo}
+              title="Refazer alteração (Ctrl+Y)"
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 7v6h-6" />
+                <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13" />
+              </svg>
+            </button>
+            {/* Audio Synthesizer Toggle */}
+            <button
+              type="button"
+              className={`sim-btn-icon-util ${!isAudioMuted ? 'active-audio' : ''}`}
+              onClick={toggleAudio}
+              title={isAudioMuted ? 'Ativar Efeitos Sonoros Cósmicos' : 'Silenciar Áudio Cósmico'}
+              aria-label="Controle de Áudio Cósmico"
+            >
+              {isAudioMuted ? (
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="1" y1="1" x2="23" y2="23" />
+                  <path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6" />
+                  <path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23" />
+                  <line x1="12" y1="19" x2="12" y2="23" />
+                  <line x1="8" y1="23" x2="16" y2="23" />
+                </svg>
+              ) : (
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                  <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                  <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                </svg>
+              )}
+            </button>
+
+            {/* Keyboard Shortcuts Cheatsheet */}
+            {onOpenShortcuts && (
+              <button
+                type="button"
+                className="sim-btn-icon-util btn-util-secondary"
+                onClick={onOpenShortcuts}
+                title="Guia de Atalhos de Teclado (Pressione ?)"
+                aria-label="Atalhos de Teclado"
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                  <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg>
+              </button>
+            )}
+
+            {/* Interactive Guided Tour */}
+            {onStartTour && (
+              <button
+                type="button"
+                className="sim-btn-icon-util btn-util-secondary btn-tour-trigger"
+                onClick={onStartTour}
+                title="Iniciar Tour Guiado Interativo na Tela"
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                </svg>
+              </button>
+            )}
+
+            {onOpenGuide && (
+              <button
+                type="button"
+                className="sim-btn-icon-util btn-util-secondary"
+                onClick={onOpenGuide}
+                title="Abrir Manual de Como Funciona o Simulador"
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                </svg>
+              </button>
+            )}
+
             <button
               type="button"
               className="sim-btn-icon-util btn-util-secondary"
-              onClick={onOpenShortcuts}
-              title="Guia de Atalhos de Teclado (Pressione ?)"
-              aria-label="Atalhos de Teclado"
-            >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10" />
-                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-                <line x1="12" y1="17" x2="12.01" y2="17" />
-              </svg>
-            </button>
-          )}
-
-          {/* Interactive Guided Tour */}
-          {onStartTour && (
-            <button
-              type="button"
-              className="sim-btn-icon-util btn-util-secondary btn-tour-trigger"
-              onClick={onStartTour}
-              title="Iniciar Tour Guiado Interativo na Tela"
+              onClick={onReset}
+              title="Resetar Modelo Padrão"
             >
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                <path d="M3 3v5h5" />
               </svg>
             </button>
-          )}
 
-          {onOpenGuide && (
-            <button
-              type="button"
-              className="sim-btn-icon-util btn-util-secondary"
-              onClick={onOpenGuide}
-              title="Abrir Manual de Como Funciona o Simulador"
-            >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-              </svg>
-            </button>
-          )}
-
-          <button
-            type="button"
-            className="sim-btn-icon-util btn-util-secondary"
-            onClick={onReset}
-            title="Resetar Modelo Padrão"
-          >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-              <path d="M3 3v5h5" />
-            </svg>
-          </button>
-
-          <select
-            className="sim-export-select"
-            defaultValue=""
-            onChange={event => {
-              const val = event.target.value;
-              if (val === 'latex' || val === 'bibtex') {
-                if (onOpenAcademicPaper) {
-                  onOpenAcademicPaper();
-                  event.target.value = '';
-                  return;
+            <select
+              className="sim-export-select"
+              defaultValue=""
+              onChange={event => {
+                const val = event.target.value;
+                if (val === 'latex' || val === 'bibtex') {
+                  if (onOpenAcademicPaper) {
+                    onOpenAcademicPaper();
+                    event.target.value = '';
+                    return;
+                  }
                 }
-              }
-              if (val) onExport(val as 'json' | 'csv' | 'latex' | 'bibtex' | 'png' | 'pdf');
-              event.target.value = '';
-            }}
-            aria-label="Exportar modelo"
-          >
-            <option value="">{t.export}</option>
-            <option value="latex">Artigo LaTeX & Prévia</option>
-            <option value="bibtex">Bibliografia BibTeX (.bib)</option>
-            <option value="pdf">Relatório PDF / Imprimir</option>
-            <option value="json">JSON</option>
-            <option value="csv">CSV</option>
-            <option value="png">Poster 4K</option>
-          </select>
+                if (val) onExport(val as 'json' | 'csv' | 'latex' | 'bibtex' | 'png' | 'pdf');
+                event.target.value = '';
+              }}
+              aria-label="Exportar modelo"
+            >
+              <option value="">{t.export}</option>
+              <option value="latex">{t.exportLatex}</option>
+              <option value="bibtex">{t.exportBibtex}</option>
+              <option value="pdf">{t.exportPdf}</option>
+              <option value="json">JSON</option>
+              <option value="csv">CSV</option>
+              <option value="png">{t.exportPoster}</option>
+            </select>
+          </div>
         </div>
+
+        <button
+          type="button"
+          className={`sim-header-scroll-btn scroll-right ${canScrollRight ? 'visible' : ''}`}
+          onClick={() => scrollHeaderBy(240)}
+          disabled={!canScrollRight}
+          title={lang === 'pt' ? 'Rolar ferramentas para a direita' : 'Scroll tools right'}
+          aria-label="Scroll right"
+        >
+          ›
+        </button>
 
         {/* Mobile Header Actions Trigger */}
         <button
@@ -543,6 +629,50 @@ export default function SimulatorHeader({
                   <small>Cones de luz & Calabi-Yau</small>
                 </div>
               </button>
+
+              {onOpenKerrVisualizer && (
+                <button
+                  type="button"
+                  className="mobile-drawer-item"
+                  onClick={() => {
+                    setShowMobileMenu(false);
+                    onOpenKerrVisualizer();
+                  }}
+                >
+                  <span className="drawer-icon-wrap">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c084fc" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10" />
+                      <circle cx="12" cy="12" r="4" />
+                    </svg>
+                  </span>
+                  <div className="drawer-item-text">
+                    <strong>Kerr 3D</strong>
+                    <small>Buraco negro & lente</small>
+                  </div>
+                </button>
+              )}
+
+              {onOpenAcademicPaper && (
+                <button
+                  type="button"
+                  className="mobile-drawer-item"
+                  onClick={() => {
+                    setShowMobileMenu(false);
+                    onOpenAcademicPaper();
+                  }}
+                >
+                  <span className="drawer-icon-wrap">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                      <polyline points="14 2 14 8 20 8" />
+                    </svg>
+                  </span>
+                  <div className="drawer-item-text">
+                    <strong>Artigo Científico</strong>
+                    <small>RevTeX, BibTeX & PDF</small>
+                  </div>
+                </button>
+              )}
 
               <button
                 type="button"
@@ -675,6 +805,49 @@ export default function SimulatorHeader({
                 </button>
               )}
 
+              {onOpenChallenges && (
+                <button
+                  type="button"
+                  className="mobile-drawer-item"
+                  onClick={() => {
+                    setShowMobileMenu(false);
+                    onOpenChallenges();
+                  }}
+                >
+                  <span className="drawer-icon-wrap">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                    </svg>
+                  </span>
+                  <div className="drawer-item-text">
+                    <strong>{t.challenges}</strong>
+                    <small>Enigmas & crises de Novikov</small>
+                  </div>
+                </button>
+              )}
+
+              {onOpenCLI && (
+                <button
+                  type="button"
+                  className="mobile-drawer-item"
+                  onClick={() => {
+                    setShowMobileMenu(false);
+                    onOpenCLI();
+                  }}
+                >
+                  <span className="drawer-icon-wrap">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="4 17 10 11 4 5" />
+                      <line x1="12" y1="19" x2="20" y2="19" />
+                    </svg>
+                  </span>
+                  <div className="drawer-item-text">
+                    <strong>Terminal CLI</strong>
+                    <small>Console de comandos</small>
+                  </div>
+                </button>
+              )}
+
               <button
                 type="button"
                 className="mobile-drawer-item"
@@ -754,7 +927,7 @@ export default function SimulatorHeader({
                   <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
                   <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
                 </svg>
-                <span>{copiedToast ? 'Copiado' : 'Compartilhar'}</span>
+                <span>{copiedToast ? t.copied : 'Compartilhar'}</span>
               </button>
               <button type="button" className="btn-drawer-action" onClick={onExit}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

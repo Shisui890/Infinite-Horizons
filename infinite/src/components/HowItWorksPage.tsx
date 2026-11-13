@@ -1,4 +1,4 @@
-import { useState, lazy, Suspense } from 'react';
+import { useState, useRef, useEffect, lazy, Suspense } from 'react';
 import { useLaymanMode } from '../context/LaymanModeContext';
 import MathFormula from './MathFormula';
 import CausalRippleWidget from './widgets/CausalRippleWidget';
@@ -24,10 +24,18 @@ export default function HowItWorksPage({ onBack, onStartSimulator, onOpenKerrMod
   const [activeTab, setActiveTab] = useState<GuideTab>('quickstart');
   const [showInternalKerrModal, setShowInternalKerrModal] = useState<boolean>(false);
   const [shortcutFeedback, setShortcutFeedback] = useState<string | null>(null);
+  const feedbackTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (feedbackTimerRef.current) clearTimeout(feedbackTimerRef.current);
+    };
+  }, []);
 
   function triggerShortcutTest(keyLabel: string, actionName: string) {
     setShortcutFeedback(`Atalho testado [${keyLabel}]: ${actionName}`);
-    setTimeout(() => setShortcutFeedback(null), 2500);
+    if (feedbackTimerRef.current) clearTimeout(feedbackTimerRef.current);
+    feedbackTimerRef.current = window.setTimeout(() => setShortcutFeedback(null), 2500);
   }
 
   const handleOpenKerr = onOpenKerrModal || (() => setShowInternalKerrModal(true));
@@ -422,14 +430,14 @@ export default function HowItWorksPage({ onBack, onStartSimulator, onOpenKerrMod
               </p>
               <ul className="inst-action-list">
                 <li><strong>5 Setores Catalogados:</strong> Alterne rapidamente entre Sistema Solar [SOL-01], Espaço Interestelar Local [LOC-02], Braço de Órion / Via Láctea [MW-03], Grupo Local de Galáxias [LOC-04] e Céu Profundo & Quasares [DEEP-05].</li>
-                <li><strong>Painel de Telemetria com 6 Abas:</strong>
+                <li><strong>Painel Tático de Telemetria com 6 Abas:</strong>
                   <ul>
-                    <li><em>Visão Geral:</em> Dados dimensionais, massa, gravidade e velocidade de escape.</li>
-                    <li><em>Fórmulas & Física:</em> Equações hidrostáticas, raio de Schwarzschild e temperatura efetiva de Hawking renderizadas em KaTeX.</li>
-                    <li><em>Fotografias Reais:</em> Imagens de alta fidelidade capturadas por sondas como New Horizons, Cassini, Voyager 1 e James Webb.</li>
-                    <li><em>Simulador 3D:</em> Visualização orbital tridimensional em tempo real com controle de rotação.</li>
-                    <li><em>Dossiê Científico:</em> Histórico de descobertas e impactos astronômicos.</li>
-                    <li><em>Geologia & Estrutura:</em> Camadas internas, composição do manto e núcleos planetários.</li>
+                    <li><em>Visor 3D & Foto:</em> Alternância instantânea entre simulação 3D procedural (60 FPS) e fotografias reais de sondas como New Horizons, Cassini, Voyager 1, Hubble e James Webb.</li>
+                    <li><em>Telemetria:</em> Dados orbitais keplerianos, massa, gravidade, velocidade de escape e equações físicas em KaTeX.</li>
+                    <li><em>Geologia:</em> Estrutura de camadas internas, composição do manto, núcleos planetários ou horizontes relativísticos.</li>
+                    <li><em>Atmosfera:</em> Espectro gasoso em barras, pressão barométrica e perfil térmico para astros com camada atmosférica.</li>
+                    <li><em>Missões:</em> Registro histórico de exploração espacial da humanidade (NASA/ESA/JAXA).</li>
+                    <li><em>Voo Orbital:</em> Requisitos de Delta-V e acesso rápido ao simulador de voo aeroespacial.</li>
                   </ul>
                 </li>
               </ul>
@@ -450,7 +458,7 @@ export default function HowItWorksPage({ onBack, onStartSimulator, onOpenKerrMod
                   <span className="sub-num">1</span>
                   <div>
                     <strong>Computador DSKY (Apollo Guidance Computer):</strong>
-                    <p>O painel numérico verde reproduz o sistema de bordo das missões lunares. Use as teclas <kbd>VERB</kbd> e <kbd>NOUN</kbd> para consultar velocidades de queima, altitude de apogeu e alinhamento inercial.</p>
+                    <p>O mostrador numérico verde de 7 segmentos reproduz o sistema de bordo das missões lunares, exibindo em tempo real os códigos <kbd>PROG</kbd>, <kbd>VERB</kbd> e <kbd>NOUN</kbd> junto aos registradores <kbd>R1</kbd> (Apoapsis), <kbd>R2</kbd> (Periapsis) e <kbd>R3</kbd> (Velocidade Orbital).</p>
                   </div>
                 </div>
                 <div className="step-sub-item">

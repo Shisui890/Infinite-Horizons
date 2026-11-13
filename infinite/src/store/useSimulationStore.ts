@@ -113,7 +113,7 @@ export interface SimulationStore {
   addEvent: (dimensionId: string, eventData: Partial<TemporalEvent>) => void;
   updateEvent: (eventId: string, updates: Partial<TemporalEvent>) => void;
   removeEvent: (eventId: string) => void;
-  addTraveler: (travelerData: { name: string; originDimensionId: string; originYear: number }) => void;
+  addTraveler: (travelerData: { name: string; originDimensionId: string; originYear: number; originEventId?: string }) => void;
   timeTravel: (travelerId: string, destDimId: string, destYear: number, purpose?: string) => void;
   addDimension: (name: string, designation: string, color: string) => void;
   
@@ -132,6 +132,9 @@ export const useSimulationStore = create<SimulationStore>((set, get) => {
   const initial = loadInitialState();
   const initialDim = initial.universe.dimensions[0]?.id || 'dim-omega-01';
   const initialTheme = loadInitialTheme();
+  if (typeof document !== 'undefined') {
+    document.body.dataset.theme = initialTheme;
+  }
 
   return {
     universeState: initial,
@@ -280,9 +283,18 @@ export const useSimulationStore = create<SimulationStore>((set, get) => {
         uncertainty: eventData.uncertainty,
       };
 
-      const updatedDimensions = universe.dimensions.map(dim =>
-        dim.id === dimensionId ? { ...dim, events: [...dim.events, newEvent] } : dim
-      );
+      const parentIdsSet = new Set(newEvent.parents);
+      const updatedDimensions = universe.dimensions.map(dim => {
+        const mappedEvents = dim.events.map(ev => {
+          if (!parentIdsSet.has(ev.id)) return ev;
+          return {
+            ...ev,
+            children: ev.children.includes(newId) ? ev.children : [...ev.children, newId],
+            consequences: ev.consequences.includes(newId) ? ev.consequences : [...ev.consequences, newId],
+          };
+        });
+        return dim.id === dimensionId ? { ...dim, events: [...mappedEvents, newEvent] } : { ...dim, events: mappedEvents };
+      });
 
       const newEdges = [...universe.edges];
       if (newEvent.parents.length > 0) {
@@ -365,7 +377,15 @@ export const useSimulationStore = create<SimulationStore>((set, get) => {
 
       const updatedDimensions = universe.dimensions.map(dim => ({
         ...dim,
-        events: dim.events.filter(ev => ev.id !== eventId),
+        events: dim.events
+          .filter(ev => ev.id !== eventId)
+          .map(ev => ({
+            ...ev,
+            parents: ev.parents.filter(id => id !== eventId),
+            children: ev.children.filter(id => id !== eventId),
+            causes: ev.causes.filter(id => id !== eventId),
+            consequences: ev.consequences.filter(id => id !== eventId),
+          })),
       }));
 
       const updatedEdges = universe.edges.filter(e => e.source !== eventId && e.target !== eventId);
@@ -411,6 +431,7 @@ export const useSimulationStore = create<SimulationStore>((set, get) => {
         originYear: travelerData.originYear,
         currentDimensionId: travelerData.originDimensionId,
         currentYear: travelerData.originYear,
+        originEventId: travelerData.originEventId,
         status: TravelerStatus.NORMAL,
         travelHistory: [],
       };

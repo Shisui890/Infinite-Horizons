@@ -7,7 +7,7 @@
  * Estritamente contido no viewport tático sem distorção ou overflow de layout.
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { CelestialBody } from '../../data/celestialBodies';
 import { getCelestialRealMedia, type RealMediaView } from '../../data/celestialRealMedia';
 
@@ -22,6 +22,12 @@ export default function RealPhotographicViewer({ body, isLaymanMode = false }: P
   const [zoomLevel, setZoomLevel] = useState<number>(1);
   const [showScanlines, setShowScanlines] = useState<boolean>(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    setSelectedViewId(mediaProfile?.defaultViewId || '');
+    setZoomLevel(1);
+    setIsLightboxOpen(false);
+  }, [body.id, mediaProfile?.defaultViewId]);
 
   if (!mediaProfile || mediaProfile.views.length === 0) {
     return (

@@ -341,7 +341,10 @@ export default function TimelineCanvas({
 
         // Outer Glow
         const glowGrad = ctx!.createRadialGradient(pos.x, pos.y, 0, pos.x, pos.y, r * 2.8);
-        glowGrad.addColorStop(0, col.replace(')', ', 0.35)').replace('rgb', 'rgba'));
+        const glowColor = col.startsWith('#') && col.length === 7
+          ? `${col}59`
+          : col.replace(')', ', 0.35)').replace('rgb', 'rgba');
+        glowGrad.addColorStop(0, glowColor);
         glowGrad.addColorStop(1, 'transparent');
         ctx!.fillStyle = glowGrad;
         ctx!.fillRect(pos.x - r * 2.8, pos.y - r * 2.8, r * 5.6, r * 5.6);
@@ -452,7 +455,12 @@ export default function TimelineCanvas({
     return null;
   }
 
+  const mouseDownScreenPosRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const mouseMovedRef = useRef<boolean>(false);
+
   function handleMouseDown(e: React.MouseEvent<HTMLCanvasElement>) {
+    mouseDownScreenPosRef.current = { x: e.clientX, y: e.clientY };
+    mouseMovedRef.current = false;
     const targetNodeId = findNodeAt(e.clientX, e.clientY);
     if (targetNodeId) {
       draggedNodeIdRef.current = targetNodeId;
@@ -469,6 +477,10 @@ export default function TimelineCanvas({
 
   function handleMouseMove(e: React.MouseEvent<HTMLCanvasElement>) {
     if (!isDraggingRef.current) return;
+
+    if (Math.hypot(e.clientX - mouseDownScreenPosRef.current.x, e.clientY - mouseDownScreenPosRef.current.y) > 4) {
+      mouseMovedRef.current = true;
+    }
 
     // Node individual dragging
     if (draggedNodeIdRef.current) {
@@ -611,6 +623,7 @@ export default function TimelineCanvas({
   }
 
   function handleClick(e: React.MouseEvent<HTMLCanvasElement>) {
+    if (mouseMovedRef.current) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -658,7 +671,7 @@ export default function TimelineCanvas({
 
         <button
           type="button"
-          className={`btn-canvas-hud ${showHeatmap ? 'active-heat' : ''}`}
+          className={`btn-canvas-hud btn-canvas-heatmap ${showHeatmap ? 'active-heat' : ''}`}
           onClick={() => setShowHeatmap(!showHeatmap)}
           title={isLaymanMode ? 'Destacar acontecimentos com maior impacto' : 'Alternar Mapa de Gravidade & Calor Causal'}
         >

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AITemporalService } from '../engine/AITemporalService';
 import { SimulationService } from '../engine/SimulationService';
 import type { Universe, SimulationLog } from '../types/temporal';
@@ -13,6 +13,16 @@ export default function CreateUniverseModal({ onClose, onCreated }: Props) {
   const [mode, setMode] = useState<'historical' | 'theoretical'>('theoretical');
   const [isCreating, setIsCreating] = useState(false);
   const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape' && !isCreating) {
+        onClose();
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose, isCreating]);
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -34,8 +44,8 @@ export default function CreateUniverseModal({ onClose, onCreated }: Props) {
   }
 
   return (
-    <div className="modal-backdrop">
-      <div className="modal-card universe-create-card">
+    <div className="modal-backdrop" onClick={() => !isCreating && onClose()}>
+      <div className="modal-card universe-create-card" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <div>
             <span className="modal-kicker">MOTOR DE GÊNESE FÍSICO-TEMPORAL</span>

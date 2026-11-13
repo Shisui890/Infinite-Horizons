@@ -25,6 +25,7 @@ interface Props {
 
 export default function CelestialRenderer3D({ body, isLaymanMode = false }: Props) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const animTimeRef = useRef<number>(0);
 
   // Black Hole & Star physics interactive controls
   const [spinA, setSpinA] = useState<number>(body.id === 'm87' ? 0.94 : body.id === 'ton618' ? 0.99 : 0.9);
@@ -46,12 +47,12 @@ export default function CelestialRenderer3D({ body, isLaymanMode = false }: Prop
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let animTime = 0;
     let animId: number;
 
     function renderFrame() {
       if (!canvas || !ctx) return;
-      animTime += 0.015;
+      animTimeRef.current += 0.015;
+      const animTime = animTimeRef.current;
 
       const w = canvas.width;
       const h = canvas.height;

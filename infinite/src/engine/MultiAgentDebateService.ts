@@ -81,7 +81,7 @@ export class MultiAgentDebateService {
                 role: 'system',
                 content: `Você é o mediador de um simpósio de física teórica internacional de alto nível.
 Gere um debate acadêmico rigoroso entre 3 cientistas renomados avaliando o seguinte tema físico:
-1. Dr. Marcus Vance (Relatividade Geral, Geometria Lorentziana)
+1. Dr. Kip Thorne (Simulado) (Relatividade Geral, Geometria Lorentziana)
 2. Dra. Elena Chen (Teoria M, Calabi-Yau, Dualidades)
 3. Dr. Rajesh Patel (Cosmologia Observacional, Dados Observacionais)
 
@@ -89,7 +89,7 @@ Responda ESTRITAMENTE em JSON com a seguinte estrutura:
 {
   "turns": [
     {
-      "agentId": "dr_vance",
+      "agentId": "dr_thorne",
       "statement": "Análise matemática e geométrica rigorosa...",
       "equationsMentioned": ["G_{\\\\mu\\\\nu} + \\\\Lambda g_{\\\\mu\\\\nu} = \\\\frac{8\\\\pi G}{c^4} T_{\\\\mu\\\\nu}"],
       "verdict": "CONSISTENTE"
@@ -147,7 +147,7 @@ Responda ESTRITAMENTE em JSON com a seguinte estrutura:
       agents: DEBATE_AGENTS,
       turns: [
         {
-          agentId: 'dr_vance',
+          agentId: 'dr_thorne',
           statement: `Sob a métrica de Einstein-Hilbert, a estrutura causal é preservada desde que não ocorram violações globais da condição de energia nula (NEC). A curvatura de Ricci permanece compatível com as equações de campo de Einstein sem divergências no tensor de Weyl.`,
           equationsMentioned: ['G_{\\mu\\nu} + \\Lambda g_{\\mu\\nu} = \\frac{8\\pi G}{c^4} T_{\\mu\\nu}'],
           verdict: 'CONSISTENTE',

@@ -20,7 +20,12 @@ export default function SpacetimeIntervalCard({ currentEvent, allEvents }: Props
 
   const [targetEventId, setTargetEventId] = useState<string | null>(defaultTargetId);
 
-  const targetEvent = allEvents.find(e => e.id === targetEventId) || null;
+  const effectiveTargetId =
+    targetEventId && targetEventId !== currentEvent.id && otherEvents.some(e => e.id === targetEventId)
+      ? targetEventId
+      : defaultTargetId;
+
+  const targetEvent = otherEvents.find(e => e.id === effectiveTargetId) || null;
 
   if (!targetEvent) return null;
 
@@ -44,7 +49,7 @@ export default function SpacetimeIntervalCard({ currentEvent, allEvents }: Props
         </div>
         <select
           className="st-target-select"
-          value={targetEventId || ''}
+          value={effectiveTargetId || ''}
           onChange={e => setTargetEventId(e.target.value)}
           title="Selecionar evento para comparar distância temporal e espacial"
         >

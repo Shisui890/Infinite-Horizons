@@ -24,7 +24,7 @@ interface DemoEdge {
 const DEMO_NODES: DemoNode[] = [
   { id: 'e1', label: 'Relatividade Geral', laymanLabel: 'Espaço Curvo (Einstein)', year: 1915, x: 70, y: 150, status: 'stable' },
   { id: 'e2', label: 'Radiação Cósmica (CMB)', laymanLabel: 'Eco do Big Bang', year: 1965, x: 190, y: 100, status: 'stable' },
-  { id: 'e3', label: 'Teoria das Supercordas', laymanLabel: 'Cordas Musicais (11D)', year: 1984, x: 310, y: 160, status: 'stable' },
+  { id: 'e3', label: 'Teoria das Supercordas', laymanLabel: 'Cordas Musicais (11D)', year: 1984, x: 310, y: 160, status: 'paradox' },
   { id: 'e4', label: 'Expansão Acelerada', laymanLabel: 'Energia Misteriosa', year: 1998, x: 430, y: 95, status: 'altered' },
   { id: 'e5', label: 'Ondas Gravitacionais', laymanLabel: 'Som do Espaço-Tempo', year: 2015, x: 550, y: 150, status: 'stable' },
 ];
@@ -62,8 +62,6 @@ export default function DemoSection({ onStartSimulator }: Props) {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     canvas.width = W * dpr;
     canvas.height = H * dpr;
-    canvas.style.width = `${W}px`;
-    canvas.style.height = `${H}px`;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     function getNode(id: string) {

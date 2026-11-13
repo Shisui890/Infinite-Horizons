@@ -377,14 +377,20 @@ export class AerospacePhysicsEngine {
     const nonGravAccel = Math.sqrt(Math.pow((thrustX - dragX) / totalMass, 2) + Math.pow((thrustY - dragY) / totalMass, 2));
     const gForce = parseFloat((nonGravAccel / G0).toFixed(2));
 
-    // Remaining Delta-V for current stage
+    // Remaining Delta-V for current stage and upper stages
     let remainingSubsequent = rocket.payloadMassKg;
-    for (let j = state.currentStageIndex + 1; j < rocket.stages.length; j++) {
-      remainingSubsequent += rocket.stages[j].dryMassKg + rocket.stages[j].propellantMassKg;
+    let upperStagesDeltaV = 0;
+    for (let j = rocket.stages.length - 1; j > state.currentStageIndex; j--) {
+      const st = rocket.stages[j];
+      const stDry = st.dryMassKg + remainingSubsequent;
+      const stWet = stDry + st.propellantMassKg;
+      upperStagesDeltaV += this.calculateTsiolkovskyDeltaV(st.ispVacuumS, stWet, stDry);
+      remainingSubsequent = stWet;
     }
     const stageDry = stage.dryMassKg + remainingSubsequent;
     const stageWet = stageDry + propellantRemaining;
     const stageDeltaV = this.calculateTsiolkovskyDeltaV(currentIsp, stageWet, stageDry);
+    const totalDeltaV = stageDeltaV + upperStagesDeltaV;
 
     // Crash detection
     const hasCrashed = nextAlt <= 0 && state.missionElapsedSeconds > 5 && nextVy < -2;
@@ -410,7 +416,7 @@ export class AerospacePhysicsEngine {
       thrustKN: parseFloat(activeThrustKN.toFixed(1)),
       dragForceKN: parseFloat((dragN / 1000).toFixed(1)),
       stageDeltaVRemainingMS: parseFloat(stageDeltaV.toFixed(1)),
-      totalDeltaVRemainingMS: parseFloat((stageDeltaV).toFixed(1)),
+      totalDeltaVRemainingMS: parseFloat(totalDeltaV.toFixed(1)),
       missionElapsedSeconds: state.missionElapsedSeconds + dt,
       hasCrashed,
       isOrbitAchieved: orbitalData.isOrbitStable,
@@ -432,12 +438,27 @@ export class AerospacePhysicsEngine {
     // Jettison dry mass of exhausted stage
     const updatedMass = state.totalVehicleMassKg - currentStage.dryMassKg - state.stagePropellantMassKg;
 
+    let remainingSubsequent = rocket.payloadMassKg;
+    let upperStagesDeltaV = 0;
+    for (let j = rocket.stages.length - 1; j > nextStageIdx; j--) {
+      const st = rocket.stages[j];
+      const stDry = st.dryMassKg + remainingSubsequent;
+      const stWet = stDry + st.propellantMassKg;
+      upperStagesDeltaV += this.calculateTsiolkovskyDeltaV(st.ispVacuumS, stWet, stDry);
+      remainingSubsequent = stWet;
+    }
+    const newStageDry = newStage.dryMassKg + remainingSubsequent;
+    const newStageWet = newStageDry + newStage.propellantMassKg;
+    const newStageDeltaV = this.calculateTsiolkovskyDeltaV(newStage.ispVacuumS, newStageWet, newStageDry);
+
     return {
       ...state,
       currentStageIndex: nextStageIdx,
       stagePropellantMassKg: newStage.propellantMassKg,
       totalVehicleMassKg: updatedMass,
       thrustKN: newStage.thrustVacuumKN * state.throttle,
+      stageDeltaVRemainingMS: parseFloat(newStageDeltaV.toFixed(1)),
+      totalDeltaVRemainingMS: parseFloat((newStageDeltaV + upperStagesDeltaV).toFixed(1)),
     };
   }
 }
