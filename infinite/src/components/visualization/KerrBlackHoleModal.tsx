@@ -83,14 +83,14 @@ export default function KerrBlackHoleModal({ onClose }: Props) {
   }> | null>(null);
 
   if (!diskNodesRef.current) {
-    diskNodesRef.current = Array.from({ length: 650 }, () => {
+    diskNodesRef.current = Array.from({ length: 260 }, () => {
       const radiusUnit = 2.4 + Math.random() * 6.5;
       return {
         radiusUnit,
         angle: Math.random() * Math.PI * 2,
         speed: 0.028 / Math.sqrt(radiusUnit),
-        size: 1.2 + Math.random() * 2.8,
-        temperature: 0.4 + Math.random() * 0.6,
+        size: 1.4 + Math.random() * 2.6,
+        temperature: 0.45 + Math.random() * 0.55,
       };
     });
   }

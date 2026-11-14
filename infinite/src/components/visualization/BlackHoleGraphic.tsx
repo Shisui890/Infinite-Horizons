@@ -67,12 +67,12 @@ export default function BlackHoleGraphic() {
   }> | null>(null);
 
   if (!particlesRef.current) {
-    particlesRef.current = Array.from({ length: 400 }, () => ({
+    particlesRef.current = Array.from({ length: 180 }, () => ({
       radius: 55 + Math.random() * 110,
       angle: Math.random() * Math.PI * 2,
       speed: 0.015 + Math.random() * 0.035,
-      size: 1 + Math.random() * 2.2,
-      brightness: 0.4 + Math.random() * 0.6,
+      size: 1.2 + Math.random() * 2.2,
+      brightness: 0.45 + Math.random() * 0.55,
       hueOffset: Math.random() * 30 - 15,
     }));
   }
@@ -90,8 +90,21 @@ export default function BlackHoleGraphic() {
 
     const particles = particlesRef.current!;
 
+    let isVisible = true;
+    const observer =
+      typeof IntersectionObserver !== 'undefined'
+        ? new IntersectionObserver(
+            entries => {
+              isVisible = entries[0]?.isIntersecting ?? true;
+            },
+            { threshold: 0.05 }
+          )
+        : null;
+    if (observer) observer.observe(canvas);
+
     function render() {
-      if (!canvas || !ctx) return;
+      animFrameRef.current = requestAnimationFrame(render);
+      if (!canvas || !ctx || !isVisible || document.hidden) return;
 
       const w = canvas.width;
       const h = canvas.height;
@@ -222,14 +235,13 @@ export default function BlackHoleGraphic() {
         ctx.stroke();
         ctx.restore();
       }
-
-      animFrameRef.current = requestAnimationFrame(render);
     }
 
     render();
 
     return () => {
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+      if (observer) observer.disconnect();
     };
   }, [spinA, inclinationDeg, accretionRate, isDopplerEnabled]);
 

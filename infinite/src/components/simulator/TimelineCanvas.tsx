@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, useCallback } from 'react';
+import { useRef, useEffect, useState, useCallback, useMemo } from 'react';
 import type { TemporalEvent, CausalEdge } from '../../types/temporal';
 import { EventStatus } from '../../types/temporal';
 import { LigoAudio } from '../../engine/LigoAudioService';
@@ -82,7 +82,41 @@ export default function TimelineCanvas({
   const draggedNodeIdRef = useRef<string | null>(null);
   const nodeDragStartPosRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
 
-  const sortedEvents = [...events].sort((a, b) => a.year - b.year);
+  const sortedEvents = useMemo(
+    () => [...events].sort((a, b) => a.year - b.year),
+    [events]
+  );
+
+  const preparedMetaMap = useMemo(() => {
+    const map = new Map<
+      string,
+      {
+        line1: string;
+        line2: string;
+        formattedYear: string;
+        statusDotColor: string;
+      }
+    >();
+    for (const event of sortedEvents) {
+      const titleToDisplay = isLaymanMode
+        ? getLaymanExplanation(event.year, event.title).simpleTitle
+        : event.title;
+      const [line1, line2] = splitTitle(titleToDisplay);
+      const isProven = event.scientificStatus === 'proven' || event.evidenceKind === 'documented_fact';
+      const isTheoretical =
+        event.scientificStatus === 'theoretical_untested' || event.evidenceKind === 'scientific_theory';
+      const statusDotColor = isProven ? '#10b981' : isTheoretical ? '#f59e0b' : '#38bdf8';
+      map.set(event.id, {
+        line1,
+        line2,
+        formattedYear: formatHistoricalYear(event.year),
+        statusDotColor,
+      });
+    }
+    return map;
+  }, [sortedEvents, isLaymanMode]);
+
+  const textWidthCacheRef = useRef<Map<string, number>>(new Map());
   const nodePositionsRef = useRef<Map<string, { x: number; y: number; labelY: number; labelAbove: boolean }>>(
     new Map()
   );
@@ -172,29 +206,62 @@ export default function TimelineCanvas({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    function resize() {
+    function ensureCanvasSize() {
       const w = container!.clientWidth;
       const h = container!.clientHeight;
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas!.width = w * dpr;
-      canvas!.height = h * dpr;
-      canvas!.style.width = `${w}px`;
-      canvas!.style.height = `${h}px`;
-      ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      const targetW = Math.round(w * dpr);
+      const targetH = Math.round(h * dpr);
+      if (canvas!.width !== targetW || canvas!.height !== targetH) {
+        canvas!.width = targetW;
+        canvas!.height = targetH;
+        canvas!.style.width = `${w}px`;
+        canvas!.style.height = `${h}px`;
+        ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+      return { w, h };
     }
 
-    resize();
-    window.addEventListener('resize', resize);
+    const initialSize = ensureCanvasSize();
+    let cachedW = initialSize.w;
+    let cachedH = initialSize.h;
+    let positions = calculateLayout(cachedW, cachedH);
+    nodePositionsRef.current = positions;
+
+    function resize() {
+      const { w, h } = ensureCanvasSize();
+      cachedW = w;
+      cachedH = h;
+      positions = calculateLayout(w, h);
+      nodePositionsRef.current = positions;
+    }
+
+    window.addEventListener('resize', resize, { passive: true });
+
+    const highlightSet = new Set(highlightChain);
+
+    function getMeasuredCardWidth(line1: string, line2: string): number {
+      const key = `${line1}||${line2}`;
+      const cached = textWidthCacheRef.current.get(key);
+      if (cached !== undefined) return cached;
+      ctx!.font = '600 11px Inter, sans-serif';
+      const w1 = ctx!.measureText(line1).width;
+      const w2 = line2 ? ctx!.measureText(line2).width : 0;
+      const cardW = Math.max(w1, w2, 110) + 20;
+      textWidthCacheRef.current.set(key, cardW);
+      return cardW;
+    }
 
     function draw() {
+      if (document.hidden) {
+        animRef.current = requestAnimationFrame(draw);
+        return;
+      }
       const frame = frameRef.current++;
-      const w = container!.clientWidth;
-      const h = container!.clientHeight;
+      const w = cachedW;
+      const h = cachedH;
 
       ctx!.clearRect(0, 0, w, h);
-
-      const positions = calculateLayout(w, h);
-      nodePositionsRef.current = positions;
 
       // 0. Causal Heatmap Layer (Gravitational Influence Fields)
       if (showHeatmap) {
@@ -204,14 +271,9 @@ export default function TimelineCanvas({
           const influence = (1 + ev.children.length * 2.2) * (ev.importance / 100);
           const radius = Math.max(40, 48 * influence * zoom);
 
-          const grad = ctx!.createRadialGradient(pos.x, pos.y, 0, pos.x, pos.y, radius);
-          grad.addColorStop(0, ev.isAnchor ? 'rgba(168, 85, 247, 0.45)' : 'rgba(0, 212, 255, 0.35)');
-          grad.addColorStop(0.5, 'rgba(0, 212, 255, 0.12)');
-          grad.addColorStop(1, 'transparent');
-
           ctx!.beginPath();
           ctx!.arc(pos.x, pos.y, radius, 0, Math.PI * 2);
-          ctx!.fillStyle = grad;
+          ctx!.fillStyle = ev.isAnchor ? 'rgba(168, 85, 247, 0.18)' : 'rgba(0, 212, 255, 0.14)';
           ctx!.fill();
 
           // Contour gravitational ring
@@ -331,23 +393,22 @@ export default function TimelineCanvas({
         if (!pos) continue;
 
         const isSelected = selectedEventId === event.id;
-        const isHighlighted = highlightChain.includes(event.id);
+        const isHighlighted = highlightSet.has(event.id);
         const isVisible = event.year <= visibleUntilYear;
         const col = STATUS_COLORS[event.status] || '#00d4ff';
+        const meta = preparedMetaMap.get(event.id)!;
 
         ctx!.globalAlpha = isVisible ? 1 : 0.22;
 
         const r = isSelected ? 11 : isHighlighted ? 9.5 : 8;
 
-        // Outer Glow
-        const glowGrad = ctx!.createRadialGradient(pos.x, pos.y, 0, pos.x, pos.y, r * 2.8);
-        const glowColor = col.startsWith('#') && col.length === 7
-          ? `${col}59`
-          : col.replace(')', ', 0.35)').replace('rgb', 'rgba');
-        glowGrad.addColorStop(0, glowColor);
-        glowGrad.addColorStop(1, 'transparent');
-        ctx!.fillStyle = glowGrad;
-        ctx!.fillRect(pos.x - r * 2.8, pos.y - r * 2.8, r * 5.6, r * 5.6);
+        // Fast Outer Glow (avoids per-frame createRadialGradient allocation)
+        ctx!.beginPath();
+        ctx!.arc(pos.x, pos.y, r * 2.3, 0, Math.PI * 2);
+        ctx!.fillStyle = col;
+        ctx!.globalAlpha = isVisible ? 0.16 : 0.05;
+        ctx!.fill();
+        ctx!.globalAlpha = isVisible ? 1 : 0.22;
 
         // Active Selection Ring
         if (isSelected || isHighlighted) {
@@ -364,19 +425,12 @@ export default function TimelineCanvas({
         ctx!.fillStyle = col;
         ctx!.fill();
 
-        // High-Legibility Card
-        const titleToDisplay = isLaymanMode
-          ? getLaymanExplanation(event.year, event.title).simpleTitle
-          : event.title;
-        const [line1, line2] = splitTitle(titleToDisplay);
-
-        ctx!.font = '600 11px Inter, sans-serif';
-        const w1 = ctx!.measureText(line1).width;
-        const w2 = line2 ? ctx!.measureText(line2).width : 0;
-        const cardW = Math.max(w1, w2, 110) + 20;
+        // High-Legibility Card (using pre-split strings & cached width)
+        const { line1, line2, formattedYear, statusDotColor } = meta;
+        const cardW = getMeasuredCardWidth(line1, line2);
         const cardH = line2 ? 44 : 32;
 
-        const cardX = pos.x - cardW / 2;
+        const cardX = pos.x - cardW * 0.5;
         const cardY = pos.labelAbove ? pos.y - r - cardH - 10 : pos.y + r + 10;
 
         // Connecting line
@@ -402,6 +456,7 @@ export default function TimelineCanvas({
         ctx!.stroke();
 
         // Text
+        ctx!.font = '600 11px Inter, sans-serif';
         ctx!.fillStyle = isSelected ? '#ffffff' : 'rgba(241, 245, 249, 0.95)';
         ctx!.textAlign = 'center';
         ctx!.fillText(line1, pos.x, cardY + (line2 ? 16 : 14));
@@ -413,10 +468,6 @@ export default function TimelineCanvas({
         }
 
         // Scientific Status Indicator Dot
-        const isProven = event.scientificStatus === 'proven' || event.evidenceKind === 'documented_fact';
-        const isTheoretical = event.scientificStatus === 'theoretical_untested' || event.evidenceKind === 'scientific_theory';
-        const statusDotColor = isProven ? '#10b981' : isTheoretical ? '#f59e0b' : '#38bdf8';
-
         ctx!.beginPath();
         ctx!.arc(cardX + 8, cardY + (line2 ? 38 : 24), 2.5, 0, Math.PI * 2);
         ctx!.fillStyle = statusDotColor;
@@ -424,7 +475,7 @@ export default function TimelineCanvas({
 
         ctx!.font = '700 9px Orbitron, sans-serif';
         ctx!.fillStyle = col;
-        ctx!.fillText(formatHistoricalYear(event.year), pos.x, cardY + (line2 ? 39 : 25));
+        ctx!.fillText(formattedYear, pos.x, cardY + (line2 ? 39 : 25));
 
         ctx!.globalAlpha = 1;
       }
@@ -438,7 +489,7 @@ export default function TimelineCanvas({
       cancelAnimationFrame(animRef.current);
       window.removeEventListener('resize', resize);
     };
-  }, [events, edges, selectedEventId, highlightChain, visibleUntilYear, sortedEvents, zoom, pan, showHeatmap, calculateLayout, isLaymanMode]);
+  }, [edges, selectedEventId, highlightChain, visibleUntilYear, sortedEvents, preparedMetaMap, zoom, pan, showHeatmap, calculateLayout]);
 
   function findNodeAt(clientX: number, clientY: number): string | null {
     const canvas = canvasRef.current;

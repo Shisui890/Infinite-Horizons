@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, lazy, Suspense } from 'react';
 import {
   CELESTIAL_BODIES,
   CELESTIAL_SECTORS,
@@ -7,9 +7,10 @@ import {
 import { getCelestialRealMedia } from '../data/celestialRealMedia';
 import StellarOrreryCanvas from './universe/StellarOrreryCanvas';
 import TargetScannerPanel from './universe/TargetScannerPanel';
-import AerospaceFlightSimulator from './aerospace/AerospaceFlightSimulator';
-import NasaCosmologyObservatory from './universe/NasaCosmologyObservatory';
 import { useLaymanMode } from '../context/LaymanModeContext';
+
+const AerospaceFlightSimulator = lazy(() => import('./aerospace/AerospaceFlightSimulator'));
+const NasaCosmologyObservatory = lazy(() => import('./universe/NasaCosmologyObservatory'));
 
 interface Props {
   onBack: () => void;
@@ -253,15 +254,17 @@ export default function OurUniversePage({ onBack, onStartSimulator }: Props) {
         </>
       )}
 
-      {/* MODE 2: SIMULADOR AEROESPACIAL (KSP & RE-ENTRY) */}
-      {universeMode === 'aerospace_sim' && (
-        <AerospaceFlightSimulator isLaymanMode={isLaymanMode} />
-      )}
+      <Suspense fallback={null}>
+        {/* MODE 2: SIMULADOR AEROESPACIAL (KSP & RE-ENTRY) */}
+        {universeMode === 'aerospace_sim' && (
+          <AerospaceFlightSimulator isLaymanMode={isLaymanMode} />
+        )}
 
-      {/* MODE 3: OBSERVATÓRIO NASA & COSMOLOGIA */}
-      {universeMode === 'nasa_observatory' && (
-        <NasaCosmologyObservatory isLaymanMode={isLaymanMode} />
-      )}
+        {/* MODE 3: OBSERVATÓRIO NASA & COSMOLOGIA */}
+        {universeMode === 'nasa_observatory' && (
+          <NasaCosmologyObservatory isLaymanMode={isLaymanMode} />
+        )}
+      </Suspense>
     </div>
   );
 }

@@ -59,16 +59,30 @@ export default function DemoSection({ onStartSimulator }: Props) {
 
     const W = 640;
     const H = 340;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
     canvas.width = W * dpr;
     canvas.height = H * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    let isVisible = true;
+    const observer =
+      typeof IntersectionObserver !== 'undefined'
+        ? new IntersectionObserver(
+            entries => {
+              isVisible = entries[0]?.isIntersecting ?? true;
+            },
+            { threshold: 0.05 }
+          )
+        : null;
+    if (observer) observer.observe(canvas);
 
     function getNode(id: string) {
       return DEMO_NODES.find(n => n.id === id)!;
     }
 
     function draw() {
+      animRef.current = requestAnimationFrame(draw);
+      if (!isVisible || document.hidden) return;
       const frame = frameRef.current++;
 
       ctx!.clearRect(0, 0, W, H);
@@ -104,15 +118,15 @@ export default function DemoSection({ onStartSimulator }: Props) {
       }
 
       // Draw nodes
-      for (const node of DEMO_NODES) {
+      for (let i = 0; i < DEMO_NODES.length; i++) {
+        const node = DEMO_NODES[i];
         const col = STATUS_COLORS[node.status];
-        const pulse = Math.sin(frame * 0.04 + DEMO_NODES.indexOf(node)) * 0.12 + 1;
+        const pulse = Math.sin(frame * 0.04 + i) * 0.12 + 1;
 
-        const glowGrad = ctx!.createRadialGradient(node.x, node.y, 0, node.x, node.y, 28 * pulse);
-        glowGrad.addColorStop(0, col.glow);
-        glowGrad.addColorStop(1, 'transparent');
-        ctx!.fillStyle = glowGrad;
-        ctx!.fillRect(node.x - 35, node.y - 35, 70, 70);
+        ctx!.beginPath();
+        ctx!.arc(node.x, node.y, 20 * pulse, 0, Math.PI * 2);
+        ctx!.fillStyle = col.glow;
+        ctx!.fill();
 
         ctx!.beginPath();
         ctx!.arc(node.x, node.y, 9 * pulse, 0, Math.PI * 2);
@@ -158,13 +172,14 @@ export default function DemoSection({ onStartSimulator }: Props) {
       ctx!.fillStyle = 'rgba(0, 229, 255, 0.9)';
       ctx!.textAlign = 'right';
       ctx!.fillText(isLaymanMode ? 'STATUS: LIVRE DE PARADOXOS' : 'STATUS: AUTOCONSISTÊNCIA PRESERVADA', W - 24, 26);
-
-      animRef.current = requestAnimationFrame(draw);
     }
 
     draw();
 
-    return () => cancelAnimationFrame(animRef.current);
+    return () => {
+      cancelAnimationFrame(animRef.current);
+      if (observer) observer.disconnect();
+    };
   }, [isLaymanMode]);
 
   return (
