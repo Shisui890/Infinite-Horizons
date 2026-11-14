@@ -123,10 +123,11 @@ export default function DemoSection({ onStartSimulator }: Props) {
         const col = STATUS_COLORS[node.status];
         const pulse = Math.sin(frame * 0.04 + i) * 0.12 + 1;
 
-        ctx!.beginPath();
-        ctx!.arc(node.x, node.y, 20 * pulse, 0, Math.PI * 2);
-        ctx!.fillStyle = col.glow;
-        ctx!.fill();
+        const glowGrad = ctx!.createRadialGradient(node.x, node.y, 0, node.x, node.y, 28 * pulse);
+        glowGrad.addColorStop(0, col.glow);
+        glowGrad.addColorStop(1, 'transparent');
+        ctx!.fillStyle = glowGrad;
+        ctx!.fillRect(node.x - 35, node.y - 35, 70, 70);
 
         ctx!.beginPath();
         ctx!.arc(node.x, node.y, 9 * pulse, 0, Math.PI * 2);
