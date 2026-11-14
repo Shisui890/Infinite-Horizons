@@ -56,7 +56,7 @@ export const NASA_UNIVERSE_PILLARS: NasaUniversePillar[] = [
     summaryDidactic:
       'Até o início dos anos 1990, não sabíamos se existiam planetas ao redor de outras estrelas. Hoje, telescópios espaciais da NASA já confirmaram mais de 5.700 exoplanetas em nossa galáxia! Encontramos desde gigantes gasosos mais quentes que ferro fundido até mundos rochosos do tamanho da Terra na Zona Habitável, onde água líquida pode existir.',
     summaryTechnical:
-      'Estudo da formação, arquitetura orbital e caracterização atmosférica de planetas extrassolares. Métodos primários de detecção incluem Fotometria de Trânsito ($\Delta F / F$), Velocidade Radial Espectroscópica via efeito Doppler, Microlenteamento Gravitacional e Coronagrafia de Imagem Direta de alto contraste.',
+      'Estudo da formação, arquitetura orbital e caracterização atmosférica de planetas extrassolares. Métodos primários de detecção incluem Fotometria de Trânsito ($\\Delta F / F$), Velocidade Radial Espectroscópica via efeito Doppler, Microlenteamento Gravitacional e Coronagrafia de Imagem Direta de alto contraste.',
     keyStats: [
       { label: 'Planetas Confirmados', value: '5.700+', subtext: 'Catalogados no NASA Exoplanet Archive' },
       { label: 'Sistemas Planetários', value: '4.200+', subtext: 'Estrelas com múltiplos mundos em órbita' },
@@ -246,7 +246,7 @@ export const NASA_UNIVERSE_PILLARS: NasaUniversePillar[] = [
     summaryDidactic:
       'Ao contrário do que muitos imaginam, o Big Bang não foi uma explosão que aconteceu em algum lugar no espaço: foi a expansão súbita do próprio espaço em todos os lugares ao mesmo tempo! Há 13,8 bilhões de anos, todo o cosmos estava compactado em um ponto incrivelmente quente e denso que se expandiu, resfriou e permitiu a criação dos primeiros átomos.',
     summaryTechnical:
-      'Modelo padrão cosmológico $\Lambda\\text{CDM}$ fundamentado na Relatividade Geral e na métrica FLRW homogênea e isotrópica. Evidências irrefutáveis incluem a recessão galáctica universal de Hubble, a Radiação Cósmica de Fundo em Micro-ondas ($CMB$) a $2.7255 \\text{ K}$ e a razão de abundância de elementos leves calculada pela Nucleossíntese Primordial.',
+      'Modelo padrão cosmológico $\\Lambda\\text{CDM}$ fundamentado na Relatividade Geral e na métrica FLRW homogênea e isotrópica. Evidências irrefutáveis incluem a recessão galáctica universal de Hubble, a Radiação Cósmica de Fundo em Micro-ondas ($CMB$) a $2.7255 \\text{ K}$ e a razão de abundância de elementos leves calculada pela Nucleossíntese Primordial.',
     keyStats: [
       { label: 'Idade do Universo', value: '13,787 ± 0,020 Ga', subtext: 'Determinada com precisão milimétrica pelo WMAP e Planck' },
       { label: 'Temperatura Atual do CMB', value: '2,7255 Kelvin', subtext: 'Espectro de corpo negro mais perfeito já medido na natureza' },
@@ -260,7 +260,7 @@ export const NASA_UNIVERSE_PILLARS: NasaUniversePillar[] = [
       { name: 'SPHEREx', role: 'Mapeador espectroscópico de céu total para investigar a inflação primordial', status: 'Futura' },
     ],
     coreDiscoveries: [
-      'Confirmação de que o universo possui geometria espacial euclidiana plana ($\Omega_k \\approx 0$).',
+      'Confirmação de que o universo possui geometria espacial euclidiana plana ($\\Omega_k \\approx 0$).',
       'Descoberta de anomalias acústicas bariônicas (BAO) funcionando como régua padrão cósmica.',
       'Validação de que as minúsculas flutuações de temperatura de 1 parte em 100.000 geraram os superaglomerados.',
       'Medição do tempo de desacoplamento fóton-elétron em redshift $z \\approx 1100$.',
@@ -306,7 +306,7 @@ export const NASA_UNIVERSE_PILLARS: NasaUniversePillar[] = [
     formula: {
       latex: '\\frac{\\ddot{a}}{a} = -\\frac{4\\pi G}{3} \\left(\\rho + \\frac{3P}{c^2}\\right) + \\frac{\\Lambda c^2}{3}, \\quad w = \\frac{P}{\\rho c^2} \\approx -1',
       label: 'Equação de Aceleração de Friedmann com Constante Cosmológica',
-      explanation: 'Mostra que para uma pressão negativa $P < -\\rho c^2 / 3$, a derivada segunda do fator de escala torna-se positiva ($\ddot{a} > 0$), provocando expansão acelerada.',
+      explanation: 'Mostra que para uma pressão negativa $P < -\\rho c^2 / 3$, a derivada segunda do fator de escala torna-se positiva ($\\ddot{a} > 0$), provocando expansão acelerada.',
     },
     nasaDirectorateQuote:
       '"A Energia Escura é talvez o mistério mais intrigante de toda a física fundamental moderna." — NASA Astrophysics Science Division',

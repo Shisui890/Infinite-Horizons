@@ -218,7 +218,7 @@ export class CausalBacktrackingEngine {
       totalShiftYears: shift,
       overallFeasibilityScore: 74,
       primaryBottleneckFormula: '\\Delta t_{\\text{aceleração}} = \\sum_{i=1}^n \\tau_i \\cdot \\eta_i^{-1}',
-      bottleneckExplanation: 'Tempo de maturação tecnológica ($\Delta t$). Requer antecipação dos instrumentos de mensuração e ampliação do financiamento acadêmico nas etapas precedentes.',
+      bottleneckExplanation: 'Tempo de maturação tecnológica ($\\Delta t$). Requer antecipação dos instrumentos de mensuração e ampliação do financiamento acadêmico nas etapas precedentes.',
       pioneerCandidates: ['Comitê de Filosofia Natural da Royal Society', 'Academias Científicas Europeias'],
       prerequisiteSteps: [
         {

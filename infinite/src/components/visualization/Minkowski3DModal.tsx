@@ -27,9 +27,14 @@ export default function Minkowski3DModal({ universe, onClose }: Props) {
     );
     camera.position.set(0, 30, 80);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(container.clientWidth, container.clientHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+    } catch {
+      return;
+    }
+    renderer.setSize(container.clientWidth || 800, container.clientHeight || 500);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     container.appendChild(renderer.domElement);
 
     // Lights

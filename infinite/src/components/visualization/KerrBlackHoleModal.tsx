@@ -82,19 +82,6 @@ export default function KerrBlackHoleModal({ onClose }: Props) {
     temperature: number;
   }> | null>(null);
 
-  if (!diskNodesRef.current) {
-    diskNodesRef.current = Array.from({ length: 260 }, () => {
-      const radiusUnit = 2.4 + Math.random() * 6.5;
-      return {
-        radiusUnit,
-        angle: Math.random() * Math.PI * 2,
-        speed: 0.028 / Math.sqrt(radiusUnit),
-        size: 1.4 + Math.random() * 2.6,
-        temperature: 0.45 + Math.random() * 0.55,
-      };
-    });
-  }
-
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -177,7 +164,19 @@ export default function KerrBlackHoleModal({ onClose }: Props) {
     if (!ctx) return;
 
     let animId: number;
-    const diskNodes = diskNodesRef.current!;
+    if (!diskNodesRef.current) {
+      diskNodesRef.current = Array.from({ length: 260 }, () => {
+        const radiusUnit = 2.4 + Math.random() * 6.5;
+        return {
+          radiusUnit,
+          angle: Math.random() * Math.PI * 2,
+          speed: 0.028 / Math.sqrt(radiusUnit),
+          size: 1.4 + Math.random() * 2.6,
+          temperature: 0.45 + Math.random() * 0.55,
+        };
+      });
+    }
+    const diskNodes = diskNodesRef.current;
 
     function render() {
       if (!canvas || !ctx) return;

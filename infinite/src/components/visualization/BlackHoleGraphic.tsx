@@ -66,17 +66,6 @@ export default function BlackHoleGraphic() {
     hueOffset: number;
   }> | null>(null);
 
-  if (!particlesRef.current) {
-    particlesRef.current = Array.from({ length: 180 }, () => ({
-      radius: 55 + Math.random() * 110,
-      angle: Math.random() * Math.PI * 2,
-      speed: 0.015 + Math.random() * 0.035,
-      size: 1.2 + Math.random() * 2.2,
-      brightness: 0.45 + Math.random() * 0.55,
-      hueOffset: Math.random() * 30 - 15,
-    }));
-  }
-
   const spinId = useId();
   const inclinationId = useId();
   const accretionId = useId();
@@ -88,7 +77,17 @@ export default function BlackHoleGraphic() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const particles = particlesRef.current!;
+    if (!particlesRef.current) {
+      particlesRef.current = Array.from({ length: 180 }, () => ({
+        radius: 55 + Math.random() * 110,
+        angle: Math.random() * Math.PI * 2,
+        speed: 0.015 + Math.random() * 0.035,
+        size: 1.2 + Math.random() * 2.2,
+        brightness: 0.45 + Math.random() * 0.55,
+        hueOffset: Math.random() * 30 - 15,
+      }));
+    }
+    const particles = particlesRef.current;
 
     let isVisible = true;
     const observer =
