@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import InteractiveBackground from './components/InteractiveBackground';
 import LandingPage from './components/LandingPage';
 import SimulatorView from './components/simulator/SimulatorView';
@@ -88,6 +89,7 @@ function App() {
           }}
         />
       )}
+      <Analytics />
     </LaymanModeProvider>
   );
 }
