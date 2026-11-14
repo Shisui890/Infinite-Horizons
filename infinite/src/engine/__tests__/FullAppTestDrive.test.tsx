@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
-import appCssText from '../../App.css?raw';
+import fs from 'node:fs';
+import path from 'node:path';
 import App from '../../App';
 import '../../components/HowItWorksPage';
 import '../../components/OurUniversePage';
@@ -79,7 +80,8 @@ beforeEach(() => {
 
 describe('Full Site Test-Drive (E2E UI, Modals, Math & CSS Audit)', () => {
   it('1. CSS Stylesheet Integrity: balanced braces and critical layout guards', () => {
-    const css = appCssText;
+    const cssPath = path.resolve(__dirname, '../../App.css');
+    const css = fs.readFileSync(cssPath, 'utf8');
 
     // Check balanced curly braces across the entire 19,000+ line CSS file
     let depth = 0;
@@ -98,6 +100,11 @@ describe('Full Site Test-Drive (E2E UI, Modals, Math & CSS Audit)', () => {
 
     // Check TimelineSplitComparatorModal split-half-panel layout guard (prevents overlapping text)
     expect(css).toMatch(/\.split-half-panel\s*\{[^}]*overflow-y:\s*auto/s);
+
+    // Check Canvas HUD controls single-line guard for Calor & Ondas Gravitacionais
+    expect(css).toMatch(/\.btn-canvas-hud\s*\{[^}]*white-space:\s*nowrap/s);
+    expect(css).toMatch(/\.btn-canvas-hud\.active-waves\s*\{/s);
+    expect(css).toMatch(/\.btn-canvas-hud\.active-heat\s*\{/s);
   });
 
   it('2. Landing Page: renders navbar, hero, demo section, didactic toggle, and footer credits', async () => {
@@ -211,6 +218,22 @@ describe('Full Site Test-Drive (E2E UI, Modals, Math & CSS Audit)', () => {
     expect(langBtn.textContent).toBe('EN');
     fireEvent.click(langBtn);
     expect(langBtn.textContent).toBe('PT');
+
+    // Test Canvas HUD: Ondas Gravitacionais & Mapa de Calor toggles
+    const wavesBtn = document.querySelector('.btn-canvas-waves') as HTMLButtonElement;
+    const heatBtn = document.querySelector('.btn-canvas-heatmap') as HTMLButtonElement;
+    expect(wavesBtn).toBeTruthy();
+    expect(heatBtn).toBeTruthy();
+
+    fireEvent.click(wavesBtn);
+    expect(wavesBtn.classList.contains('active-waves')).toBe(true);
+    fireEvent.click(heatBtn);
+    expect(heatBtn.classList.contains('active-heat')).toBe(true);
+
+    fireEvent.click(wavesBtn);
+    expect(wavesBtn.classList.contains('active-waves')).toBe(false);
+    fireEvent.click(heatBtn);
+    expect(heatBtn.classList.contains('active-heat')).toBe(false);
 
     // Select an event in the store and verify EventInspector renders cleanly without bank icon
     const store = useSimulationStore.getState();

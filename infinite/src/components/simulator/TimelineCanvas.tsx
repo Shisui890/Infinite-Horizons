@@ -76,8 +76,9 @@ export default function TimelineCanvas({
   const isDraggingRef = useRef(false);
   const dragStartRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
 
-  // Heatmap & Node Dragging State
+  // Heatmap, Gravitational Waves & Node Dragging State
   const [showHeatmap, setShowHeatmap] = useState(false);
+  const [showGravitationalWaves, setShowGravitationalWaves] = useState(false);
   const [nodeCustomOffsets, setNodeCustomOffsets] = useState<Record<string, { dx: number; dy: number }>>({});
   const draggedNodeIdRef = useRef<string | null>(null);
   const nodeDragStartPosRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
@@ -124,16 +125,18 @@ export default function TimelineCanvas({
   // Gravitational Wave Ripples on Spacetime Grid
   const ripplesRef = useRef<GravitationalRipple[]>([]);
 
-  const emitRippleAt = useCallback((x: number, y: number, color: string = '#00d4ff') => {
+  const emitRippleAt = useCallback((x: number, y: number, color: string = '#00d4ff', playSound: boolean = true) => {
     ripplesRef.current.push({
       x,
       y,
-      radius: 6,
-      maxRadius: 220,
+      radius: 8,
+      maxRadius: 260,
       opacity: 0.95,
       color,
     });
-    CosmicAudio.playMetricWave();
+    if (playSound) {
+      CosmicAudio.playMetricWave();
+    }
   }, []);
 
   useEffect(() => {
@@ -207,8 +210,8 @@ export default function TimelineCanvas({
     if (!ctx) return;
 
     function ensureCanvasSize() {
-      const w = container!.clientWidth;
-      const h = container!.clientHeight;
+      const w = container!.clientWidth || 800;
+      const h = container!.clientHeight || 500;
       const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
       const targetW = Math.round(w * dpr);
       const targetH = Math.round(h * dpr);
@@ -217,8 +220,8 @@ export default function TimelineCanvas({
         canvas!.height = targetH;
         canvas!.style.width = `${w}px`;
         canvas!.style.height = `${h}px`;
-        ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
       }
+      ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
       return { w, h };
     }
 
@@ -237,6 +240,13 @@ export default function TimelineCanvas({
     }
 
     window.addEventListener('resize', resize, { passive: true });
+    const resizeObserver =
+      typeof ResizeObserver !== 'undefined'
+        ? new ResizeObserver(() => resize())
+        : null;
+    if (resizeObserver) {
+      resizeObserver.observe(container);
+    }
 
     const highlightSet = new Set(highlightChain);
 
@@ -263,39 +273,100 @@ export default function TimelineCanvas({
 
       ctx!.clearRect(0, 0, w, h);
 
-      // 0. Causal Heatmap Layer (Gravitational Influence Fields)
+      // 0. Causal Heatmap Layer (Gravitational & Thermal Influence Fields)
       if (showHeatmap) {
+        const heatPulse = Math.sin(frame * 0.04) * 0.06 + 1;
         sortedEvents.forEach(ev => {
           const pos = positions.get(ev.id);
           if (!pos) return;
-          const influence = (1 + ev.children.length * 2.2) * (ev.importance / 100);
-          const radius = Math.max(40, 48 * influence * zoom);
+          const influence = (1 + ev.children.length * 1.4) * (ev.importance / 100);
+          const radius = Math.min(135, Math.max(52, 42 * influence)) * zoom * heatPulse;
+
+          const isHighHeat =
+            ev.isAnchor ||
+            ev.status === EventStatus.PARADOXICAL ||
+            ev.status === EventStatus.ALTERED ||
+            ev.importance >= 88;
+
+          const grad = ctx!.createRadialGradient(pos.x, pos.y, 0, pos.x, pos.y, radius);
+          if (ev.status === EventStatus.PARADOXICAL) {
+            grad.addColorStop(0, 'rgba(239, 68, 68, 0.52)');
+            grad.addColorStop(0.45, 'rgba(245, 158, 11, 0.24)');
+            grad.addColorStop(1, 'rgba(239, 68, 68, 0)');
+          } else if (isHighHeat) {
+            grad.addColorStop(0, 'rgba(245, 158, 11, 0.46)');
+            grad.addColorStop(0.45, 'rgba(168, 85, 247, 0.22)');
+            grad.addColorStop(1, 'rgba(168, 85, 247, 0)');
+          } else {
+            grad.addColorStop(0, 'rgba(0, 212, 255, 0.38)');
+            grad.addColorStop(0.5, 'rgba(56, 189, 248, 0.14)');
+            grad.addColorStop(1, 'rgba(0, 212, 255, 0)');
+          }
 
           ctx!.beginPath();
           ctx!.arc(pos.x, pos.y, radius, 0, Math.PI * 2);
-          ctx!.fillStyle = ev.isAnchor ? 'rgba(168, 85, 247, 0.18)' : 'rgba(0, 212, 255, 0.14)';
+          ctx!.fillStyle = grad;
           ctx!.fill();
 
-          // Contour gravitational ring
+          // Contour gravitational equipotential ring
           ctx!.beginPath();
-          ctx!.arc(pos.x, pos.y, radius * 0.75, 0, Math.PI * 2);
-          ctx!.strokeStyle = 'rgba(0, 212, 255, 0.15)';
-          ctx!.setLineDash([2, 4]);
+          ctx!.arc(pos.x, pos.y, radius * 0.58, 0, Math.PI * 2);
+          ctx!.strokeStyle = isHighHeat ? 'rgba(251, 191, 36, 0.32)' : 'rgba(0, 212, 255, 0.24)';
+          ctx!.lineWidth = 1;
+          ctx!.setLineDash([3, 5]);
           ctx!.stroke();
           ctx!.setLineDash([]);
+
+          // Thermal / Causal Mass telemetry tag
+          ctx!.font = '700 9px Orbitron, sans-serif';
+          ctx!.fillStyle = isHighHeat ? '#fbbf24' : '#38bdf8';
+          ctx!.textAlign = 'center';
+          ctx!.fillText(`${ ev.importance }% G`, pos.x, pos.y - 16);
         });
       }
 
-      // 1. Spacetime Grid lines (Year ticks)
-      sortedEvents.forEach(ev => {
+      // 0.5 Continuous Gravitational Wave Emitter when mode is active
+      if (showGravitationalWaves && frame % 38 === 0 && sortedEvents.length > 0) {
+        const sourceIdx = Math.floor(frame / 38) % sortedEvents.length;
+        const sourceEv = sortedEvents[sourceIdx];
+        const sourcePos = positions.get(sourceEv.id);
+        if (sourcePos) {
+          ripplesRef.current.push({
+            x: sourcePos.x,
+            y: sourcePos.y,
+            radius: 10,
+            maxRadius: 260,
+            opacity: 0.88,
+            color: sourceIdx % 2 === 0 ? '#00d4ff' : '#a855f7',
+          });
+        }
+      }
+
+      // 1. Spacetime Grid lines (Year ticks + Quadrupole Wave Distortion when active)
+      sortedEvents.forEach((ev, idx) => {
         const pos = positions.get(ev.id);
         if (!pos) return;
 
         ctx!.beginPath();
-        ctx!.moveTo(pos.x, 30);
-        ctx!.lineTo(pos.x, h - 35);
-        ctx!.strokeStyle = 'rgba(255, 255, 255, 0.035)';
-        ctx!.lineWidth = 1;
+        if (showGravitationalWaves) {
+          const waveOffset = Math.sin(frame * 0.07 + idx * 0.9) * 8;
+          ctx!.moveTo(pos.x, 30);
+          ctx!.bezierCurveTo(
+            pos.x + waveOffset,
+            h * 0.35,
+            pos.x - waveOffset,
+            h * 0.65,
+            pos.x,
+            h - 35
+          );
+          ctx!.strokeStyle = 'rgba(0, 212, 255, 0.14)';
+          ctx!.lineWidth = 1.2;
+        } else {
+          ctx!.moveTo(pos.x, 30);
+          ctx!.lineTo(pos.x, h - 35);
+          ctx!.strokeStyle = 'rgba(255, 255, 255, 0.035)';
+          ctx!.lineWidth = 1;
+        }
         ctx!.stroke();
 
         ctx!.font = '600 9px Orbitron, sans-serif';
@@ -361,28 +432,44 @@ export default function TimelineCanvas({
         ctx!.fill();
       }
 
-      // 3.5 Draw Relativistic Gravitational Wave Ripples
-      ripplesRef.current = ripplesRef.current.filter(r => r.opacity > 0.02);
+      // 3.5 Draw Relativistic Gravitational Wave Ripples (h+ / hx Quadrupole Interferometry)
+      ripplesRef.current = ripplesRef.current.filter(
+        r => r.opacity > 0.025 && r.radius < r.maxRadius
+      );
       for (const rip of ripplesRef.current) {
-        rip.radius += 3.2;
-        rip.opacity *= 0.958;
+        rip.radius += 2.6;
+        const progress = rip.radius / rip.maxRadius;
+        rip.opacity = Math.max(0, (1 - progress) * 0.9);
 
         ctx!.save();
+        // Outer primary wave crest
         ctx!.beginPath();
         ctx!.arc(rip.x, rip.y, rip.radius, 0, Math.PI * 2);
         ctx!.strokeStyle = rip.color;
-        ctx!.lineWidth = Math.max(1, 3.2 * rip.opacity);
+        ctx!.lineWidth = Math.max(1.2, 2.8 * rip.opacity);
         ctx!.globalAlpha = rip.opacity;
-        ctx!.shadowColor = rip.color;
-        ctx!.shadowBlur = 14 * rip.opacity;
         ctx!.stroke();
 
-        if (rip.radius > 24) {
+        // Secondary interferometric wave crest
+        if (rip.radius > 20) {
           ctx!.beginPath();
-          ctx!.arc(rip.x, rip.y, rip.radius * 0.7, 0, Math.PI * 2);
-          ctx!.lineWidth = Math.max(0.8, 1.6 * rip.opacity);
-          ctx!.globalAlpha = rip.opacity * 0.45;
+          ctx!.arc(rip.x, rip.y, rip.radius * 0.72, 0, Math.PI * 2);
+          ctx!.strokeStyle = rip.color;
+          ctx!.lineWidth = Math.max(0.9, 1.8 * rip.opacity);
+          ctx!.globalAlpha = rip.opacity * 0.55;
           ctx!.stroke();
+        }
+
+        // Tertiary inner harmonic ring
+        if (rip.radius > 45) {
+          ctx!.beginPath();
+          ctx!.arc(rip.x, rip.y, rip.radius * 0.44, 0, Math.PI * 2);
+          ctx!.strokeStyle = '#38bdf8';
+          ctx!.lineWidth = 1;
+          ctx!.globalAlpha = rip.opacity * 0.35;
+          ctx!.setLineDash([4, 4]);
+          ctx!.stroke();
+          ctx!.setLineDash([]);
         }
         ctx!.restore();
       }
@@ -402,13 +489,19 @@ export default function TimelineCanvas({
 
         const r = isSelected ? 11 : isHighlighted ? 9.5 : 8;
 
-        // Fast Outer Glow (avoids per-frame createRadialGradient allocation)
+        // Smooth Radial Outer Glow
+        const glowRadius = r * 2.8;
+        const glowGrad = ctx!.createRadialGradient(pos.x, pos.y, 0, pos.x, pos.y, glowRadius);
+        const glowColor =
+          col.startsWith('#') && col.length === 7
+            ? `${col}59`
+            : col.replace(')', ', 0.35)').replace('rgb', 'rgba');
+        glowGrad.addColorStop(0, glowColor);
+        glowGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
         ctx!.beginPath();
-        ctx!.arc(pos.x, pos.y, r * 2.3, 0, Math.PI * 2);
-        ctx!.fillStyle = col;
-        ctx!.globalAlpha = isVisible ? 0.16 : 0.05;
+        ctx!.arc(pos.x, pos.y, glowRadius, 0, Math.PI * 2);
+        ctx!.fillStyle = glowGrad;
         ctx!.fill();
-        ctx!.globalAlpha = isVisible ? 1 : 0.22;
 
         // Active Selection Ring
         if (isSelected || isHighlighted) {
@@ -488,8 +581,9 @@ export default function TimelineCanvas({
     return () => {
       cancelAnimationFrame(animRef.current);
       window.removeEventListener('resize', resize);
+      if (resizeObserver) resizeObserver.disconnect();
     };
-  }, [edges, selectedEventId, highlightChain, visibleUntilYear, sortedEvents, preparedMetaMap, zoom, pan, showHeatmap, calculateLayout]);
+  }, [edges, selectedEventId, highlightChain, visibleUntilYear, sortedEvents, preparedMetaMap, zoom, pan, showHeatmap, showGravitationalWaves, calculateLayout]);
 
   function findNodeAt(clientX: number, clientY: number): string | null {
     const canvas = canvasRef.current;
@@ -702,28 +796,41 @@ export default function TimelineCanvas({
       <div className="canvas-floating-controls">
         <button
           type="button"
-          className="btn-canvas-hud"
+          className={`btn-canvas-hud btn-canvas-waves ${showGravitationalWaves ? 'active-waves' : ''}`}
           onClick={() => {
-            const positions = nodePositionsRef.current;
-            let count = 0;
-            for (const [, pos] of positions.entries()) {
-              const c = count;
-              setTimeout(() => {
-                emitRippleAt(pos.x, pos.y, c % 2 === 0 ? '#00d4ff' : '#a855f7');
-              }, c * 90);
-              count++;
-              if (count >= 5) break;
+            const next = !showGravitationalWaves;
+            setShowGravitationalWaves(next);
+            if (next) {
+              LigoAudio.playLigoChirp();
+              const positions = nodePositionsRef.current;
+              let count = 0;
+              for (const [, pos] of positions.entries()) {
+                const c = count;
+                setTimeout(() => {
+                  emitRippleAt(pos.x, pos.y, c % 2 === 0 ? '#00d4ff' : '#a855f7', false);
+                }, c * 80);
+                count++;
+                if (count >= 6) break;
+              }
+            } else {
+              ripplesRef.current = [];
             }
           }}
-          title={isLaymanMode ? 'Disparar ondas de choque pelo espaço-tempo' : 'Emitir Perturbação de Ondas Gravitacionais na Métrica'}
+          title={isLaymanMode ? 'Ativar ou desativar ondas de choque pelo espaço-tempo' : 'Alternar Propagação de Ondas Gravitacionais na Métrica (LIGO)'}
         >
-          {isLaymanMode ? 'Ondas no Espaço' : 'Ondas Gravitacionais'}
+          {showGravitationalWaves
+            ? (isLaymanMode ? 'Ondas Ativas' : 'Ondas Gravitacionais: ON')
+            : (isLaymanMode ? 'Ondas no Espaço' : 'Ondas Gravitacionais')}
         </button>
 
         <button
           type="button"
           className={`btn-canvas-hud btn-canvas-heatmap ${showHeatmap ? 'active-heat' : ''}`}
-          onClick={() => setShowHeatmap(!showHeatmap)}
+          onClick={() => {
+            const next = !showHeatmap;
+            setShowHeatmap(next);
+            CosmicAudio.playNodeSelect(next ? 85 : 60);
+          }}
           title={isLaymanMode ? 'Destacar acontecimentos com maior impacto' : 'Alternar Mapa de Gravidade & Calor Causal'}
         >
           {showHeatmap

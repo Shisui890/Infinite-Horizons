@@ -112,11 +112,11 @@ export default function CosmicAcousticsModal({ onClose, initialSignalId }: Props
         }
 
         ctx.lineTo(width, height / 2);
-        ctx.stroke();
-
-        // Brilho fluorescente
+        ctx.save();
         ctx.shadowBlur = 12;
         ctx.shadowColor = 'rgba(56, 189, 248, 0.6)';
+        ctx.stroke();
+        ctx.restore();
       } else {
         // Linha de repouso (silêncio)
         ctx.strokeStyle = 'rgba(100, 116, 139, 0.35)';
