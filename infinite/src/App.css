@@ -18235,6 +18235,7 @@
 .cf-dossier-header {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
@@ -18246,6 +18247,8 @@
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.04em;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .cf-dossier-title {

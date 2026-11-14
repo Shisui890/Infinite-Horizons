@@ -565,9 +565,6 @@ export default function EventInspector({
           <div className="counterfactual-dossier-card">
             <div className="cf-dossier-header">
               <span className="cf-dossier-badge">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M3 21h18M3 10h18M5 10v11M9 10v11M15 10v11M19 10v11M12 2L2 7h20L12 2z"/>
-                </svg>
                 <span>E SE NÃO EXISTISSE?</span>
               </span>
               <span className="cf-dossier-title">Cenário Contrafactual</span>
